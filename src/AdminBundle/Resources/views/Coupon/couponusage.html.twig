@@ -1,0 +1,132 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+<style>
+.coupon-usage-div {
+    padding: 10px;
+    border: 1px solid #e2e2e2;
+    margin-top: 18px;
+    border-radius: 8px;
+}
+</style>
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Coupon Usage
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+		<div class="box box-primary">
+          <div class="box-header">
+		  	<div class="col-md-12">
+			  	<a href="{{ path('admin_coupon_couponreport', {'main_coupon_id':main_coupon_id}) }}" class="btn btn-primary pull-right"><i class="fa fa-arrow-left"></i>&nbsp;Back</a>
+			</div>
+		  	<div class="col-md-12 coupon-usage-div">
+			  	<div class="col-md-8">
+					{% if coupon is defined and coupon is not empty %}
+						<h4><b>Coupon Name :</b> {{ coupon[0].coupon_name }} ({{ coupon[0].coupon_code }})</h4>
+						<h4><b>Coupon Category :</b> {{ coupon[0].coupon_category_name }}</h4>
+					{% endif %}
+				</div>
+				<div class="col-md-4">
+					{% if user is defined and user is not empty %}
+						<h4><b>User Name :</b> {{ user[0].user_firstname }} {{ user[0].user_lastname }}</h4>
+						<h4><b>Email :</b> {{ user[0].email }}</h4>
+						<h4><b>Mobile No :</b> {{ user[0].user_mobile }}</h4>
+					{% endif %}
+				</div>
+			</div>
+		  </div>
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				<th>Order No</th>
+				<th>Package Amount</th>
+				<th>Payment Amount</th>
+				<th>Discount</th>
+				<th>Date Of Use</th>
+              </thead>
+              <tbody>
+			  {%if coupon_usage is not empty and coupon_usage is defined%}
+			    {%for usage in coupon_usage %}
+                <tr>
+					<td>{{loop.index}}</td>
+					<td>
+						<a href="{{path('admin_orders_vieworder',{'order_master_id':usage.order_master_id})}}" target="_blank" data-toggle="tooltip" title="View Order">{{usage.unique_no}}</a>
+					</td>
+					<td>{{usage.package_amount}}</td>
+					<td>{{usage.payment_amount}}</td>
+					<td>{{usage.promo_code_discount}}</td>
+					<td>{{usage.date_of_use}}</td>
+				</tr>
+				{%endfor%}
+			  {%endif%}
+              </tbody>
+              <tfoot>
+                <th>No</th>
+				<th>Order No</th>
+				<th>Package Amount</th>
+				<th>Payment Amount</th>
+				<th>Discount</th>
+				<th>Date Of Use</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_status(main_coupon_id,status){
+		$.ajax({
+			url : "{{path('admin_coupon_changecouponstatus')}}",
+			method : "POST",
+			data : {'main_coupon_id':main_coupon_id,'status':status},
+			success : function(data){
+				console.log('done');
+			}
+		});
+	}
+	
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block title %}Nutrezee : Monthly Sales Report{% endblock %}
+{% block content %}
+    <style>
+        .bg-444{
+            background-color: #444 !important;
+            color: #e2e2e2;
+        }
+    </style>
+    <section class="content-header">
+        <!-- PAGE TITLE -->
+        <h1>
+           Monthly Sales report
+        </h1>
+        <!-- BREADCUMB -->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">           
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form name="filterdatewise" method="Post" action = "{{path('admin_salesreports_index')}}">
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <div class="col-md-5 pull-left">
+                                                <label>Select Year</label>
+                                                <select name="year_filter" class="form form-control" value="" >
+                                                    {%if years is defined and years is not empty %}
+                                                        {%for yearskey in years %}
+                                                            <option name="{{yearskey}}" {%if selected_filter_year == yearskey %} selected {%endif%}>{{yearskey}}</option>
+                                                        {%endfor%}
+                                                    {%endif%}
+                                                </select>
+                                            </div>
+
+                                            <!-- DATE filter -->
+                                            <div class="col-md-6">
+                                                <label>Select Date</label>
+                                                <input type="text" name="date_filter" value="{% if selected_filter_date is defined and selected_filter_date is not empty %}{{ selected_filter_date }}{% endif %}" class="form-control datepicker" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="col-md-4">
+                                                <input type="submit" name="submit" value="Filter" class="btn btn-success"/>
+                                                <a class="btn btn-default cancel-btn" href="{{path('admin_product_index')}}" >Clear</a>
+                                            </div>
+                                        </div>        
+                                    </div>  
+                                </form>      
+                            </div>
+                        </div>
+                    </div>
+                
+
+                    {% if selected_filter_date_obj is defined and selected_filter_date_obj is not empty %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% if selected_filter_date_obj.on_same_day %}
+                            <div class="col-lg-1 col-xs-6"></div>
+                            <div class="col-lg-4 col-xs-6">
+                                <!-- small box -->
+                                <div class="small-box bg-444">
+                                    <div class="inner">
+                                        <p class="text-center">{{ selected_filter_date | date('d-m-Y') }}</p>
+                                        <h4>Total Purchase : <b>{{ selected_filter_date_obj.on_same_day.total_orders }}</b></h4>
+                                        <h4>Total Amount : <b>{{ selected_filter_date_obj.on_same_day.total_value | number_format(2) }}</b></h4>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="ion ion-bag"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-1 col-xs-6"></div>
+                            <div class="col-lg-4 col-xs-6">
+                                <!-- small box -->
+                                <div class="small-box bg-444">
+                                    <div class="inner">
+                                        <p class="text-center">{{ selected_filter_date_obj.of_that_month.first_date_of_month | date('d-m-Y') }}&nbsp; To &nbsp;{{ selected_filter_date | date('d-m-Y') }}</p>
+                                        <h4>Total Purchase : <b>{{ selected_filter_date_obj.of_that_month.total_orders }}</b></h4>
+                                        <h4>Total Amount : <b>{{ selected_filter_date_obj.of_that_month.total_value | number_format(2) }}</b></h4>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="ion ion-bag"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+        
+                    <div class="box-body table-responsive">
+                        <table class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                                <th>No</th>
+                                <th>Month , {{selected_filter_year}} </th>
+                                <th>Total Purchase</th>
+                                <th>Total Purchase Value</th>
+                                {#<th>Total Sales Cost</th>#}
+                                <th>View</th>
+                                
+                            </thead>
+                            <tbody>
+                                {%if month_array is defined and month_array is not empty %}
+                                    {%for month_array in month_array %}
+                                        <tr>
+                                            <td>{{loop.index}}</td>
+                                            <td>{{month_array.month}} , {{selected_filter_year}}</td>
+                                            <td>{{month_array.total_orders}}</td>
+                                            <td>{{month_array.sales_value}}</td>
+                                            {#<td></td>#}
+                                            <td><a href="{{path('admin_salesreports_detailssalesreport',{'month':month_array.month,'selected_year':selected_filter_year})}}" target="_blank"><input type="button" class="btn btn-success btn-xs" value="Month-wise Revenue report"/> </a></td>
+                                            
+                                        </tr>
+                                    {%endfor%}
+                                {%else%}
+                                    <tr><td colspan="8" class="text-center">No Records Found </td></tr>
+                                {%endif%}
+                                
+                            </tbody>
+                            <tfooter>
+                                <th>No</th>
+                                <th>Month</th>
+                                <th>Total Purchase</th>
+                                <th>Total Purchase Value</th>
+                                {# <th>Total Sales Cost</th>#}
+                                <th>View</th>
+                            </tfooter>
+                        </table>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $('.datepicker').datepicker({  format: 'yyyy-mm-dd', });
+   	$('.example').DataTable( {
+             dom: 'Bfrtip',
+
+            buttons: [
+                'copy', 'excel', 'pdf'
+            ],
+             paging: false
+        } );
+    });
+    </script>	
+{% endblock %}

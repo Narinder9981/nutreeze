@@ -1,0 +1,285 @@
+<?php
+
+ 
+
+error_reporting(E_ALL & ~E_NOTICE);
+
+//?custname=customername&custemail=customer@manzelleapp.com&phone=999999999&totAmount=1.500&productnames=Subscription&order_id_app=66666666
+
+include('settings.php');
+
+ 
+
+
+
+$custname  = @strip_tags($_REQUEST['custname']);
+
+$custemail = @strip_tags($_REQUEST['custemail']);
+
+$custemobile = @strip_tags($_REQUEST['phone']);
+
+$totAmount =  @strip_tags($_REQUEST['totAmount']);
+
+$productnames =  @strip_tags($_REQUEST['productnames']);
+
+$membership_id =  @strip_tags($_REQUEST['membership_id']);
+
+$user_id =  @strip_tags($_REQUEST['user_id']);
+
+$insid = @strip_tags($_REQUEST['order_id_app']);
+
+$udf1 =  @$insid;
+
+$udf2 =  @$totAmount;
+
+/*
+
+$custname  ='Test customer';
+
+$custemail = 'rejeesh@design-master.com';
+
+$custemobile = '99999';
+
+$totAmount =  '1.500';
+
+$productnames =  'Test product';
+
+$insid =  '15';
+
+$udf1 =  @$insid;
+
+$udf2 =  @$totAmount;*/
+
+
+$expression = $custname &&   $custemail && $custemobile  && $totAmount  && $productnames && $user_id && $insid ;
+
+
+ if (empty($expression)   ) {
+
+	$fielderrorurl ='result.php';
+
+	$ResponseMessage ='Transaction not initialized ';
+
+  header("location:".$fielderrorurl."?msg=" . $ResponseMessage); 
+
+  exit();
+
+}  
+
+
+//$merchantReferenceID =  time();// ReferenceID- Merchant Reference Number (Required – Unique Value Maximum Characters (20) – Example 201454542102)
+
+$randval = rand(10000,99999);
+
+$merchantReferenceID = uniqid().$randval;
+
+$post_string = '<?xml version="1.0" encoding="windows-1256"?>
+
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+
+  <soap12:Body>
+
+    <PaymentRequest xmlns="http://tempuri.org/">
+
+      <req>
+
+        <CustomerDC>
+        
+          <Userid>'.$user_id.'</Userid>
+               
+          <Name>'.$custname.'</Name>
+
+          <Email>'.$custemail.'</Email>
+
+          <Mobile>'.$custemobile.'</Mobile>
+
+        </CustomerDC>
+
+        <MerchantDC>
+
+          <merchant_code>'.$merchantcode.'</merchant_code>
+
+          <merchant_username>'.$merchantusername.'</merchant_username>
+
+          <merchant_password>'.$merchantpassword.'</merchant_password>
+
+          <merchant_ReferenceID>'.$merchantReferenceID.'</merchant_ReferenceID>
+
+          <ReturnURL>'.$returnurl.'</ReturnURL>
+
+          <merchant_error_url>'.$merchanterrorurl.'</merchant_error_url>
+
+		  <udf1>'.$udf1.'</udf1>
+
+		  <udf2>'.$udf2.'</udf2>
+
+        </MerchantDC>
+
+        <lstProductDC>
+
+          <ProductDC>
+
+            <product_name>'.$productnames.'</product_name>
+                
+            <membership_id>'.$membership_id.'</membership_id>
+
+            <unitPrice>'.$totAmount.'</unitPrice>
+
+            <qty>1</qty>
+
+          </ProductDC>
+
+        </lstProductDC>
+
+      </req>
+
+    </PaymentRequest>
+
+  </soap12:Body>
+
+</soap12:Envelope>';
+
+ //echo $post_string;
+
+   //     exit();
+
+$soap_do = curl_init();
+
+curl_setopt($soap_do, CURLOPT_URL,$url );
+
+curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10);
+
+curl_setopt($soap_do, CURLOPT_TIMEOUT, 10);
+
+curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
+
+curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
+
+curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false);
+
+curl_setopt($soap_do, CURLOPT_POST, true );
+
+curl_setopt($soap_do, CURLOPT_POSTFIELDS, $post_string);
+
+curl_setopt($soap_do, CURLOPT_HTTPHEADER, array('Content-Type: text/xml; charset=utf-8', 'Content-Length: '.strlen($post_string) ));
+
+curl_setopt($soap_do, CURLOPT_USERPWD, $merchantusername . ":" . $merchantpassword);// --- User Name, Password To be provided by Myfatoorah
+
+curl_setopt($soap_do, CURLOPT_HTTPHEADER, array(
+
+'Content-type: text/xml'
+
+));
+
+  
+
+$result = curl_exec($soap_do);
+
+$err = curl_error($soap_do);
+
+$file_contents = htmlspecialchars(curl_exec($soap_do));
+
+curl_close($soap_do);
+
+$doc = new DOMDocument();
+
+$doc->loadXML(html_entity_decode($file_contents));
+
+$ResponseCode = $doc->getElementsByTagName("ResponseCode");
+
+$ResponseCode = $ResponseCode->item(0)->nodeValue;
+
+$paymentUrl = $doc->getElementsByTagName("paymentURL");
+
+$paymentUrl = $paymentUrl->item(0)->nodeValue;
+
+$referenceID = $doc->getElementsByTagName("referenceID");
+
+$referenceID = $referenceID->item(0)->nodeValue;
+
+$ResponseMessage = $doc->getElementsByTagName("ResponseMessage");
+
+$ResponseMessage = $ResponseMessage->item(0)->nodeValue;
+
+if ($ResponseCode == 0) {
+  if($referenceID){
+
+    date_default_timezone_set('Asia/Kuwait');
+
+    $current_date = date("Y-m-d H:i:s");
+
+    $select = "SELECT * FROM `order_master` WHERE order_master_id='$udf1'";
+    $res = db_query($select); 
+    $count = mysqli_num_rows($res);
+    if($count == 0){
+
+      $insert = "
+        INSERT INTO `order_master` (`order_by`, `unique_no`, `package_id`, `sub_package_id`, `delivery_address_id`, `order_status`, `domain_id`, `delivery_datetime`, `package_amount`, `package_for`, `consulatant_fee`, `promo_code_discount`, `payment_amount`, `payment_type`, `created_date`, `last_modified`, `start_date`, `end_date`, `transaction_id`, `created_by`, `is_deleted`)
+          VALUES ($user_id, '', 0, '0', '0', 'cancel', '1', '".date('Y-m-d H:i:s')."', '0', '0', '0', '0', 0, 'cash', '".date('Y-m-d H:i:s')."', '".date('Y-m-d H:i:s')."', '".date('Y-m-d H:i:s')."', '".date('Y-m-d H:i:s')."', '0', '$user_id', '0');
+      ";              
+
+      $result = db_query($insert);
+      header("location:".$paymentUrl."");
+
+      exit();
+    
+    }else{
+      header("location:".$merchanterrorurl."?msg=Invalid unique value");
+      exit();
+    }
+  
+
+  } else{
+
+    header("location:".$merchanterrorurl."?msg=" . $ResponseMessage);
+
+    exit();
+
+  }
+
+} else {
+
+  header("location:".$merchanterrorurl."?msg=" . $ResponseMessage);
+
+  exit();
+
+}	
+ 
+  function db_connect() {
+
+    //enter your MySQL database host name, often it is not necessary to edit this line
+    $db_host = "localhost";
+    //enter your MySQL database username
+    $db_username = "imanag7_muscle_fuel_v1";
+    //enter your MySQL database password
+
+    $db_password = "muscle_fuel_v1";
+    //enter your MySQL database name
+    $db_name = "imanag7_muscle_fuel_v1";
+
+
+    $connection = mysqli_connect($db_host, $db_username, $db_password, $db_name);
+    //mysql_set_charset('utf8',$connection);
+    date_default_timezone_set('Asia/Kuwait');
+
+    // If connection was not successful, handle the error
+    if ($connection === false) {
+        // Handle error - notify administrator, log to a file, show an error screen, etc.
+        return mysqli_connect_error();
+    } else {
+        return $connection;
+    }
+  }
+
+    function db_query($query) {
+        // Connect to the database
+        $connection = db_connect();
+
+        // Query the database
+        $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
+
+        return $result;
+    }
+ 
+
+ ?>

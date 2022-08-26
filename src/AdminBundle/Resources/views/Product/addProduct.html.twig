@@ -1,0 +1,898 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Add Product
+            <small></small>
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Product</h3>
+                    </div>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body">
+                        {% if language_list is defined  and language_list is not empty%}
+                           
+                            <!-- tab-content -->
+                            <div class="tab-content">
+                                {% set main_product_master_id = 0 %}
+                                {% set main_product_category_id = 0 %}
+                                {% set product_image = '' %}
+                                {% set product_status = '' %}
+                                {% set product_combo = null %}
+                                {% set product_combo1 = null %}
+                                {% set package_ids = null %}
+                                {% set product_nutrition = '' %}
+                                {% set product_fat = '' %}
+                                {% set product_calory = '' %}
+                                {% set product_prot = '' %}
+                                {% set product_carb = '' %}
+                                {% set product_fiber = '' %}
+                                {% set new_combo = null %}
+                                {%set style_dis = ''%}
+
+                                {% for language in language_list %}
+                                    <div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+
+                                        {% set action = path('admin_product_saveproduct') %}
+                                        {% set product_name = '' %}
+                                        {% set product_name_ar = '' %}
+                                        {% set product_description = '' %}
+                                        {% set product_max_meal_value = 1 %}
+                                        {% set package_id = '' %}
+                                        {% if main_product is defined and main_product is not empty %}
+
+                                            {% for main_product in main_product %}
+                                                {% set new_combo = main_product.combo_array_detail %}	
+
+                                                {% if main_product.language_id == language.language_master_id %}
+
+                                                    {% set main_product_master_id = main_product.main_product_master_id %}
+                                                    {% set main_product_category_id = main_product.main_product_category_id %}
+                                                    {% set product_image = main_product.img_url %}
+                                                    {% set product_status = main_product.product_status %}
+                                                    {% set product_name = main_product.product_name %}
+                                                    {% set product_name_ar = main_product.product_name_ar %}
+                                                    {% set product_combo = main_product.new_combo %}
+                                                    {% set product_combo1 = main_product.product_combo1 %}
+                                                    {% set package_id = main_product.package_id %}
+                                                    {% set product_description = main_product.product_description %}
+                                                    {% set product_fat = main_product.fat %}
+                                                    {% set product_calory = main_product.calory %}
+                                                    {% set product_fiber = main_product.fiber %}
+                                                    {% set product_prot = main_product.prot %}
+                                                    {% set product_carb= main_product.carb %}
+                                                    {% set product_nutrition = main_product.product_nutrition %}
+                                                    {% set product_max_meal_value = main_product.max_meal_value %}
+                                                    {% set package_ids = main_product.package_ids %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        <form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+
+                                            <input type="hidden" name="main_product_master_id" value="{{ main_product_master_id }}">
+                                            <input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Product Name</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <input class="form-control" name="product_name" value="{{product_name}}" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                             </br> 
+                                             <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Product Name(Ar)</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <input class="form-control text-right" name="product_name_ar" value="{{product_name_ar}}" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                               
+                                            {#	</br>	
+                                            <div class="row">
+                                                    <div class="col-md-12">
+                                                            <div class="col-md-2">
+                                                                <label>Product Description</label>
+                                                            </div>
+                                                            <div class="col-md-10">
+                                                                <textarea id="editor1" class="ckeditor" name="product_description">{{ product_description }}</textarea>
+                                                            </div>
+                                                    </div>
+                                                    
+                                            </div> #}
+                                            <input type="hidden" name="product_description" value=""/>
+                                            </br>		
+                                            <div class="row hide">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Nutrition Value</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <textarea id="editor1" class="ckeditor" name="product_nutrition">{{ product_nutrition }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                           
+                                            <!-- </br>    -->
+                                              <!-- <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Fiber</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <input type="textbox" class="form-control" name="product_fiber" value="{{ product_fiber }}" />
+                                                    </div>
+                                                
+                                                   
+                                                </div>
+
+                                            </div> -->
+                                            </br>   
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Product Package</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <select id="product_package" name="product_package[]" class="form-control selectpicker" multiple required onchange="getSubpackage($(this).val)">
+                                                            {%if package is not empty%}
+                                                                {%for package in package %}
+                                                                    {%if language.language_master_id == package.language_id%}
+                                                                        <option value="{{package.main_package_master_id}}" {%if package.main_package_master_id in package_ids%}selected{%endif%}>{{package.package_name}}</option>
+                                                                    {%endif%}
+                                                                {%endfor%}
+                                                            {%endif%}
+                                                        </select>
+                                                    </div>                                               
+                                                    
+                                                     <div class="col-md-2 hide ">
+                                                        <label>Meal Max Value</label>
+                                                    </div>
+                                                    <div class="col-md-4 hide">
+                                                       <input type="text" name="meal_max_value" class="form-control" placeholder="Meal Max Value" value="{{product_max_meal_value}}" /> 
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <label>Product Meal Type</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <select name="main_product_category_id" class="form-control selectpicker" id="meal_type" required>
+                                                            <option value="">Select Meal type</option>
+                                                            {% if product_cat is defined and product_cat is not empty %}
+                                                                {%for product_cat in product_cat%}
+                                                                    {% if product_cat.language_id == language.language_master_id %}
+                                                                        <option value="{{product_cat.main_product_category_master_id}}" {%if product_cat.main_product_category_master_id == main_product_category_id%} selected{%endif%}>
+                                                                            {{product_cat.product_category_name}}				
+                                                                        </option>
+                                                                    {%endif%}	
+                                                                {%endfor%}
+                                                            {% endif%}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {% set display_package_wise = '' %}
+                                            {% set display_none = 'checked' %}
+
+                                            {% set display_prot_carb = '' %}
+
+                                            {% if combo_display is defined and combo_display is not empty %}
+                                                {% for combo_display in combo_display %}
+                                                    {% if combo_display.combo_type == 'package_wise' %}
+                                                        {% set display_package_wise = 'checked' %}
+                                                        {% set display_none = '' %}
+
+                                                    {% endif %}
+
+                                                    {% if combo_display.combo_type == 'prot_carb' %}
+                                                        {% set display_prot_carb = 'checked' %}
+                                                        {% set display_none = '' %}
+                                                    {% endif %}
+
+                                                {% endfor %}
+                                            {% endif %}
+                                             </br>	
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Default with Product</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <div class="col-md-2">
+                                                            <label>Calory</label>
+                                                            <input type="textbox" class="form-control" name="product_calory" value="{{ product_calory }}" />
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <label>Fat</label>
+                                                            <input type="textbox" class="form-control" name="product_fat" value="{{ product_fat }}" />
+                                                        </div>
+
+                                                        <div class="col-md-2">
+                                                            <label>Proteins</label>
+                                                            <input type="textbox" class="form-control" name="product_prot" value="{{ product_prot }}" />
+                                                        </div>
+                                                    
+                                                        <div class="col-md-2">
+                                                            <label>Carbohydrate</label>
+                                                            <input type="textbox" class="form-control" name="product_carb" value="{{ product_carb }}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            </br>  
+                                            <div class="append_data_of_packagewise">
+
+                                            </div>    
+                                            
+                                            </br>	 
+                                            
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Include with Product</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <label class="radio-inline" >
+                                                            <input type='radio' class="display_in_app" name='display_in_app' value='prot_carb' {{display_prot_carb}} onchange="call_another_function();" >
+                                                            Protein / Carb
+                                                        </label>
+                                                         <label class="radio-inline" >
+                                                            <input type='radio' class="display_in_app" name='display_in_app' value='none' {{display_none}} selected  onchange="call_another_function();" >
+                                                            None
+                                                        </label>
+                                                        <label class="radio-inline" >
+                                                            <input type='radio' class="display_in_app" name='display_in_app' value='package_wise' {{display_package_wise}} onchange="call_another_function();" >
+                                                            Package Wise
+                                                        </label>                                                        
+                                                       
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </br>	
+
+                                            <div class="row">
+                                                <div id="b_combo" style="display:block;">         
+                                                </div>
+                                            </div>
+                                            </br>
+                                            
+                                            <div class="row">
+                                                <div id="b_combo1" style="display:none;">
+                                                    {#
+                                                    <div class="col-md-2">
+                                                            <label></label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                            <em>*</em><label>Leave below details blank if doesnt want to show in App.</label>
+                                                    </div>
+                                                    #}
+
+                                                    {% if display_none == '' %}
+                                                        {% if new_combo is defined and new_combo is not empty %}
+                                                            {% for new_combo in new_combo %}
+                                                                <div class='col-md-12 form-group'>
+                                                                    <div class="col-md-2"></div>
+                                                                    <div class="col-md-2">
+                                                                        <label data-toggle="tooltip" data-original-title="{{new_combo['combo_str']}}" >{{ new_combo['package_name'] ~ "-( Grams :  "~ new_combo['grams'] ~ " )"}}</label>
+                                                                    </div>
+
+                                                                    {% set raw_eggs_selected = '' %}
+                                                                    {% set prot_selected = '' %}
+                                                                    {% set carb_selected = '' %}
+                                                                    {% set white_eggs_selected = '' %}
+                                                                    {% set raw_eggs_count = 0 %}
+                                                                    {% set white_eggs_count  = 0 %}
+                                                                    {% set prot_count  = '' %}
+                                                                    {% set carb_count  = '' %}
+
+                                                                    {% if new_combo.combo_array is defined and new_combo.combo_array %}
+
+                                                                        {% for comboDetail in new_combo.combo_array %}
+
+                                                                            {% if comboDetail.prot_type == 'prot'%}
+
+                                                                                {% set prot_selected = 'checked' %}
+                                                                                {% set prot_count = new_combo['grams'] %}																	
+                                                                            {% endif %}
+
+                                                                            {% if comboDetail.prot_type == 'carb'%}
+
+                                                                                {% set carb_selected = 'checked' %}
+                                                                                {% set carb_count = new_combo['grams'] %}																	
+                                                                            {% endif %}
+
+
+                                                                            {% if comboDetail.prot_type == 'raw_eggs'%}
+
+                                                                                {% set raw_eggs_selected = 'checked' %}
+                                                                                {% set raw_eggs_count = comboDetail.prot_crab %}																	
+                                                                            {% endif %}
+
+                                                                            {% if comboDetail.prot_type == 'white_eggs'%}
+                                                                                {% set white_eggs_selected = 'checked' %}	
+                                                                                {% set white_eggs_count = comboDetail.prot_crab %}																	
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                    {% endif %}
+
+                                                                    <div class="col-md-2">
+                                                                        {#
+                                                                                        <label class="checkbox-inline" for="id3-{{ new_combo['sub_package_id'] }}">
+                                                                                                <input id='id3-{{ new_combo['sub_package_id'] }}' type='checkbox' name='radio-{{ new_combo['main_combination_id'] }}' value='prot' {{ prot_selected }} onchange="toogleEggValue($(this),{{ new_combo['sub_package_id'] }},'prot')" >
+                                                                                                Protein
+                                                                                        </label>
+                                                                        #}
+                                                                        <label>Proteins</label>																						<input class="form-control" type="number" name="proteins[{{ new_combo['sub_package_id'] }}]" id="prot_{{ new_combo['sub_package_id'] }}" placeholder="Enter Proteins" value="{{prot_count}}" readonly>
+
+                                                                    </div>
+
+                                                                    <div class="col-md-2">
+                                                                        {#   <label class="checkbox-inline" for="id4-{{ new_combo['sub_package_id'] }}">  <input id='id4-{{ new_combo['sub_package_id'] }}' type='checkbox' name='radio-{{ new_combo['main_combination_id'] }}' value='carb' {{ carb_selected }} onchange="toogleEggValue($(this),{{ new_combo['sub_package_id'] }},'carb')" Carbs </label> #}
+                                                                        <label>Carbs</label>
+
+                                                                        <input class="form-control" type="number" name="carbs[{{ new_combo['sub_package_id'] }}]" id="carb_{{ new_combo['sub_package_id'] }}" placeholder="Enter Carbs" value="{{carb_count}}" readonly>
+
+                                                                    </div>
+
+
+                                                                    <div class="col-md-2">
+                                                                        {#
+                                                                                <label class="checkbox-inline" for="id1-{{ new_combo['sub_package_id'] }}">
+                                                                                        <input id='id1-{{ new_combo['sub_package_id'] }}' type='checkbox' name='radio-{{ new_combo['main_combination_id'] }}' value='raw_eggs' {{ raw_eggs_selected }} onchange="toogleEggValue($(this),{{ new_combo['sub_package_id'] }},'raw')" >
+                                                                                        Raw Eggs
+                                                                                </label>  #}
+                                                                        <label>Raw Eggs</label>														
+
+                                                                        <input class="form-control eggs_input" type="number" name="raw_eggs[{{ new_combo['sub_package_id'] }}]" id="raw_eggs_{{ new_combo['sub_package_id'] }}" placeholder="Enter Raw Eggs" value="{{raw_eggs_count}}" {% if display_prot_carb == 'checked' %} readonly {% endif %}>
+
+                                                                    </div>
+
+                                                                     <div class="col-md-2">
+                                                                        {#
+                                                                                <label class="checkbox-inline" for="id1-{{ new_combo['sub_package_id'] }}">
+                                                                                        <input id='id1-{{ new_combo['sub_package_id'] }}' type='checkbox' name='radio-{{ new_combo['main_combination_id'] }}' value='raw_eggs' {{ raw_eggs_selected }} onchange="toogleEggValue($(this),{{ new_combo['sub_package_id'] }},'raw')" >
+                                                                                        Raw Eggs
+                                                                                </label>  #}
+                                                                        <label>Calorie</label>														
+
+                                                                        <input class="form-control eggs_input" type="number" name="calory[{{ new_combo['sub_package_id'] }}]" id="calory_{{ new_combo['sub_package_id'] }}" placeholder="Enter Calorie" value="{{raw_eggs_count}}">
+
+                                                                    </div>
+
+                                                                    <div class="col-md-2">
+                                                                        
+                                                                        <label class="checkbox-inline" for="id2-{{ new_combo['sub_package_id'] }}">
+                                                                                <input id='id2-{{ new_combo['sub_package_id'] }}' type='checkbox' name='radio-{{ new_combo['main_combination_id'] }}' value='white_eggs' {{ white_eggs_selected }} onchange="toogleEggValue($(this),{{ new_combo['sub_package_id'] }},'white')" >
+                                                                                White Eggs
+                                                                        </label>
+                                                                        
+                                                                        <label>White Eggs</label>
+                                                                        <input type="number" class="form-control eggs_input" name="white_eggs[{{ new_combo['sub_package_id'] }}]" placeholder="Enter White Eggs" id="white_eggs_{{ new_combo['sub_package_id'] }}" value="{{white_eggs_count}}" {% if display_prot_carb == 'checked' %} readonly {% endif %} >
+
+                                                                    </div>
+
+                                                                    <input id='' type='hidden' name='grams[]' value="{{ new_combo['grams'] }}">
+
+                                                                    <input id='' type='hidden' name='subpackid[]' value="{{ new_combo['sub_package_id'] }}">
+
+                                                                </div>	
+                                                            {% endfor %}
+                                                        {% else %}
+
+                                                        {% endif %}
+                                                    {% endif %}
+
+                                                    {# <div class="col-md-12 form-group eggs_field" style="{{style_dis}}">
+                                                            <a href="javascript:void(0)" id="remove_combo_btn" onclick="remove_combo($(this))" class="pull-right btn btn-sm btn-default">Remove</a>
+                                                            <a href="javascript:void(0)" onclick="add_combo($(this))" class="pull-right btn btn-sm btn-primary">Add More</a>
+                                                    </div> #}
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Product Image </br></label>
+                                                    </div>
+                                                    <div class="col-md-10 image-view">
+                                                        <input type='file' class="form-control product_image" name="product_image" required="required"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {%if product_image is defined and product_image != ''%}	
+                                                <script>
+                                                    $('.product_image').removeAttr('required');
+                                                </script>
+                                                <div class="row col-md-offset-2">
+                                                    <a data-fancybox='gallery' href="{{product_image}}">
+                                                        <img src="{{product_image}}" class="img-responsive img-thumbnail" style="height:100px;width:100px">
+                                                    </a>
+                                                </div>
+
+                                            {%endif%}										
+
+                                            </br>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+                                                    <div class="col-md-2">
+                                                        <label>Product Availability </br></label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <div class="week-days">
+                                                            <div class="row">
+                                                                <div>
+                                                                    <input type='checkbox' class='parentweek1 week1' name="product_availability_week[]" value="week1" onchange="selectalldays('week1')" /> Week 1
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div {% if language.language_master_id !=1 %}class="col-md-12"  style="direction: rtl;"{% else %}class="col-md-12"{% endif %}>
+                                                                    {%if days is not empty%}
+                                                                        {%for days in days%}
+                                                                            {% if language.language_master_id == days.language_id %}
+                                                                                {%set checked = ''%}
+                                                                                {%if avail is not empty%}
+                                                                                    {%for avail in avail%}
+                                                                                        {%if avail.main_days_id == days.main_days_master_id and 'week1' in avail.week_id %}
+                                                                                            {%set checked ='checked="checked"'%}
+                                                                                        {%endif%}
+                                                                                    {%endfor%}
+                                                                                {%endif%}
+
+                                                                                <input type='checkbox' class='week1'  name="product_availability_week1[]" value="{{days.main_days_master_id}}" {{checked}}  onchange="selectweekname(this,'parentweek1')" />{% if language.language_master_id !=1 %}&nbsp;&nbsp;{% else %}&nbsp;{% endif %}{{days.days_name}}{% if language.language_master_id !=1 %}&nbsp;&nbsp;&nbsp;{% else %}&nbsp;&nbsp;{% endif %}
+                                                                            {%endif%}
+                                                                        {%endfor%}
+                                                                    {%endif%}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="week-days">
+                                                            <div class="row">
+                                                                <div>
+                                                                    <input type='checkbox' class='parentweek2 week2'  name="product_availability_week[]" value="week2"  onchange="selectalldays('week2')" /> Week 2
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div {% if language.language_master_id !=1 %}class="col-md-12"  style="direction: rtl;"{% else %}class="col-md-12"{% endif %}>
+                                                                    {%if days is not empty%}
+                                                                        {%for days in days%}
+                                                                            {% if language.language_master_id == days.language_id %}
+                                                                                {%set checked = ''%}
+                                                                                {%if avail is not empty%}
+                                                                                    {%for avail in avail%}
+                                                                                        {%if avail.main_days_id == days.main_days_master_id  and 'week2' in avail.week_id %}
+                                                                                            {%set checked ='checked="checked"'%}
+                                                                                        {%endif%}
+                                                                                    {%endfor%}
+                                                                                {%endif%}
+
+                                                                                <input type='checkbox' class='week2'  name="product_availability_week2[]" value="{{days.main_days_master_id}}" {{checked}} onchange="selectweekname(this,'parentweek2')" />{% if language.language_master_id !=1 %}&nbsp;&nbsp;{% else %}&nbsp;{% endif %}{{days.days_name}}{% if language.language_master_id !=1 %}&nbsp;&nbsp;&nbsp;{% else %}&nbsp;&nbsp;{% endif %}
+                                                                            {%endif%}
+                                                                        {%endfor%}
+                                                                    {%endif%}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Status</label>
+                                                    </div>
+                                                    {%set active_check = ''%}
+                                                    {%set inactive_check = ''%}
+                                                    {%if product_status == 'active'%}
+                                                        {%set active_check = 'checked'%}
+                                                    {%endif%}
+                                                    {%if product_status == 'inactive'%}
+                                                        {%set inactive_check = 'checked'%}
+                                                    {%endif%}												
+                                                    <div class="col-lg-8" style="margin-left:0;">
+                                                        <label class="radio-inline">
+                                                            <input required type="radio" name="product_status" value="active" {{active_check}}>Active
+                                                        </label>
+                                                        <label class="radio-inline">
+                                                            <input required type="radio" name="product_status" value="inactive" {{inactive_check}}>Inactive
+                                                        </label>
+                                                    </div>												
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Ingredients</label>
+                                                    </div>
+                                                    <div class="col-md-4" style="margin-left:0;">
+                                                        <select id="ingredient"  name="product_ingredient[]" class="form-control selectpicker" multiple required>
+                                                            {%if ingredients is not empty%}
+                                                                {%for ingredients in ingredients %}
+                                                                    {%if language.language_master_id == ingredients.language_id%}
+                                                                        <option value="{{ingredients.ingredient_master_id}}" {%if ingredient_ids is defined and ingredient_ids is not empty%} {%if ingredients.ingredient_master_id in ingredient_ids%}selected{%endif%} {%endif%}>{{ingredients.name}}</option>
+                                                                    {%endif%}
+                                                                {%endfor%}
+                                                            {%endif%}
+                                                        </select>
+                                                    </div>   
+                                                                                               
+                                                    <div class="col-md-2">
+                                                        <label>Allergies</label>
+                                                    </div>
+                                                    <div class="col-md-4" style="margin-left:0;">
+                                                        <select id="allergies"  name="product_allergy[]" class="form-control selectpicker" multiple required>
+                                                            {%if allergies is not empty%}
+                                                                {%for allergies in allergies %}
+                                                                    {%if language.language_master_id == allergies.language_id%}
+                                                                        <option value="{{allergies.allergy_master_id}}" {%if allergy_ids is defined and allergy_ids is not empty%} {%if allergies.allergy_master_id in allergy_ids%}selected{%endif%}{%endif%}>{{allergies.name}}</option>
+                                                                    {%endif%}
+                                                                {%endfor%}
+                                                            {%endif%}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mrgnTop">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-12 btn-sec">
+                                                        <button type="submit" name="submit" class="btn btn-success" value="{{ language.language_master_id }}">
+                                                            <span><i class="fa fa-check-square-o"></i>&nbsp;
+                                                                {% if main_product is defined and main_product is not empty %}Update{%else%}Save{%endif%}	
+                                                            </span>
+                                                        </button>
+                                                         <a href="{{path('admin_product_index')}}" name="cancel" class="btn btn-default cancel-btn">
+                                                            <span><i class="fa fa-times"></i>&nbsp;
+                                                                Cancel	
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                            <!-- end: tab-content -->
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+
+        
+
+        function toogleEggValue(element, sub_pk_id, type) {
+
+            if (element.is(':checked') == false) {
+
+                if (type == 'raw') {
+                    $("#raw_eggs_" + sub_pk_id).val('');
+                }
+                if (type == 'white') {
+                    $("#white_eggs_" + sub_pk_id).val('');
+                }
+
+                if (type == 'prot') {
+                    $("#prot_" + sub_pk_id).val('');
+                }
+
+                if (type == 'carb') {
+                    $("#carb_" + sub_pk_id).val('');
+                }
+
+            } else {
+
+            }
+        }
+        function selectalldays(weekname){
+            var currentweekvalue = $('.'+weekname).prop("checked");
+            if(currentweekvalue){           
+                $('.'+ weekname).prop('checked', true);
+            }
+            else{
+                $('.'+ weekname).prop('checked', false);
+            }
+        }
+        function selectweekname(weekname,parentweekname){
+
+            var currentweekvalue = $(weekname).prop("checked");
+            //alert(currentweekvalue);
+            if(currentweekvalue){           
+                $('.'+ parentweekname).prop('checked', true);
+            }
+        }
+        $(document).ready(function (weekname) {
+
+
+            $('[data-toggle="tooltip"]').tooltip();
+            getSubpackage($('#product_package').val());
+
+            $('#product_package').change(function () {
+                /*
+                 if($('#product_package').val() != '0'){
+                 $('#b_combo').css({'display': 'block'});
+                 getSubpackage($('#product_package').val());
+                 } else {
+                 $('#b_combo').css({'display': 'none'});
+                 }
+                 */
+                 $('.append_data_of_packagewise').css({'display': 'block'});
+                if ($("input[name='display_in_app']:checked").val() == 'package_wise') {
+                    $("#product_package option:selected").each(function () {
+                        packageID = $(this).val();
+                        var packagename = $("#product_package option[value='"+packageID+"']").text();
+                        if($('[name="product_meal['+packageID+'][calory]"]').length == 0){
+                            html_for_packagewiseData = '';
+                            html_for_packagewiseData += '<div class="row">';
+                            html_for_packagewiseData += '<div class="col-md-12">';
+                            html_for_packagewiseData += '<div class="col-md-2">';
+                            html_for_packagewiseData += '<label>Default with Product [ '+packagename+' ]</label>';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '<div class="col-md-10" style="margin-left:0;">';
+                            html_for_packagewiseData += '<div class="col-md-2">';
+                            html_for_packagewiseData += '<label>Calory</label>';
+                            html_for_packagewiseData += '<input type="textbox" class="form-control" name="product_meal['+packageID+'][calory]" value="0" />';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '<div class="col-md-2">';
+                            html_for_packagewiseData += '<label>Fat</label>';
+                            html_for_packagewiseData += '<input type="textbox" class="form-control" name="product_meal['+packageID+'][fat]" Fat" value="0" />';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '<div class="col-md-2">';
+                            html_for_packagewiseData += '<label>Proteins</label>';
+                            html_for_packagewiseData += '<input type="textbox" class="form-control" name="product_meal['+packageID+'][protein]" value="0" />';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '<div class="col-md-2">';
+                            html_for_packagewiseData += '<label>Carbohydrate</label>';
+                            html_for_packagewiseData += '<input type="textbox" class="form-control" name="product_meal['+packageID+'][carb]" value="0" />';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '</div>';
+                            html_for_packagewiseData += '</div></br>';
+                            $('.append_data_of_packagewise').append(html_for_packagewiseData);        
+                        }
+                    });
+                   
+                }
+                //getSubpackage($('#product_package').val());
+
+            });
+
+            $('.display_in_app').change(function () {
+                if ($(this).is(':checked')) {
+                    if ($(this).val() == 'prot_carb') {
+                        $('#b_combo').css({'display': 'block'});
+                        $('.eggs_input').val(0);
+                        $('.eggs_input').attr("readonly", "readonly");
+
+                    }
+
+                    if ($(this).val() == 'eggs') {
+                        $('.eggs_input').removeAttr("readonly");
+
+                        $('#b_combo').css({'display': 'block'});
+                    }
+
+                    if ($(this).val() == 'none') {
+                        $('#b_combo').css({'display': 'none'});
+                    }
+                }
+            });
+        });
+        function call_another_function() {
+            if ($("input[name='display_in_app']:checked").val() == 'package_wise') {
+                getSubpackage($('#product_package').val());
+            }
+            if ($("input[name='display_in_app']:checked").val() == 'none') {
+                $('.append_data_of_packagewise').html('');
+            }
+            if ($("input[name='display_in_app']:checked").val() == 'prot_carb') {
+                getSubpackage($('#product_package').val());
+            }
+            
+        }
+
+        function getSubpackage(main_pk_id) {    
+            
+            var product_master_id = "{{main_product_id}}";
+            var mealType = $('.display_in_app:checked').val();
+            /*
+             if($('#meal_type').val() != '1'){
+             $('#b_combo').css({'display': 'none'});
+             return false;
+             }
+             */
+            var pk_ids = []
+            $("#product_package option:selected").each(function () {
+                pk_id_single = {'pk_id': $(this).val()};
+                pk_ids.push(pk_id_single);
+
+            });
+
+            $.ajax ({
+                url: "{{path('admin_product_getsubpackages')}}",
+                data: {'pk_ids': JSON.stringify(pk_ids), 'product_master_id': product_master_id, 'meal_type': mealType},
+                method: "POST",
+                success: function (data) {
+                    var res = JSON.parse(data);
+                    if (res['success'] == true) {
+                        
+                        if ($("input[name='display_in_app']:checked").val() == 'prot_carb') {
+                            $('.eggs_input').val(0);
+                            $('.eggs_input').attr("readonly", "readonly");                            
+                            $('.append_data_of_packagewise').css({'display': 'none'});
+                            $('#b_combo').css({'display': 'block'});
+                            $('#b_combo').html(res['html']);
+                        }
+
+                        if ($("input[name='display_in_app']:checked").val() == 'package_wise') {
+                            $('#b_combo').css({'display': 'none'});
+                            $('.append_data_of_packagewise').css({'display': 'block'});                           
+                            $('.append_data_of_packagewise').html(res['html']);
+                        }
+
+                        if ($("input[name='display_in_app']:checked").val() == 'none') {
+                            $('#b_combo').css({'display': 'none'});
+                            $('.append_data_of_packagewise').css({'display': 'none'});   
+                        }
+
+                        $('[data-toggle="tooltip"]').tooltip();
+
+
+                    }
+                    //$('.sub_pk').html(data);
+                }
+            });
+        }
+
+        function remove_combo(element) {
+
+            if (element.parents('div').siblings(".first_one").length > 1) {
+                var elemnt_first = element.parents('div').prev(".first_one:last");
+                elemnt_first.remove();
+            }
+
+            if (element.parents('div').siblings(".first_one").length == 1) {
+                $('#remove_combo_btn').hide();
+            }
+        }
+
+        function add_combo(element) {
+            var elemnt_last;
+            if ($(".first_one").length > 1) {
+                $('#remove_combo_btn').show();
+            } else {
+                $('#remove_combo_btn').hide();
+            }
+
+            element.parents('div').siblings(".first_one:last").clone().insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+
+            /*		elemnt_last = element.parents('div').prev(".first_one");
+             console.log(elemnt_last.html());
+             var html = element.parents('div').prev(".first_one").html(); 
+             html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+
+             elemnt_last.after(html).find("input[type='number']").val("");
+             //.find("input[type='number']").val("") */
+        }
+        function remove_combo1(element) {
+
+            if (element.parents('div').siblings(".first_one").length > 1) {
+                var elemnt_first = element.parents('div').prev(".first_one:last");
+                elemnt_first.remove();
+            }
+
+            if (element.parents('div').siblings(".first_one").length == 1) {
+                $('#remove_combo_btn1').hide();
+            }
+        }
+
+        function add_combo1(element) {
+            var elemnt_last;
+            if ($(".first_one").length > 1) {
+                $('#remove_combo_btn1').show();
+            } else {
+                $('#remove_combo_btn1').hide();
+            }
+
+            element.parents('div').siblings(".first_one:last").clone().insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+
+            /*		elemnt_last = element.parents('div').prev(".first_one");
+             console.log(elemnt_last.html());
+             var html = element.parents('div').prev(".first_one").html(); 
+             html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+
+             elemnt_last.after(html).find("input[type='number']").val("");
+             //.find("input[type='number']").val("") */
+        }
+        $(function () {
+
+            if ($('.first_one').length <= 2) {
+                $('#remove_combo_btn').hide();
+            }
+
+            $('.editor1cls').each(function (e) {
+                CKEDITOR.replace(this.id);
+            });
+        });
+
+        $(document).ready(function () {
+
+            $('[data-fancybox="gallery"]').fancybox({
+                // Options will go here
+            });
+
+        });
+
+        /* function toggleEggsFields(type_meal){
+         //breakfast
+         if(type_meal == "1"){
+         $('.eggs_field').show();
+         }else{
+         $('.eggs_field').hide();		
+         } 
+         } */
+
+    </script>	
+{% endblock %}

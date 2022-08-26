@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">	
+<title>Meal Sticker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">	
+	
+<style type="text/css" media="print">
+	
+body 		{width: 75mm; height: 50mm; font-family: 'Roboto', sans-serif; font-size: 0.813rem; color: #333333;}	
+
+@page		{size: 75mm 50mm;}
+@page 		{size: landscape;}
+@page 		{}
+	
+@media print {
+	
+.wrapper		{page-break-after: always; width: 75mm; height: 50mm; line-height: normal; display: table;}
+	
+.wrapper-in		{display: table-cell; vertical-align: middle;}
+	
+.row-a			{margin-bottom: .5rem; padding-bottom: .5rem; border-bottom: 1px solid #999999;}
+.row-b			{margin-bottom: .5rem; padding-bottom: .5rem; border-bottom: 1px solid #999999; text-align: center;}
+.row-c			{text-align: center;}
+.no-print		{display: none;}
+.font-16		{font-size: 1rem; font-weight: 700; line-height: normal;}
+}
+</style>	
+	
+</head>
+
+<body>
+<page>
+{% for driverOrdersData in driverOrdersData %}
+  <div class="wrapper">
+  {% for driverOrdersDatameal in driverOrdersData['meal_of_orders'] %}
+    <div class="wrapper-in">
+      <div class="row-a">
+        <div class="row g-3 justify-content-between">
+          <div class="col-auto"><span class="font-16">ORDER ID: {{driverOrdersData['order_master_id']}}</span></div>
+          <div class="col-auto">{{driverOrdersDatameal['meal_day']}}<br>{{driverOrdersDatameal['requested_datetime']}}</div>
+        </div>
+      </div>
+      
+      <div class="row-b">{{driverOrdersDatameal['product_category_name']}}</div>
+      
+      <div class="row-c">
+        <div class="row g-0">
+          <div class="col-3">
+            <div class="row g-2">
+              <div class="col-12"><span class="font-16">Protein</span></div>
+              <div class="col-12">{{driverOrdersDatameal['prot']}}g</div>
+            </div>
+          </div>
+          
+          <div class="col-3">
+            <div class="row g-2">
+              <div class="col-12"><span class="font-16">Carb</span></div>
+              <div class="col-12">{{driverOrdersDatameal['carb']}}g</div>
+            </div>
+          </div>
+          
+          <div class="col-3">
+            <div class="row g-2">
+              <div class="col-12"><span class="font-16">Fat</span></div>
+              <div class="col-12">{{driverOrdersDatameal['fat']}}g</div>
+            </div>
+          </div>
+          
+          <div class="col-3">
+            <div class="row g-2">
+              <div class="col-12"><span class="font-16">Calories</span></div>
+              <div class="col-12">{{driverOrdersData['total_calorie']}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>	
+	{% endfor %}
+</page>
+	
+</body>
+</html>

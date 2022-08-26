@@ -1,0 +1,211 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Add Package for Types
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Package For</h3>
+                        <a href="{{ path('admin_packagefor_index') }}" class="btn btn-primary btn-flat pull-right">Back</a>
+
+                    </div>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body">
+                        {% if language_list is defined  and language_list is not empty%}
+                            <div class="nav-tabs-custom">
+                                <ul class="nav nav-tabs">
+                                    {% if language_list is defined %}
+                                        {% for language in language_list %}
+                                            <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                                <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            <!-- tab-content -->
+                            <div class="tab-content">
+                                {% set main_package_for_master_id = 0 %}
+                                {% set package_for_type = ['package_for'] %}
+                                {% set type = ''%}
+                                {% set description = ''%}
+                                {% set price = 0%}						
+                                {% set days = 1%}
+
+                                {% for language in language_list %}
+                                    <div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+
+                                        {% set action = path('admin_packagefor_savepackagefor') %}
+
+                                        {% set name = '' %}
+
+                                        {% if pk_for is defined and pk_for is not empty %}
+
+                                            {% for pk_for in pk_for %}
+                                                {% if pk_for.language_id == language.language_master_id %}
+
+                                                    {% set main_package_for_master_id = pk_for.main_package_for_master_id %}
+                                                    {% set name = pk_for.name %}
+                                                    {% set description = pk_for.description %}
+                                                    {% set type = pk_for.type %}
+                                                    {% set price = pk_for.price %}
+                                                    {% set days = pk_for.days %}
+
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        <form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}">
+
+                                            <input type="hidden" name="main_package_for_master_id" value="{{ main_package_for_master_id }}">
+                                            <input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Package For Name</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <input type="text" class="form-control" id="name{{language.language_master_id}}" name="name" value="{{name}}" required>
+                                                    </div>
+                                               
+                                                    <div class="col-lg-2">
+                                                        <label>Description</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <input type="text" class="form-control" id="name{{language.language_master_id}}" name="description" value="{{description}}" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Type</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <select name="type" class="form-control" required>
+                                                            {%if package_for_type is defined and package_for_type is not empty %}
+                                                                {%for package_for_type in package_for_type%}
+                                                                    <option value="{{package_for_type}}" {%if type == package_for_type %} selected{%endif%}>
+                                                                        {{(package_for_type | replace({'_':' '})) | capitalize}}
+                                                                    </option>
+                                                                {%endfor%}
+                                                            {% endif%}
+                                                        </select>
+                                                    </div>
+                                               
+                                                    <div class="col-lg-2 hide ">
+                                                        <label>Price</label>
+                                                    </div>
+                                                    <div class="col-lg-4 hide">
+                                                        <input type="number" class="form-control" id="price{{language.language_master_id}}" name="price" value="{{price}}" required>
+                                                    </div>
+                                                </div>
+                                            </div>	
+
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Days</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <input type="number" min = "1" class="form-control" id="price{{language.language_master_id}}" name="days" value="{{days}}" required>
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label>Friday Off Day</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="radio-inline">
+                                                            <input type="radio" name="friday_off_day" value="yes"> Yes
+                                                        </div>
+                                                        <div class="radio-inline">
+                                                            <input type="radio" name="friday_off_day"  value="no"> No
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>	
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Packages</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <select class="form-control select" multiple required name="package_ids[]">
+                                                            <option value="0" >Select Package</option>
+                                                            {%if package_list is defined and package_list is not empty %}
+                                                                {%for package_list in package_list %}
+                                                                    {%if package_list.language_id == language.language_master_id %} 
+                                                                    <option value="{{package_list.main_package_master_id}}" {%if package_list.main_package_master_id in selected_packages %} selected {%endif%}>{{package_list.package_name}} </option>
+                                                                    {%endif%}
+                                                                {%endfor%}
+                                                            {%endif%}
+                                                                
+                                                                
+                                                        </select>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>	
+
+
+
+                                            <div class="row paddTop">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-6">
+                                                        <button type="submit" name="submit" value="submit" class="btn btn-primary">
+                                                            <span><i class="fa fa-check-square-o"></i>&nbsp;Submit</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                            <!-- end: tab-content -->
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}

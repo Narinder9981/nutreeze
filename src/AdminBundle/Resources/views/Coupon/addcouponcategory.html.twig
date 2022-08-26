@@ -1,0 +1,94 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Add/Edit Coupon Category
+		</h1>
+	<!-- BREADCMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Coupon Category</h3>
+						<a href="{{ path('admin_country_index', {'domain': app.session.get('domain')}) }}" class="btn btn-primary btn-flat pull-right">Back</a>
+                    </div>
+					<!-- end: box header -->
+					
+					<div class="box-body">
+						<!-- tab-content -->
+						<div class="tab-content">
+							{% set main_coupon_category_id = 0 %}
+							{% set action = path('admin_coupon_savecouponcategory') %}
+							{% set coupon_category_name = '' %}
+							{% set description = '' %}
+							
+							{% if coupon_category is defined and coupon_category is not empty %}
+								{% set main_coupon_category_id = coupon_category.main_coupon_category_id %}
+								{% set coupon_category_name = coupon_category.coupon_category_name %}
+								{% set description = coupon_category.description %}
+							{% endif %}
+							
+							<form id="form-1" class="form-horizontal" method="post" action="{{ action }}">
+								
+								<input type="hidden" name="main_coupon_category_id" value="{{ main_coupon_category_id }}">
+								
+								<div class="row form-group">
+									<div class="col-md-12">
+										<div class="col-lg-2">
+											<label>Coupon Category Name</label>
+										</div>
+										<div class="col-lg-10">
+											<input type="text" class="form-control" id="coupon_category_name" name="coupon_category_name" value="{{ coupon_category_name }}" required>
+										</div>
+									</div>
+								</div>	
+								
+								<div class="row form-group">
+									<div class="col-md-12">
+										<div class="col-lg-2">
+											<label>Description</label>
+										</div>
+										<div class="col-lg-10">
+											<textarea class="form-control" id="description" name="description" value="{{description}}">{{ description }}</textarea>
+										</div>
+									</div>
+								</div>
+								
+								<div class="row paddTop">
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<button type="submit" name="submit" value="submit" class="btn btn-primary">
+												<span><i class="fa fa-check-square-o"></i>&nbsp;Submit</span>
+											</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock %}

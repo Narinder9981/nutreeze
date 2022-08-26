@@ -1,0 +1,181 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+			Order Meals
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Order Meals</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+					{% if days is defined  and days is not empty%}
+						<div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                {% if days is defined %}
+                                   {% for key,value in days %}
+                                        <li class="{% if loop.first == true %}active{% endif %}">
+                                            <a href="#tab_data" data-toggle="tab" onclick="getMealDayWise('{{key}}','{{order_master_id}}')">{{value}}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div> 
+						
+						<!-- tab-content -->
+						<div class="tab-content">
+						{% set main_gallery_id = 0 %}
+						{% set media_type = 0 %}
+						{% set img_url = '' %}
+						
+							{% for key,value_1 in days %} 
+								<div role="tabpanel" id="tab_data" class="tab-pane {% if loop.first == true %}active{% endif %}">
+									<div id="main_content">
+									</div>
+								</div>
+							{% endfor %}
+							
+						</div>
+						<!-- end: tab-content -->
+							
+					{% endif %}
+												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>	
+	var global_day = '';
+	var global_order_id = 0;
+	function getMealDayWise(day,order_id){
+		$('#status_tag').html('');
+		$('#driver').children('option').each(function(){
+			$(this).removeAttr('selected');	
+		});
+		
+		global_day = day;
+		global_order_id = order_id;
+		
+		$.ajax({
+			url : "{{path('admin_orders_getmealsdaywise')}}",
+			method : "POST",
+			data : {'day':day,'order_id':order_id},
+			success : function(data){
+				data = JSON.parse(data);
+				driver_id = data.driver_id;
+				status = data.status;
+				date_time = data.date_time;
+				data_found = data.data_found;
+				not_delivered_reason = data.not_delivered_reason;
+				
+				if(driver_id != 0 ){
+					make_select(driver_id);
+				}
+				if(data.error = 'NRF'){
+					$('#main_content').html('<h3>No Meal Found</h3>');
+				}
+				
+				$('#main_content').html(data.table_html);
+			//	$('#status_tag').html(data.status);
+				
+
+				if(data_found == false){
+					$('#row_panel').slideUp();
+				}
+				if(data_found == true){
+					$('#row_panel').slideDown();
+				}				
+			},
+			error : function (){
+				alert('Something went wrong');
+			}
+		});
+	}
+	
+	function make_select(driver_id){
+		$('#driver').children('option').each(function(){
+//			alert($(this).val());
+			if($(this).val() == driver_id){
+				$('#driver').val(driver_id);
+			}	
+		});	
+	
+	}
+	function assign_driver(element,meal_id){
+
+		if(global_order_id != 0 && global_day != ''){
+			$.ajax({
+				url : "{{path('admin_orders_assigndriver')}}",
+				method : "POST",
+				data : {'order_id':global_order_id,'day':global_day,'driver_id':element.val(),'meal_id':meal_id},
+				success : function(data){
+					getMealDayWise(global_day,global_order_id);
+					
+					alert(data);					
+
+				},
+				error : function(){
+					alert('Something went wrong');
+				}				
+			});
+		}
+	}
+	$(function () {
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	});
+	
+	$(document).ready(function(){
+		getMealDayWise('mon','{{order_master_id}}');
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+$(document).ready(function() {
+
+//	$('#example').DataTable();
+} );	
+</script>	
+{% endblock %}

@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <!-- jQuery 2.1.4 -->
+        <script src="{{asset('bundles/design/')}}js/jQuery-2.1.4.min.js"></script>
+        <!-- Bootstrap 3.3.2 JS -->
+        <script src="{{asset('bundles/design/')}}js/bootstrap.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" media="print" href="{{asset('bundles/design/')}}css/print.css">
+    <style>
+    body 			{}
+	
+
+    @page			{size: 50mm 25mm; margin: 5mm 5mm 5mm 5mm;}
+    @page  			{size : landscape;}	
+
+    @media print {
+
+            @page  			{size : landscape;}
+
+            .mainDiv		{width: 70mm; height: 25mm; text-align: center;padding-left: 10px;display: block;}
+
+            .rowA			{margin-bottom: .5rem; font-size: 1.8rem; font-weight: bold; padding-top: 0.4rem; text-align:center;}
+            .rowB			{margin-bottom: .5rem; font-size: 1.0rem; font-weight: 600; text-align:center;}
+            .rowC			{font-size: 1.1 rem; text-align:center;}
+    }
+    .no-print, .no-print *
+    {
+        display: none !important;
+    }
+}
+    </style>
+    
+    <style type="text/css" media="print">
+       {# @page {
+            size: A4 portrait;   /* auto is the initial value */
+            margin: 0.85cm 0 0.85cm 0;
+        }
+        .no-print, .no-print *
+        {
+            display: none !important;
+        }
+        .paragraphCustom{
+            font-size : 16px;
+        }#}
+    </style>
+    
+    </head>
+    <body>
+       <page size="">
+            {% set tdcls = '' %}            
+            {% if meal_of_orders is defined and meal_of_orders is not empty %}
+{#                    {% for i in 1..60 %}
+                    <div class="mealSticker">
+                            {{i}}
+                    </div>
+                {% endfor %} #}
+                {% for meal_of_orders in meal_of_orders %}
+
+                    {% set addOnCount = 0 %}
+                    {% if meal_of_orders.raw_eggs != 0 %}
+                        {% set addOnCount = addOnCount + 1 %}
+                    {% endif %}
+                    {% if meal_of_orders.white_eggs != 0 %}
+                        {% set addOnCount = addOnCount + 1 %}
+                    {% endif %}
+
+                    {% if meal_of_orders.carbs_amount != 0 %}
+                        {% set addOnCount = addOnCount + 1 %}
+                    {% endif %}
+
+                    {% if meal_of_orders.proteins_amount != 0 %}
+                        {% set addOnCount = addOnCount + 1 %}
+                    {% endif %}
+                    <div class="mainDiv">
+                        <div class="rowA">{{meal_of_orders.unique_no}} {{meal_of_orders.firstCharacter}}</div>
+                        <div class="rowB">{{meal_of_orders.product_name}}</div>
+                        <div class="rowC">
+                            {% if meal_of_orders.proteins_amount != 0 %}
+                                Pro - <strong>{{meal_of_orders.proteins_amount}}</strong> / 
+                            {% endif %}
+                            {% if meal_of_orders.carbs_amount != 0 %}
+                                Carb - <strong>{{meal_of_orders.carbs_amount}}</strong>
+                            {% endif %}
+                            {% if meal_of_orders.raw_eggs != 0 %}
+                                Raw Egg - <strong>{{meal_of_orders.raw_eggs}} </strong> / 
+                            {% endif %}
+                            {% if meal_of_orders.raw_eggs != 0 %}
+                                White Egg - <strong> {{meal_of_orders.white_eggs}}</strong>
+                            {% endif %}  
+                        </div>
+
+                </div>
+
+
+
+                    {#
+                    <div class="mealSticker text-center">
+                        <span class="subscriptionNo">{{meal_of_orders.unique_no}}</span>
+                        <p>Chicken Chilly with fried rice and sauce</p>
+                        <p>Pro - {{meal_of_orders.proteins_amount}} / Carb - {{meal_of_orders.proteins_amount}} Raw Egg - {{meal_of_orders.raw_eggs}} / White Egg - {{meal_of_orders.white_eggs}}</p>
+                    </div>
+                    #}
+                {% endfor %}
+            {% endif %}   
+            <div class="row">
+                <button class="no-print btn btn-primary btn-block printBtn" onclick="window.print();">Print</button>
+            </div>
+       </page>
+    </body>
+</html>

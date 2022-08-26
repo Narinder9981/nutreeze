@@ -1,0 +1,115 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Coupon Report
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+		<div class="box box-primary">
+          <div class="box-header">
+		  	{% if coupon is defined and coupon is not empty %}
+			  	<div class="col-md-11">
+					<h4><b>Coupon Name :</b> {{ coupon[0].coupon_name }} ({{ coupon[0].coupon_code }})</h4>
+					<h4><b>Coupon Category :</b> {{ coupon[0].coupon_category_name }}</h4>
+				</div>
+			{% endif %}
+			<div class="col-md-1 pull-right">
+				<a href="{{ path('admin_coupon_index') }}" class="btn btn-primary"><i class="fa fa-arrow-left"></i>&nbsp;Back</a>
+			</div>
+		  </div>
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				<th>Customer Name</th>
+				<th>Mobile No</th>
+				<th>Email</th>
+				<th>Number Of Use</th>
+				<th>Action</th>
+              </thead>
+              <tbody>
+			  {%if coupon_report is not empty and coupon_report is defined%}
+			    {%for report in coupon_report %}
+                <tr>
+					<td>{{loop.index}}</td>
+					<td>{{report.user_full_name}}</td>
+					<td>{{report.user_mobile}}</td>
+					<td>{{report.email}}</td>
+					<td>{{report.total_usage}}</td>
+					<td>
+						<a href="{{path('admin_coupon_couponusage',{'main_coupon_id': report.coupon_id, 'user_master_id': report.user_master_id})}}" class="btn btn-xs btn-bitbucket">Usage&nbsp;&nbsp;<i class="fa fa-line-chart"></i></a>	
+					</td>
+				</tr>
+				{%endfor%}
+			  {%endif%}
+              </tbody>
+              <tfoot>
+                <th>No</th>
+				<th>Customer Name</th>
+				<th>Mobile No</th>
+				<th>Email</th>
+				<th>Number Of Use</th>
+				<th>Action</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_status(main_coupon_id,status){
+		$.ajax({
+			url : "{{path('admin_coupon_changecouponstatus')}}",
+			method : "POST",
+			data : {'main_coupon_id':main_coupon_id,'status':status},
+			success : function(data){
+				console.log('done');
+			}
+		});
+	}
+	
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}

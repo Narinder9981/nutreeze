@@ -1,0 +1,669 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block css %}
+    <style>
+        .separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #000;
+}
+.separator::before {
+    margin-right: .25em;
+}
+.separator::after {
+    margin-left: .50em;
+}
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Add Package
+            <small></small>
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Package</h3>
+                    </div>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body">
+                        {% if language_list is defined  and language_list is not empty%}
+                            <div class="nav-tabs-custom">
+                                <ul class="nav nav-tabs">
+                                    {% if language_list is defined %}
+                                        {% for language in language_list %}
+                                            <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                                <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            <!-- tab-content -->
+                            <div class="tab-content">
+                                {% set main_package_master_id = 0 %}
+                                {% set package_meals = 0 %}
+                                {% set sort_order = 0 %}
+                                {% set gram_label = 'Gram' %}
+                                {% set off_days_allowed = 0 %}
+                                {% set package_gram = 0 %}
+                                {% set package_max_grams_limit = 0 %}
+                                {% set package_snakes = '' %}
+                                {% set loyality_point = '' %}
+                                {% set price_starting_from = '' %}
+                                {% set sub_packages = null %}
+                                {% set img = '' %}
+
+                                {% for language in language_list %}
+                                    <div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+
+                                        {% set action = path('admin_package_savepackage') %}
+                                        {% set package_name = '' %}
+                                        {% set description = '' %}
+                                        {% set festival_affect = 'no' %}
+                                        {% set package_type = 'normal' %}
+
+                                        {% if main_package is defined and main_package is not empty %}
+
+
+                                            {% for main_package in main_package %}
+                                                {%set img = main_package.img_url%}
+
+                                                {% set main_package_master_id = main_package.main_package_master_id %}
+
+                                                {% if main_package.language_id == language.language_master_id %}
+                                                    {% set action = path('admin_package_updatepackage') %}
+
+
+                                                    {% set package_meals = main_package.package_meals %}
+                                                    {% set package_snakes = main_package.package_snakes %}
+                                                    {% set price_starting_from = main_package.price_starting_from %}
+                                                    {% set package_name = main_package.package_name %}
+                                                    {% set sub_packages = main_package.sub_package %}
+                                                    {% set description = main_package.description %}
+                                                    {% set gram_label = main_package.gram_label %}
+                                                    {% set sort_order = main_package.sort_order %}
+                                                    {% set off_days_allowed = main_package.off_days_allowed %}
+                                                    {% set package_gram = main_package.package_grams %}
+                                                    {% set package_max_grams_limit = main_package.package_max_grams_limit %}
+                                                    {% set loyality_point = main_package.loyality_point %}
+                                                    {% set festival_affect = main_package.festival_affect %}
+                                                    {% set package_type = main_package.package_type %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        <form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+
+                                            <input type="hidden" name="main_package_master_id" value="{{ main_package_master_id }}">
+                                            <input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+
+                                            <div class="row">
+                                                <div class="col-md-12"> 
+                                                    <div class="col-md-2">                                                    
+                                                        <label>Package Name</label>
+                                                    </div>
+                                                    <div class="col-md-10">       
+                                                        <input class="form-control" name="package_name" value="{{package_name}}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </br>
+                                            <div class="row">
+                                                <div class="col-md-12"> 
+                                                    <div class="col-md-2">                                                    
+                                                            <label>Package Type</label>
+                                                    </div>
+                                                    <div class="col-md-10">                                                      
+                                                        <div class="radio-inline">
+                                                            <input type="radio" name="package_type" value="normal" checked  {%if package_type is defined and package_type == "normal" %}checked {%endif%} /> Normal
+                                                        </div>
+                                                        <div class="radio-inline">
+                                                            <input type="radio" name="package_type" value="festival" {# {%if package_type is defined and package_type == "festival" %}checked {%endif%}  #} /> Festival
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            </br>   
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Package Description</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <textarea id="editor1" class="ckeditor" name="description">{{ description }}</textarea>
+                                                    </div>
+                                                    
+                                                </div>
+
+                                            </div>
+
+                                            </br>  
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Affect Festival</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <div class="radio-inline">
+                                                            <input type="radio" name="affect_festival" value="no" checked  {%if festival_affect is defined and festival_affect == "no" %}checked {%endif%} /> No
+                                                        </div>
+                                                        <div class="radio-inline">
+                                                            <input type="radio" name="affect_festival" value="yes" {# {%if festival_affect is defined and festival_affect == "yes" %}checked {%endif%} #}  />Yes
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>           
+                                            </br>                              
+                                            <div class="row hide">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Package Meal</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="number" class="form-control" name="package_meals" value="{{package_meals}}" />
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>Package Snacks</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="number" class="form-control" name="package_snakes" value="{{package_snakes}}" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            </br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Loyality Point</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input class="form-control" name="point" value="{{loyality_point}}" />
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>Gram Label</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input class="form-control" name="gram_label" value="{{gram_label}}" />
+                                                    </div>                                                   
+                                                    
+
+                                                </div>
+
+                                            </div>
+
+                                             </br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Priority</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input class="form-control" name="sort_order" value="{{sort_order}}" />
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>Off Days</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type="number" class="form-control" name="off_days_allowed" value="{{off_days_allowed}}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </br>
+                                            <div class="row">
+                                                <div class="col-md-12">   
+                                                    <div class="col-md-2">
+                                                        <label>Gram </br></label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type='number' placeholder="Enter Package Grams" class="form-control " value="{{package_gram}}" name="package_gram" required="required"/>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>Max. Gram </br></label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input type='number' placeholder="Enter Maximum Gram Limit" class="form-control" value="{{package_max_grams_limit}}" name="package_gram_limit" required="required"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Image </br></label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <input type='file' class="form-control about_img" name="about_img" required="required"/>
+                                                    </div>                                                    
+                                                </div>
+                                            </div>
+
+                                            
+                                            {%if img is defined and img != ''%} 
+                                                <script>
+                                                    $('.about_img').removeAttr('required');
+                                                </script>
+                                                <div class="row col-md-offset-2 img-package">
+                                                    <a data-fancybox='gallery' href="{{img}}">
+                                                        <img src="{{img}}" class="img-responsive img-thumbnail" style="height:50px;width:50px">
+                                                    </a>
+                                                </div>  
+                                                </br>
+                                            {%endif%} 
+
+                                            <div class="row hide">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Package Duration</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        {% if product_for is defined and product_for is not empty%}
+                                                            {%for product_for in product_for%}
+                                                                {% if product_for.language_id == language.language_master_id %}
+                                                                    {% set this_check = '' %}
+                                                                    {% set this_price = '' %}
+
+                                                                    {%if product_for.package_for_relation_id != null%}
+                                                                        {% set this_check = 'checked' %}
+                                                                        {% set this_price = product_for.price_selected %}
+
+                                                                    {%endif%}
+
+                                                                    {%if product_for.type == 'package_for'%}
+                                                                        <div class="col-md-4">
+                                                                            <label class="checkbox-inline">
+                                                                                <input type="checkbox" name="package_for[]" value="{{product_for.main_package_for_master_id}}" {{this_check}}>{{product_for.name}}
+                                                                            </label>
+                                                                            <input type="text" name="price[{{product_for.main_package_for_master_id}}]" class="form-control" placeholder="Price" value="{{this_price}}"/>
+                                                                        </div>
+                                                                    {%endif%}
+                                                                {% endif %}
+                                                            {%endfor%}
+                                                        {%endif%}   
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="hide">
+                                            <hr><h5><label>Price Consider while upgarding package. &nbsp;&nbsp;</label><input type="button" class="btn btn-info btn-xs" value="Add Gram" onclick="addGramPrice();" /></h5> 
+                                            <div class="row gramsetdiv">
+                                                {%if upgrade_gram_Price is defined and upgrade_gram_Price is not empty %}
+                                                    {%for upgrade_gram_Price in upgrade_gram_Price %}
+                                                        <div class="col-md-12 gramset">                                                   
+                                                            <div class="col-md-2">
+                                                                <label>Gram</label>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <input type="number" class="form-control" name="upgrade_gram[]" value="{{upgrade_gram_Price.gram}}" required />
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label>Gram Price</label>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <input type="text" class="form-control" name="upgrade_gram_price[]" value="{{upgrade_gram_Price.gram_price}}" required />
+                                                            </div>  
+                                                        </div>
+                                                    {%endfor%}                                                
+                                                {%else%}
+                                                    <div class="col-md-12 gramset">                                                   
+                                                        <div class="col-md-2">
+                                                            <label>Gram</label>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <input type="number" class="form-control" name="upgrade_gram[]" value="0" required/>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <label>Gram Price</label>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <input type="text" class="form-control" name="upgrade_gram_price[]" value="0" required />
+                                                        </div>  
+                                                    </div>
+                                                {%endif%}
+
+                                            </div><hr>
+                                        </div>
+                                            <div class="row hide">
+                                                <div class="col-md-12">
+                                                    {% if categories is defined and categories is not empty %}
+                                                        {% for categories in categories %}
+                                                            {% set  existedUnitPrice = 0 %}
+                                                            {% if unitPrice is defined and unitPrice is not empty %}
+                                                                {% for unitPrice in unitPrice %}
+                                                                    {% if categories.main_product_category_master_id == unitPrice.meal_type_id %}
+                                                                        {% set existedUnitPrice = unitPrice.unit_price %}                                                                
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+
+                                                            {% if categories.language_id == language.language_master_id %}
+                                                                <div class="col-md-3">
+                                                                    <label>{{categories.product_category_name}}</label>
+                                                                    <input class="form-control" name="per_category_price[{{categories.main_product_category_master_id}}]" value="{{existedUnitPrice}}" />
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}  
+                                                </div>
+                                            </div>
+                                              {%if  product_for is defined and product_for is not empty%} 
+                                            <hr><h4><label>Sub Packages : </label></h4> 
+                                            <div class="row col-md-offset-1">
+                                                {%if sub_packages is defined and sub_packages is not empty%}
+                                                    {% set loopno = 0 %}
+                                                    {%for sub_packages in sub_packages %}
+
+                                                        {%set clas1 = 'panel-default' %} 
+
+                                                        {%if language.language_master_id == sub_packages.language_id and product_for is defined and product_for is not empty%} 
+                                                            {#{%set clas1 = 'panel-warning' %} #}
+
+                                                            <div class="first_one panel panel-default {{clas1}} first_one_{{language.language_master_id}}">
+                                                                <div class="panel-heading sub-package-sec">
+                                                                    Subpackage <input type="hidden" value="{{sub_packages.main_sub_package_id}}" name="sub_{{loopno}}" /> 
+                                                                    <div class="pull-right">
+                                                                         <input type="number"  required class="input-sm" name="min_limit_{{loopno}}" placeholder="Min Calories" value="{{sub_packages.min_limit}}"/>
+                                                                          <input type="number" required class="input-sm" name="max_limit_{{loopno}}" placeholder="Max Calories" value="{{sub_packages.max_limit}}"/>
+                                                                        <a target="_blank" href="{{path('admin_package_adddefaultvaluesubpackage',{'main_package_id':main_package_master_id,'sub_package_id':sub_packages.main_sub_package_id,'language_id':language.language_master_id})}}" id="addsubpackagedefaultvalue" onclick="defaultsubpackagecombo({{sub_packages.main_package_id}},{{sub_packages.main_sub_package_id}} )"  class="  btn btn-xs btn-warning">Default Values</a> &nbsp;&nbsp;
+                                                                        <a href="javascript:void(0)" id="removesubpackage" onclick="remove_subpackagecombo($(this))"  class=" btn btn-xs btn-danger">Remove</a>
+
+                                                                    </div>
+                                                                    
+                                                                </div>
+                                                                <div class="panel-body first_one_panelbody">
+
+
+                                                                    {% if categories is defined and categories is not empty %}
+                                                                        <div class="row" >
+                                                                            {% for categories in categories %}
+                                                                                {% if categories.language_id == language.language_master_id %}
+                                                                                    <div class="col-md-1">
+                                                                                        <label>{{categories.product_category_name}} </label>
+                                                                                    </div>
+                                                                                    <div class="col-md-2">
+                                                                                        {% if sub_packages.meal_type is not empty and categories.main_product_category_master_id in sub_packages.meal_type_ID %}
+                                                                                            {% for mealAray in sub_packages.meal_type  %}
+                                                                                                {% if mealAray.meal_type_id == categories.main_product_category_master_id %}
+
+                                                                                                    <input type='number' class="form-control" name="category_amount_value_{{loopno}}[]" value="{{mealAray.meal_value}}" required="required"/>
+                                                                                                    <input type='hidden' class="form-control" name="category_type_{{loopno}}[]" value="{{categories.main_product_category_master_id}}" required="required"/>
+                                                                                                {% endif %}
+                                                                                            {% endfor %}
+                                                                                        {% else %}
+                                                                                            <input type='number' class="form-control" name="category_amount_value_{{loopno}}[]" value="" required="required"/>
+                                                                                            <input type='hidden' class="form-control" name="category_type_{{loopno}}[]" value="{{categories.main_product_category_master_id}}" required="required"/>
+                                                                                        {% endif %}
+
+                                                                                    </div>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                    {% endif %}
+                                                                    <div class="separator">Price</div>
+                                                                     <div class="row" >
+                                                                    {% if product_for is defined and product_for is not empty%}
+                                                                        {%for product_for in product_for%}
+                                                                            {% if product_for.language_id == language.language_master_id %}
+
+                                                                                <div class="col-md-1">
+                                                                                    <label> {{product_for.name}} {%if product_for.friday_offday == 'no' %} <font color="red" style="font-size: 10px;">Firday: On</font> {%endif%}</label>
+                                                                                </div>
+
+                                                                                {% set input_text_displayed = false %}
+
+                                                                                {% if sub_packages.price_array is not empty %}
+                                                                                    {% for priceAray in sub_packages.price_array %}
+                                                                                        {% if priceAray.duration == product_for.name_db %}
+
+                                                                                            {% set input_text_displayed = true %}
+
+                                                                                            <div class="col-md-2">
+                                                                                                <input type='number' class="form-control" name="price_sub_of_{{loopno}}[{{product_for.name_db}}]" value="{{priceAray.price}}" required="required"/>
+
+                                                                                            </div>
+                                                                                        {% endif %}
+                                                                                    {% endfor %}
+
+                                                                                    {% if input_text_displayed == false %}
+                                                                                        <div class="col-md-2">
+                                                                                            <input type='number' class="form-control" name="price_sub_of_{{loopno}}[{{product_for.name_db}}]" value="0" required="required"/>
+
+                                                                                        </div>
+                                                                                    {% endif %}
+                                                                                {% else %}
+
+
+                                                                                    <div class="col-md-2">
+                                                                                        <input type='number' class="form-control" name="price_sub_of_{{loopno}}[{{product_for.name_db}}]" value="0" required="required"/>
+
+                                                                                    </div>
+
+                                                                                {% endif %}
+
+                                                                            {% endif %}
+                                                                        {% endfor %}    
+                                                                    {%else%}
+                                                                        <label class="label-control">Please Select this Package in 'Package For Types'</label>
+                                                                    {% endif %}
+</div>
+                                                                </div>
+                                                            </div>  
+                                                            {% set loopno = loopno + 1 %}
+                                                        {%endif%}
+
+                                                    {%endfor%}
+                                                {%else%}
+                                                    <div class="first_one panel panel-default first_one_{{language.language_master_id}}">
+                                                        <div class="panel-heading">
+
+                                                            Subpackage <input type="hidden" value="0" class="sub" name="sub_0" />
+
+                                                        </div>
+                                                        <div class="panel-body first_one_panelbody">
+
+                                                            {% if categories is defined and categories is not empty %}
+                                                                <div class="row">{#col-md-12 form-group">#}
+                                                                    {% for categories in categories %}
+                                                                        {% if categories.language_id == language.language_master_id %}
+                                                                            <div class="col-md-1">
+                                                                                <label>{{categories.product_category_name}}</label>
+                                                                            </div>
+                                                                            <div class="col-md-2">
+                                                                                <input type='hidden' class="form-control" name="category_type_0[]" value="{{categories.main_product_category_master_id}}" required="required"/>
+                                                                                <input type='number' class="form-control" name="category_amount_value_0[]" value="" required="required"/>
+
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </div>  
+                                                            {% endif %}
+                                                            <div class="separator">Price</div>
+
+                                                            {% if product_for is defined and product_for is not empty%}
+                                                                <div class="row" > {#col-md-12 form-group">#}
+                                                                    {%for product_for in product_for%}
+                                                                        {% if product_for.language_id == language.language_master_id %}
+
+                                                                            <div class="col-md-1">
+                                                                                <label>{{product_for.name}} {%if product_for.friday_offday == 'no' %} <font color="red" style="font-size: 10px;">Firday: On</font> {%endif%}</label>
+                                                                            </div>
+                                                                            <div class="col-md-2">
+                                                                                <input type='number' class="form-control" name="price_sub_of_0[{{product_for.name_db}}]" value="" required="required"/>
+
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                 </div>
+                                                            {%else%}
+                                                                <label class="label-control">Please Select this Package in 'Package For Types'</label>
+                                                            {% endif %}
+
+
+                                                           
+                                                        </div>
+                                                    </div>      
+                                                {%endif%}
+
+                                                <div class="col-md-12 form-group">
+                                                    <a href="javascript:void(0)" id="remove_combo_btn" onclick="remove_combo($(this))" class="pull-right btn btn-sm btn-danger">Remove</a>
+                                                    <a href="javascript:void(0)" onclick="add_combo($(this),{{language.language_master_id}} )" class="pull-right btn btn-sm btn-primary">Add More</a>
+                                                </div>
+                                            </div>
+                                            {%else%}
+                                                <br><label class="label-control"> Please Select 'Package for type' to Add Sub Packages in this Package</label>
+                                            {%endif%}
+                                            </br>
+                                            <div class="row paddTop">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-6">
+                                                        <button type="submit" name="submit" class="btn btn-success" value="{{ language.language_master_id }}">
+                                                            <span><i class="fa fa-check-square-o"></i>&nbsp;
+                                                                {% if about_us is defined and about_us is not empty %}Update{%else%}Save{%endif%}   
+                                                            </span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                            <!-- end: tab-content -->
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+
+                                                        function addGramPrice() {
+                                                            $(".gramset:first").clone().appendTo(".gramsetdiv").find('input').val('');
+                                                        }
+                                                        function remove_combo(element) {
+
+                                                            if (element.parents('div').siblings(".first_one").length > 1) {
+                                                                var elemnt_first = element.parents('div').prev(".first_one:last");
+                                                                elemnt_first.remove();
+                                                            }
+
+                                                            if (element.parents('div').siblings(".first_one").length == 1) {
+                                                                $('#remove_combo_btn').hide();
+                                                            }
+                                                        }
+
+                                                        function remove_subpackagecombo(element) {
+                                                            if (element.parents('div').siblings(".first_one").length == 0) {
+                                                                alert("You can not delete all sub packages");
+                                                            } else {
+                                                                element.parent().parent().remove();
+                                                            }
+                                                        }
+
+                                                        function defaultsubpackagecombo(package_id, subpackage_id) {
+
+                                                        }
+
+                                                        function add_combo(element, lang_id) {
+                                                            var elemnt_last;
+                                                            // console.log($(".first_one").length);
+                                                            langwise_cnt = (($(".first_one_" + lang_id).length));
+                                                            langwise_cnt_minus = langwise_cnt - 1;
+                                                            // alert('current cnt : '+langwise_cnt);
+                                                            if ($(".first_one").length > 1) {
+                                                                $('#remove_combo_btn').show();
+                                                            } else {
+                                                                $('#remove_combo_btn').hide();
+                                                            }
+                                                            // console.log(langwise_cnt);
+                                                            // console.log(element.parents('div').prev(".first_one:last").html());
+                                                            // console.log((element).find('input'));
+                                                            var CloneData = element.parents('div').siblings(".first_one:last").clone();
+                                                            CloneData.find('input').each(function () {
+                                                                this.name = this.name.replace('_' + langwise_cnt_minus, '_' + langwise_cnt);
+                                                            });
+
+                                                            console.log(CloneData.find('input[name="sub_' + langwise_cnt + '"]').val(0));
+                                                            // console.log
+                                                            CloneData.insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+
+                                                            /*      elemnt_last = element.parents('div').prev(".first_one");
+                                                             console.log(elemnt_last.html());
+                                                             var html = element.parents('div').prev(".first_one").html(); 
+                                                             html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+                                                             
+                                                             elemnt_last.after(html).find("input[type='number']").val("");
+                                                             //.find("input[type='number']").val("") */
+                                                        }
+
+                                                        $(function () {
+
+                                                            if ($('.first_one').length <= 2) {
+                                                                $('#remove_combo_btn').hide();
+                                                            }
+
+                                                            $('.editor1cls').each(function (e) {
+                                                                CKEDITOR.replace(this.id);
+                                                            });
+                                                        });
+
+                                                        $(document).ready(function () {
+
+                                                            $('[data-fancybox="gallery"]').fancybox({
+                                                                // Options will go here
+                                                            });
+
+                                                        });
+
+    </script>   
+{% endblock %}

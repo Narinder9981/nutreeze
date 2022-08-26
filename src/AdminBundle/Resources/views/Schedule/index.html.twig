@@ -1,0 +1,126 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		 Schedule Listing
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+        <div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">User Schedule</h3>
+				<a href="{{ path('admin_schedule_addschedule', {'user_id': user_id}) }}" class="btn btn-primary btn-flat pull-right"><i class="glyphicon glyphicon-plus"></i><b>&nbsp;&nbsp;Add Schedule</b></a>
+			</div>
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				<th>Media</th>
+				<th>Package</th>
+				{% if user_id is defined and user_id !=0 %}
+					<th>Assign</th>
+				{% endif%}
+				<th>Operation</th>
+              </thead>
+              <tbody>
+                {%if gallery is defined and gallery is not empty%}
+					{%for gallery in gallery%}
+						<tr>
+							<td>{{loop.index}}</td>
+							<td>
+								<a href="{{gallery.media_url}}" target="_blank">									
+									View Doc
+								</a>	
+								
+							</td>
+							<td>{{gallery.package_name}}</td>
+							{% if user_id is defined and user_id !=0 %}
+							<td>
+								{% set checked = '' %}
+								{% if gallery.schedule_user_relation_id is defined and gallery.schedule_user_relation_id != null %}
+									{% set checked = 'checked'%}
+								{%endif%}
+								<input data-on="Yes" class="status status_1" data-off="No" onchange="change_assign('{{gallery.main_schedule_id_}}','{{user_id}}',$(this).is(':checked'))" type="checkbox" data-toggle="toggle" data-size="mini" data-onstyle="success" {{checked}}/>
+							</td>	
+							{% endif%}							
+							<td>
+								<a href="{{path('admin_schedule_addschedule',{'schedule_id':gallery.main_schedule_id_})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+								<a href="{{path('admin_schedule_deleteschedule',{'schedule_id':gallery.main_schedule_id_})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ? ')"><i class="fa fa-trash"></i></a>								
+							</td>
+						</tr>
+					{%endfor%}
+				{%endif%}
+              </tbody>
+              <tfoot>
+                 <th>No</th>
+				<th>Media</th>
+				<th>Package</th>
+				{% if user_id is defined and user_id != 0%}
+					<th>Assign</th>
+				{% endif%}				
+				<th>Operation</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_assign(schedule_id,user_id,status){
+//	alert(schedule_id);return;
+		$.ajax({
+			url : "{{path('admin_schedule_assignschedule')}}",
+			method : "POST",
+			data : {'schedule_id':schedule_id,'user_id':user_id,'status':status},
+			success : function(data){
+				console.log('Assign');
+			},
+			error : function(){
+				alert('Something went wrong');
+			}
+		});
+	}
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}

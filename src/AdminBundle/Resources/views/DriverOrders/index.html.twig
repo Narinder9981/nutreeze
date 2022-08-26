@@ -1,0 +1,464 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+
+        <h1>
+            Driver Orders
+        </h1>
+
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <p>note*: Please select date to print Delivery Stickers</p>
+                        <div class="panel panel-default">
+					        <div class="panel-body">
+                                <form method="post" action="">
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <div class="col-md-6">    
+                                                <label>Date : </label>
+                                                <input type="text" id="date_given" class ="form-control datepicker" name="date_given" value="{% if date_given is defined and date_given is not empty %}{{ date_given | date('d-m-Y') }}{% endif%}" />
+                                            </div>
+
+                                            {% if app.session.get('role_id') == 1 %}
+                                                <div class="col-md-6">    
+                                                    <label>Driver : </label>
+                                                    {% if drivers is defined and drivers is not empty %}
+                                                        <select class="form-control selectpicker" name="driver_given" id="driver_given" >
+                                                            <option value="" >-- Select Driver --</option>
+                                                            {% for drivers in drivers %}
+                                                                <option value="{{drivers.user_master_id}}" {% if driver_id == drivers.user_master_id %} selected {% endif %} > {{ drivers.user_firstname ~" "~ drivers.user_lastname }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            {% if app.session.get('role_id') == 1 %}
+                                                <div class="col-md-6">
+                                                    <label>Time Slots </label>
+
+                                                    {% if timeSlots is defined and timeSlots is not empty %}
+                                                        <select class="form-control selectpicker" name="time_id_given" >
+                                                            <option value="" >--Select Time Slot</option>
+                                                            {% for timeSlots in timeSlots %}
+                                                                <option value="{{timeSlots.main_time_slot_master_id}}" {% if time_id_given == timeSlots.main_time_slot_master_id %} selected {% endif %}> {{ timeSlots.title }} : ( {{ timeSlots.start_time | date('h:i a') }} - {{ timeSlots.end_time | date('h:i a') }} ) </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    {% endif %}
+
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label>Area</label>
+
+                                                    {% if area_list is defined and area_list is not empty %}
+                                                        <select class="form-control selectpicker" name="area_id_given" >
+                                                            <option value="" >--Select Area</option>
+                                                            {% for area_list in area_list %}
+                                                                <option value="{{area_list.main_area_id}}" {% if area_id_given == area_list.main_area_id %} selected {% endif %} > {{ area_list.area_name }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-12"> 
+                                            <div class="col-md-4">
+                                                <button class="btn btn-primary theme-btn" name="filter" value="filter" type="submit">Filter</button>
+
+                                                {% if app.session.get('role_id') == 1 %}
+
+                                                {%if driver_orders_data is defined and driver_orders_data is not empty%}
+
+                                                    <button class="btn btn-warning" name="print_delivery_sticker" value="print_delivery_sticker" id="print_delivery_sticker" type="submit">Print Delivery Sticker for <b>{{date_given}}</b></button>
+                                                                                               
+                                                    <a class="btn btn-info" id="printMealSticker" >Print Meal Stickers for <b>{{date_given }}</b></a>
+                                                {% endif %}
+
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>  
+                            </div>
+                        </div>
+                    </div>
+                <div class="box-body table-responsive">
+                    <table id="list1" class="table display table-striped table-bordered scroll-horizontal">
+                        <thead>
+                        <th>No</th>
+                        {# <th>Box No.</th>#}
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>User ID</th>
+                        <th>Package</th>
+                        <th>Order Period</th>
+                        <th>Delivery Method {#/ Time#} </th>
+                        <th>Time</th>
+                        <th>Driver</th>
+
+                        <th>Delivery Address </th>
+                        <th>Governorate</th>
+                        <th>Area</th>
+                        <th>Block</th>
+                        
+                        <th>Details</th>
+                        </thead>
+                        <tbody>
+
+                            {%if driver_orders_data is defined and driver_orders_data is not empty%}
+                                {%for driver_orders_data in driver_orders_data %}
+                                    <tr>
+                                        <td>{{loop.index}}</td>
+                                        <td>{{driver_orders_data.customer_name}}</td>
+                                        <td>{{driver_orders_data.unique_user_id}}</td>
+                                        <td>
+                                            {% if driver_orders_data.package_details is defined and driver_orders_data.package_details is not empty %}
+                                                {{driver_orders_data.package_details.package_name}}
+                                                - {{driver_orders_data.remaining_days_to_end_order}} days remains
+                                            {% endif %}
+                                        </td>
+                                        <td>{{driver_orders_data.start_date | date('d-m-Y') }} to {{driver_orders_data.end_date | date('d-m-Y') }}</td>
+
+                                        <td>{{driver_orders_data.delivery_method_name}}</td>
+
+                                        <td> {#{{driver_orders_data.driver_name}}#}  </td>
+                                        <td>
+                                                {{ driver_orders_data.area_name }}<br><b> B:</b>{{driver_orders_data.address_name}}<br><b> S:</b>{{ driver_orders_data.street }} {{ driver_orders_data.address_type | capitalize }}<br>{% if driver_orders_data.address_name2 != '' %}<b> A:</b>{{driver_orders_data.address_name2}}<br>{% endif %} <b>H:</b>{{ driver_orders_data.flate_house_number }}, {{ driver_orders_data.society_building_name }}<br><b> C:</b>{{ driver_orders_data.mobile_no }}  
+                                            
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-xs btn-info" data-toggle="modal" data-target="#myModal_{{driver_orders_data.order_master_id}}" >Meals</button>
+                                                <a class="btn btn-xs btn-warning" href="{{path("admin_orders_getmealsdatewisefilter",{quick_access:'all',order_id : driver_orders_data.order_master_id })}}" ><i class="fa fa-edit"></i></a>
+                                                {# {% if app.session.get('role_id') == 1 and  driver_orders_data.remaining_days_to_end_order != '0' and driver_orders_data.remaining_days_to_end_order != 0 %}#}
+                                            {% if app.session.get('role_id') == 1 %}
+                                                {% if date_given is defined and date_given is not empty %}
+
+                                                    <a class="btn btn-success btn-xs" href="{{path('admin_driverorders_printdeliverysticker',{
+                                                        'order_id' : driver_orders_data.order_master_id,
+                                                        'driver_id' : driver_id,
+                                                        'date_given' : date_given | date('U') ,
+                                                        'time_id_given' : time_id_given,
+                                                        'area_id_given' : area_id_given
+                                                    })}}">Delivery Sticker for <b>{{date_given}}</b></a>
+
+                                                    <a class="btn btn-danger btn-xs" href="{{path('admin_driverorders_printmealsticker',{'order_id':driver_orders_data.order_master_id,'driver_id' : driver_id,'date_given' : date_given | date('U') ,'time_id_given' : time_id_given,'area_id_given' : area_id_given})}}"> Meal Sticker for <b>{{date_given}}</b></a>
+
+                                                {% else %}
+
+                                                    <a class="btn btn-success btn-xs" href="{{path('admin_driverorders_printdeliverysticker',{
+                                                        'order_id' : driver_orders_data.order_master_id,
+                                                        'driver_id' : driver_id,
+                                                        'date_given' : driver_orders_data.start_date | date('U') ,
+                                                        'time_id_given' : time_id_given,
+                                                        'area_id_given' : area_id_given
+                                                    })}}">Delivery Sticker  for <b>{{date_given}}</b></a>
+
+                                                    <a class="btn btn-danger btn-xs" href="{{path('admin_driverorders_printmealsticker',{'order_id':driver_orders_data.order_master_id,'driver_id' : 0,'date_given' : 0 ,'time_id_given' : time_id_given,'area_id_given' : area_id_given})}}"> Meal Sticker  for <b>{{date_given}}</b></a>
+
+                                                {% endif %}
+                                                
+
+                                            {% endif %}
+                                        </td>
+
+                                    <div id="myModal_{{driver_orders_data.order_master_id}}" class="modal fade" role="dialog">
+                                        <div class="modal-dialog">
+                                            {% set totalMeals = 0 %}
+                                            {% set totalSnacks = 0 %}
+                                            {% set totalSoups = 0 %}
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h4 class="modal-title">Order Meals</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <ul class="list-group">
+                                                        {% if driver_orders_data.meal_of_orders is defined and driver_orders_data.meal_of_orders is not empty %}
+                                                            {% for meals in driver_orders_data.meal_of_orders %} 
+                                                                <li class="list-group-item">{{ meals.product_name }} <label class="label label-primary">{{meals.requested_datetime | date('d-m-Y') }}</label></br> {{meals.raw_eggs}} Raw Eggs,{{meals.white_eggs}} White Eggs,{{meals.carbs_amount}} Carbs,{{meals.proteins_amount}} Protiens <span class="badge">{{ meals.count_in | capitalize }}</span></li>
+                                                                {% endfor %}
+                                                            {% endif %}    
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>  
+                                    </div>
+                                </tr>
+                            {%endfor%}
+                        {%endif%}
+                        </tbody>              
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Order Meals</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>  
+</div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $('.list-group').html('');
+        function getmealdata(order_id, date_given){
+            var url = "{{ path('admin_driverorders_getordermealdata') }}/" + order_id + "/" + date_given;
+            $.ajax({
+                url: url,
+                success: function(response){
+                    $('.list-group').html(response);
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+
+            /* ,
+            exportOptions: {
+                format: {
+                    body: function (data, row, column, node) {
+                        if(column = 7){
+                            data = data.replace(/<br\s*\/?>/ig, "\n");
+                            data = data.replace(/<\/?[^>]+(>|$)/g, "");
+                            return data;
+                        }
+
+                        return data;
+                    }
+                }
+            } */
+
+            function newexportaction(e, dt, button, config) {
+                var self = this;
+                var oldStart = dt.settings()[0]._iDisplayStart;
+                dt.one('preXhr', function (e, s, data) {
+                    // Just this once, load all data from the server...
+                    data.start = 0;
+                    data.length = 2147483647;
+                    dt.one('preDraw', function (e, settings) {
+                        // Call the original action function
+                        if (button[0].className.indexOf('buttons-copy') >= 0) {
+                            $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                            $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                            $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                            $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                                $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                                $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                        } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                            $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                        }
+                        dt.one('preXhr', function (e, s, data) {
+                            // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                            // Set the property to what it was before exporting.
+                            settings._iDisplayStart = oldStart;
+                            data.start = oldStart;
+                        });
+                        // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                        setTimeout(dt.ajax.reload, 0);
+                        // Prevent rendering of the full data to the DOM
+                        return false;
+                    });
+                });
+                // Requery the server with the new one-time export settings
+                dt.ajax.reload();
+            };
+			{#
+            var url = "{{ path('admin_driverorders_getdriverorders') }}/{{ driver_id }}";
+            {% if date_given is defined and date_given is not empty %}
+                url += "/{{ date_given }}";
+            {% endif %}
+            {% if driver_id is defined and driver_id != 0 %}
+                url += "?driver_given={{ driver_id }}";
+            {% endif %}
+            {% if time_id_given is defined and time_id_given != 0 %}
+                url += "?time_id_given={{ time_id_given }}";
+            {% endif %}
+            {% if area_id_given is defined and area_id_given != 0 %}
+                url += "?area_id_given={{ area_id_given }}";
+            {% endif %}
+			#}
+			 var url = "{{ path('admin_driverorders_getdriverorders') }}/{{ driver_id }}";
+			{% if date_given is defined and date_given is not empty %}
+                url += "/{{ date_given }}";
+            {% endif %}
+           {#  {% if driver_id is defined  %}
+                 url += "/{{ driver_id }}";
+             {% endif %} #} 
+            {% if time_id_given is defined  %}
+                url += "/{{ time_id_given }}";
+            {% endif %}
+			{%set area_id = area_id_given %} 
+            {% if area_id is defined  %}
+                url += "/{{ area_id }}";
+           {% endif %}
+		  
+
+            $('#list').DataTable({
+                processing: true,
+				serverSide: true,
+				ajax: url,
+                dom: 'Bfrtip',
+                columnDefs: [
+                    { orderable: false, targets: -1 },
+                    { orderable: false, targets: -3 }
+                ],
+                buttons: [
+                    {
+                        extend : 'copy',
+                        pageSize : 'LEGAL',
+                        title : function() {
+                            return 'Driver Orders';
+                        },
+                    },
+                    {
+                        extend : 'excel',
+                        pageSize : 'LEGAL',
+                        title : function() {
+                            return 'Driver Orders Excel';
+                        },
+                        action : newexportaction
+                    },
+                    {
+					extend : 'csv',
+                        pageSize : 'LEGAL',
+                        title : function() {
+                            return 'Driver Orders CSV';
+                        },
+                        action : newexportaction
+                    },
+                    {
+                        extend : 'pdfHtml5',
+                        pageSize : 'LEGAL',
+                        title : function() {
+                            return 'Driver Orders PDF';
+                        },
+                    }
+                ],
+            });
+
+            $('.datepicker').datepicker({
+                format: 'dd-mm-yyyy'
+            });
+
+
+            $("#print_delivery_sticker").click(function (e) {
+
+                if ($('#date_given').val() == '') {
+                    e.preventDefault();
+                    alert("Please Select the Date");
+                }
+            });
+
+            $("#print_driver_sticker").click(function (e) {
+
+                if ($('#date_given').val() == '') {
+                    e.preventDefault();
+                    alert("Please Select the Date");
+                }
+                if ($('#driver_given').val() == '') {
+                    e.preventDefault();
+                    alert("Please Select Driver");
+                }
+            });
+
+            $('#printMealSticker').click(function () {
+                $('.mealCategory').toggleClass('hide');
+            });
+
+
+            $('#makePrintBtn').click(function () {
+
+        {% if date_given is defined and date_given is not empty %}
+                            let link_href = "{{path('admin_driverorders_printmealsticker',{'order_id':'0','driver_id' : driver_id,'date_given' : date_given | date('U') ,'time_id_given' : time_id_given,'area_id_given' : area_id_given})}}";
+            {% else %} 	 
+                            let link_href = "{{path('admin_driverorders_printmealsticker',{'order_id':'0','driver_id' : driver_id,'date_given' : 0 ,'time_id_given' : time_id_given,'area_id_given' : area_id_given})}}";
+        {% endif %} 	 
+                            let include_string = [];
+
+                            $("input[name=productCategory]").each(function () {
+                                if ($(this).is(":checked")) {
+                                    makeSingleObject = {
+                                        productCategory: $(this).val()
+                                    };
+                                    include_string.push(makeSingleObject);
+                                }
+                            });
+
+                            if (include_string.length > 0) {
+
+                                include_string = JSON.stringify(include_string);
+                                link_href += "?include_string=" + include_string;
+                                console.log({include_string, link_href});
+
+                                window.location.href = link_href;
+                            } else {
+                                alert("Please Select Any One Category");
+                            }
+                        });
+
+                    });
+    </script>
+{% endblock %}

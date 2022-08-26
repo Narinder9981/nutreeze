@@ -1,0 +1,174 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Pause Package and Orders
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Pause Package  [ Package name :  {{package_name}} ] </h3>
+                    </div>
+					<!-- end: box header -->
+					<div class="box-body">
+						<!-- tab-content -->
+						<div class="tab-content">
+									
+							<form id="form-" class="form-horizontal" method="post" action="{{path('admin_pause_savepausepackage')}}" enctype="multipart/form-data">
+								
+								<input type="hidden" name="main_package_master_id" value="{{ main_package_master_id }}">
+								
+								
+								<div class="row">
+									<div class="col-md-12">
+										<div class="col-md-2">
+											<label>Pause Start Date</label>
+										</div>
+										<div class="col-md-2">
+											<input class="form-control datepicker" type="textbox" name="pause_start_date" value="" required />
+										</div>
+										<div class="col-md-2 hide">
+											<label>Pause End Date</label>
+										</div>
+										<div class="col-md-2 hide">
+											<input class="form-control datepicker" type="textbox" name="pause_end_date" value="" />
+										</div>
+										<div class="col-md-1">
+											<label>Resume Choice</label>
+										</div>
+										<div class="col-md-3">
+											
+												<input type="radio" class="radio-inline" name="resume_choice" value="admin"  required / >Admin Selection
+												<input type="radio" class="radio-inline" name="resume_choice" value="customer" required  / >Customer Choice
+											
+										</div>
+									</div>
+									
+								</div>
+								</br>	
+																		
+								
+								
+																
+																		
+								
+								<div class="row paddTop">
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<button type="submit" name="submit" class="btn btn-success" value="">
+												<span><i class="fa fa-check-square-o"></i>&nbsp;
+												Pause Package
+												</span>
+											</button>
+											<a href="{{path('admin_package_index')}}" ><button type="button" name="cancel" class="btn btn-danger" value="">
+												<span><i class="fa fa-backward"></i>&nbsp;
+												Back
+												</span>
+											</button></a>
+											
+										</div>
+									</div>
+								</div>
+								
+							</form>
+									
+							
+						</div>
+						<!-- end: tab-content -->
+							
+						<hr>
+						 <div class="box-body table-responsive">
+                         <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                            <th>No</th>                              
+                            <th>Pause start date</th>
+                            <th>Pause end date</th>
+                            <th>Resume Choice</th>
+                            <th>Pause at</th>
+                            <th>Orders</th>
+                            <th>View Pause Orders</th>
+                            </thead>
+                            <tbody>
+                                {%if pause_package_history is defined and pause_package_history is not empty%}
+                                    {%for packages in pause_package_history%}
+                                        <tr>
+                                            <td>{{loop.index}}</td>                                            
+                                            <td>{{packages.pause_start_date}}</td>
+                                            <td>{{packages.pause_end_date}}</td>
+                                            <td>By {{packages.resume_choice}}</td>
+                                            <td>{{packages.pause_updated_date}}</td>
+                                            <td>{{packages.affected_orders}}</td>
+                                            <td><a target="_blank" href="{{path('admin_pause_pausepackageorders',{'main_package_id':main_package_master_id,'pause_package_history_id':packages.pause_package_history_id})}}"><button type="button" name="getorders" class="btn btn-info btn-xs" value="">
+												<span><i class="fa fa-shopping-cart"></i>&nbsp;
+												View Pause Orders
+												</span>
+											</button></a></td>
+                                        </tr>
+                                       
+                                    {%endfor%}
+                                {%endif%}
+                            </tbody>
+                            <tfoot>
+                           <th>No</th>                              
+                                                     
+                            <th>Pause start date</th>
+                            <th>Pause end date</th>
+                            <th>Resume Choice</th>
+                            <th>Pause at</th>
+                            <th>Orders</th>
+                            <th>View Pause Orders</th>
+                            </tfoot>
+                        </table>
+                    </div>
+												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>
+	$('.datepicker').datepicker({  format: 'yyyy-mm-dd', });
+	  $('#list').DataTable();
+	$(document).ready(function() {
+      $('#list').DataTable();
+//			$('.datepicker').datepicker();
+    });	
+	
+	
+	
+</script>	
+{% endblock %}

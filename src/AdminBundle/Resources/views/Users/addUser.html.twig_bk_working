@@ -1,0 +1,308 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Add {%if user_role_id is defined and user_role_id == 4%}Company{%else%}Driver{%endif%}
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update User</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+{#					{% if language_list is defined  and language_list is not empty%}
+						<div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                {% if language_list is defined %}
+                                   {% for language in language_list %}
+                                        <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                            <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>  #}
+						
+						<!-- tab-content -->
+						<div class="tab-content">
+						{% set user_master_id = 0 %}
+						{% set password = '' %}
+						{% set user_firstname = '' %}
+						{% set user_lastname = '' %}
+						{% set user_mobile = '' %}
+						{% set email = '' %}
+						{% set img_url = '' %}
+						{% set area_id = '' %}
+						{% set lat = 0 %}
+						{% set lang = 0 %}
+						{% set selected_company = 0 %}
+						
+{#							{% for language in language_list %} #}
+								<div role="tabpanel" class="tab-pane active">
+									
+									{% set action = path('admin_users_saveuser') %}
+									
+									{% if users is defined and users is not empty %}
+										{% set user_master_id = users.user_master_id %}
+										{% set user_firstname = users.user_firstname %}
+										{% set user_lastname = users.user_lastname %}
+										{% set user_mobile = users.user_mobile %}
+										{% set email = users.email %}
+										{% set img_url = users.media_url %}
+										{% set area_id = users.area_id %}
+										{% set lang = users.lang %}
+										{% set lat = users.lat %}
+										{% set selected_company = users.parent_user_id %}
+									{% endif %}
+									
+									<form  class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+										
+										<input type="hidden" name="user_master_id" value="{{ user_master_id }}">
+										<input type="hidden" name="user_role_id" value="{{ user_role_id }}">
+										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+												{%if user_role_id is defined and user_role_id == 4%}
+													<label>Company name </br></label>
+												{%else%}	
+													<label>First name </br></label>
+												{% endif%}
+													
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="user_firstname" value="{{user_firstname}}" required="required"/>
+												</div>
+											</div>
+										</div>
+										</br>	
+									{%if user_role_id is defined and user_role_id == 4%}									
+										<input type="hidden" name="user_lastname" value="">									
+									{%else%}	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Last name </br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="user_lastname" value="{{user_lastname}}" required="required"/>
+												</div>
+											</div>
+										</div>
+										
+										</br>										
+									{%endif%}	
+{#									
+									{%if user_role_id is defined and user_role_id == 2%}
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Company</br></label>
+												</div>
+												<div class="col-md-10">
+												<select class="form-control" name="company" required>
+													<option value="">Select Company</option>
+													{%if companies is defined and companies is not empty%}
+														{%for company in companies%}
+															<option value="{{company.user_master_id}}" {%if company.user_master_id == selected_company %} selected{%endif%}>
+																{{company.user_firstname}}
+															</option>
+														{%endfor%}
+													{%endif%}
+												</select>	
+													
+												</div>
+											</div>
+										</div>
+										</br>									
+									
+									{%endif%}
+									#}
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Mobile Number</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='number' class="form-control" name="user_mobile" value="{{user_mobile}}" required="required"/>
+												</div>
+											</div>
+										</div>
+										</br>										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Email</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='email' class="form-control" name="email" value="{{email}}" required="required"/>
+												</div>
+											</div>
+										</div>
+										</br>										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Password</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='password' class="form-control password" name="password" 
+													required="required"/>
+												</div>
+											</div>
+										</div>										
+										</br>	
+										{% if users is defined and users is not empty %}
+										<script>	
+											$('.password').removeAttr('required');
+										</script>	
+										{% endif%}	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Area</br></label>
+												</div>
+												<div class="col-md-10">
+												<select class="form-control" name="area_id" required>
+													<option value="">Select Area</option>
+													{%if area is defined and area is not empty%}
+														{%for area in area%}
+															<option value="{{area.main_area_id}}" {%if area.main_area_id == area_id %} selected{%endif%}>
+																{{area.lang_name}}
+															</option>
+														{%endfor%}
+													{%endif%}
+												</select>	
+													
+												</div>
+											</div>
+										</div>
+										</br>
+										{%if user_role_id is defined and user_role_id != 4%}
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Latitude </br></label>
+												</div>
+												<div class="col-md-4">
+													<input type='text' class="form-control" name="lat" required="required" value="{{lat}}"/>
+												</div>
+												<div class="col-md-2">
+													<label>Longitude </br></label>
+												</div>
+												<div class="col-md-4">
+													<input type='text' class="form-control" name="lang" required="required" value="{{lang}}"/>
+												</div>												
+											</div>
+										</div>										
+										</br>	
+										{%else%}
+											<input type='hidden' class="form-control" name="lang" value="0"/>
+											<input type='hidden' class="form-control" name="lat" value="0"/>
+										{%endif%}	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Upload Image </br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='file' class="form-control goal_img" accept=".jpg,.jpeg,.png" name="gallery" required="required"/>
+												</div>
+											</div>
+										</div>
+										</br>
+										
+										{%if img_url is defined and img_url != ''%}
+												
+											<script>
+												$('.goal_img').removeAttr('required');
+											</script>
+											<div class="row col-md-offset-2">
+												<a data-fancybox='gallery' href="{{img_url}}">			
+														<img src="{{img_url}}" style="height:100px;width:100px" class="img-responsive img-thumbnail"/>
+												</a>	
+											</div>	
+											
+										{%endif%}										
+										</br>
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" class="btn btn-primary" value="submit">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if gallery is defined and gallery is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+									
+								</div>
+{#							{% endfor %}
+#}							
+						</div>
+						<!-- end: tab-content -->
+							
+{#					{% endif %}
+#}												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>	
+	$(function () {
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	});
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+</script>	
+{% endblock %}

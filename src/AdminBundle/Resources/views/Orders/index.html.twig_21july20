@@ -1,0 +1,443 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+
+        <h1>
+            Orders Listing
+        </h1>
+
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Orders</h3>
+
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form method="post" action="" id="fiter_form">
+                                    <div class="row">
+                                        <div class="col-md-12 form-group">
+                                            <div class="col-md-6">
+                                                <div class="col-md-2"><b>Status:</b></div>
+                                                <select id="package" name="status" class="col-md-5">
+                                                    <option value="0" {% if status == 0 %}selected{% endif %}>Select Status</option>
+                                                    <option value="Active" {% if status == 'Active' %}selected{% endif %}>Active</option>
+                                                    <option value="Expired" {% if status == 'Expired' %}selected{% endif %}>Expired</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <a href="{{path('admin_orders_getmealsdatewisefilter')}}" class="btn btn-info pull-right">Date Wise Meal Order</a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4 text-center">
+                                                <input type="submit" name="filter" id="filter" value="Search" class="btn btn-success">
+                                                <a class="btn btn-default cancel-btn" href="{{path('admin_product_index')}}" >Clear</a>
+                                            </div>
+                                            <div class="col-md-4"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive">
+                        <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                            <th>Sr.</th>
+                            <th>Order U.No</th>
+                            <th>Cutomer Name</th>
+                            <th>Package Name</th>
+                            <th>Sub Package</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th title="Remaining Days">Rem. Day</th>
+                            <th>Transaction Id</th>
+                            <th>Payment Status</th>
+                            <th>Order Status</th>
+                            <th>Operation</th>
+                            </thead>
+                            <tbody>
+                                {%if orders is defined and orders is not empty%}
+                                    {%for orders in orders%}
+                                        <tr>
+                                            <td>{{loop.index}}</td>
+                                            <td>{{orders.unique_no}}</td>
+                                            <td>{{orders.user_firstname ~ " " ~orders.user_lastname}} <br>[ <b>U. ID </b>: {{orders.unique_user_id}} ] </td>							
+                                            <td>{{orders.package_name | capitalize}}</td>
+                                            <td>{{orders.package_grams}} Grm - Package for {{orders.pk_for_name | capitalize}}</td>
+
+                                            <td>{{orders.start_date | date('d-m-Y')}}</td>
+                                            <td>{{orders.end_date | date('d-m-Y')}}</td>
+                                            <td  title="Remaining Days" >{{orders.remaining_days}}</td>
+                                            <td>{{orders.transaction_code}}</td>
+                                            <td>
+                                                {% set label_class1 = ''%}
+                                                {% set payment_status = '' %}
+                                                {% set added_css = '' %} 
+                                                {% if orders.payment_status == 'success'%}
+                                                    {% set label_class1 = 'label-success'%}
+                                                    {% set payment_status = 'success' %}
+                                                {% endif%}
+                                                {% if orders.payment_status == 'pending'%}
+                                                    {% set label_class1 = 'label-warning'%}
+                                                    {% set payment_status = 'pending' %}
+                                                {% endif%}	
+
+                                                {% if orders.order_status == 'cancel'%}
+                                                    {% set label_class1 = 'label-danger'%}
+                                                    {% set payment_status  = 'Transaction Cancel' %}
+                                                    {% set added_css  = 'display: block;width: 66px;white-space: normal;' %}
+                                                    
+                                                {% endif%}	
+
+
+                                                <label class="label {{label_class1}}" style="{{added_css }}">{{payment_status}}</label>							
+
+                                            </td>
+                                            <td>
+                                                {% set label_class = ''%}
+                                                {% set added_css = ''%}
+                                                {% if orders.order_status == 'success'%}
+                                                    {% set label_class = 'label-success'%}
+                                                {% endif%}
+                                                {% if orders.order_status == 'pending' or  orders.order_status == 'cancel' %}
+                                                    {% set label_class = 'label-warning'%}
+                                                    
+                                                {% endif%}							
+
+                                                <label class="label {{label_class}}" {{added_css}} >{{orders.order_status}}</label>
+                                            </td>
+                                            <td>
+                                                {% if orders.order_status != 'cancel'%}
+                                                    <a href="{{path('admin_orders_getmealsdatewisefilter',{'order_id':orders.order_master_id,'quick_access':'all'})}}" class="btn btn-xs btn-success" data-toggle="tooltip" data-title="View Order Date wise" ><i class="fa fa-th"></i></a>
+                                                {%endif%}
+                                                <a href="{{path('admin_orders_vieworder',{'order_master_id':orders.order_master_id})}}" class="btn btn-xs btn-primary" data-toggle="tooltip" data-title="View Order" ><i class="fa fa-eye"></i></a>
+                                                    {#		<a href="{{path('admin_orders_ordermeals',{'order_master_id':orders.order_master_id})}}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-title="View Meal" ><i class="fa fa-book"></i></a>	
+                                                            #}	
+                                                 {% if orders.order_status != 'cancel'%}
+                                                    {#<a href="{{path('admin_orders_deliverynote',{'order_master_id':orders.order_master_id})}}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-title="Delivery Note" ><i class="fa fa-sticky-note"></i></a>	#}
+                                                    {% if orders.remaining_days != 0 %}
+                                                    <button type="button" class="btn btn-warning btn-xs no-print" data-toggle="modal" data-target="#myModal_{{orders.order_master_id}}">Add Meal</button>	
+
+                                                    <button type="button" class="btn btn-info btn-xs no-print" data-toggle="modal" data-target="#myModalSuspend_{{orders.order_master_id}}">Add Suspension</button>			
+                                                    <a href="{{path('admin_orders_vieworderwiseoffdays',{'order_master_id':orders.order_master_id})}}" ><button type="button" class="btn bg-navy btn-xs no-print" >Days Operation</button></a>
+
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+
+
+
+                                    <div id="myModalSuspend_{{orders.order_master_id}}" class="modal fade" role="dialog">
+                                        <div class="modal-dialog">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h4 class="modal-title">Suspend Order : <b>{{ orders.unique_no }} </b> :: Customer : <b> {{orders.user_firstname ~ " " ~ orders.user_lastname}} </b></h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="{{path('admin_orders_freezefromadmin')}}" method="POST">
+                                                        <input type="hidden" name="order_id" value="{{orders.order_master_id}}" />
+
+                                                        <div class="form-group">
+                                                            <label class="">Start Date</label>
+                                                            <input type='text' name="start_date" id="sus_datepciker_start_{{orders.order_master_id}}" class="form-control sus_datepicker_{{orders.order_master_id}}"/>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="">End Date</label>
+                                                            <input type='text' name="end_date" id="sus_datepciker_end_{{orders.order_master_id}}" class="form-control sus_datepicker_{{orders.order_master_id}}"/>
+                                                        </div>
+
+                                                        <script>
+											order_id = "{{orders.order_master_id}}";
+											pickDate = "{{orders.start_date | date('Y-m-d')}}";
+                                                            pickDate1 = "{{orders.end_date | date('Y-m-d')}}";
+                                                            $("#sus_datepciker_start_" + order_id).datepicker('setStartDate', new Date());
+                                                            $("#sus_datepciker_end_" + order_id).datepicker('setStartDate', new Date());
+                                                        </script>	
+
+
+                                                        <button type="submit" >Save Suspension</button>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                    <div id="myModal_{{orders.order_master_id}}" class="modal fade" role="dialog">
+                                        <div class="modal-dialog">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h4 class="modal-title">Add Meal</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{{path('admin_orders_addmealbyadmin')}}">
+
+                                                        <input type="hidden" name="order_id" value="{{orders.order_master_id}}"/>
+                                                        <input type="hidden" name="meal_id" value="{{orders.order_master_id}}"/>
+
+                                                        <div class="form-group col-md-12">
+                                                            <div class="col-md-6">
+                                                                <label class="">Date</label>
+                                                                <input type='text' name="meal_date" id="datepciker_{{orders.order_master_id}}" class="form-control datepicker_{{orders.order_master_id}}" onchange="resetmealtype('datepciker_{{orders.order_master_id}}',{{orders.order_master_id}})" />
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="">Meal Type</label>
+                                                                <select class="form-control" name="meal_type" onchange="getMeals($(this), $('#datepciker_' +{{orders.order_master_id}} ).val(), {{orders.order_master_id}},{{orders.main_sub_package_id}} );" required >
+                                                                    <option value="">-- Select Meal Type --</option>
+                                                                    {% if meal_cat_all is defined and meal_cat_all is not empty %}
+                                                                        {% for meal_cat_all in meal_cat_all %}
+                                                                            <option value="{{meal_cat_all.main_product_category_master_id}}">{{meal_cat_all.product_category_name}}</option>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            
+                                                        </div>
+                                                        <script>
+                                                            order_id = "{{orders.order_master_id}}";
+                                                            pickDate = "{{orders.start_date | date('Y-m-d')}}";
+                                                            pickDate1 = "{{orders.end_date | date('Y-m-d')}}";
+                                                            $("#datepciker_" + order_id).datepicker('setStartDate', new Date());
+                                                        </script>	
+                                                        <div class="form-group  col-md-12">
+                                                            <div class="col-md-6">
+                                                                <label class="">Meal</label>
+                                                                <select class="form-control" name="meal" id="meal_select_{{orders.order_master_id}}" onchange="getMealEggs($(this), {{orders.order_master_id}},{{orders.main_sub_package_id}} );" required>
+                                                                    <option value="">-- Select Meal --</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="">Meal Qty</label>
+                                                                {#<input type="number" class="form-control" name="meal_qty" id="meal_qty_{{orders.order_master_id}}" placeholder="Enter Meal Qty " required /> #}
+                                                                <select class="form-control" name="meal_qty" id="meal_qty_{{orders.order_master_id}}" required>
+                                                                    <option value="">-- Select Meal --</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-md-12">
+                                                            <div class="col-md-6">
+                                                                <label class="">Protiens</label>
+                                                                <select class="form-control" name="prot" id="prot_{{orders.order_master_id}}">
+
+                                                                    <option value="0">-- Select Protiens --</option>
+                                                                    {% if orders.package_grams is defined and orders.package_grams is not empty %}
+                                                                        {% for i in range(0, orders.package_grams, 50) %}
+                                                                            <option value="{{ i }}">{{ i }}</option>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                </select>												
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="">Carbs</label>
+                                                                <select name="carb" class="form-control" id="carb_{{orders.order_master_id}}">>
+                                                                    <option value="0">-- Select Carbs --</option>
+                                                                    {% if orders.package_grams is defined and orders.package_grams is not empty %}
+                                                                        {% for i in range(0, orders.package_grams, 50) %}
+                                                                            <option value="{{ i }}">{{ i }}</option>
+                                                                        {% endfor %}
+                                                                    {% endif %}														
+                                                                </select>
+                                                            </div>												
+                                                        </div>	
+
+                                                        <div class="form-group breakfast col-md-12" style="display:none">
+                                                            <div class="col-md-6">
+                                                                <label class="">Raw Eggs</label>
+                                                                <select name="raw_eggs" class="form-control" id="raw_eggs_{{orders.order_master_id}}">
+                                                                    <option value="0">-- Select Raw Eggs --</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="">White Eggs</label>
+                                                                <select name="white_eggs" class="form-control" id="white_eggs_{{orders.order_master_id}}">
+                                                                    <option value="0">-- Select White Eggs --</option>
+                                                                </select>
+                                                            </div>												
+                                                        </div>	
+
+                                                        <div class="modal-footer">											
+                                                            <button class="btn btn-block btn-primary no-print">Add Meal</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                {%endfor%}
+                            {%endif%}
+                            </tbody>
+                            <tfoot>
+                            <th>Sr.</th>
+                            <th>Order U.No</th>
+                            <th>Cutomer Name</th>
+                            <th>Package Name</th>
+                            <th>Sub Package</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                             <th title="Remaining Days">Rem. Day</th>
+                            <th>Transaction Id</th>
+                            <th>Payment Status</th>
+                            <th>Order Status</th>
+                            <th>Operation</th>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+  <script>
+
+
+
+    $(document).ready(function() {
+     var dtable =  $('#list').DataTable();
+//			$('.datepicker').datepicker();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+        function resetmealtype(ele,order_id){         
+            $('#'+ele).parent().next().find('select').val('');  
+            // get package Gram Value
+            var selected_date = $('#'+ele).val();
+            $.ajax({
+                url : "{{path('admin_orders_getupgradegramvaluebydate')}}",
+                method : "POST",
+                data : {'order_id':order_id , 'selected_date' : selected_date },
+                success : function(data){
+                   // console.log(data);                    
+                    $("#prot_"+order_id).html(data);
+                    $("#carb_"+order_id).html(data);
+                }
+            });
+			
+        }
+
+        function getMeals(elem,dateval,order_id,main_sub_package_id){
+            meal_type_id = elem.val();
+
+            if(meal_type_id != 0){
+                    $.ajax({
+                            url : "{{path('admin_orders_getmealsbytype')}}",
+                            method : "POST",
+                            data : {'meal_type_id':meal_type_id , 'main_sub_package_id' : main_sub_package_id ,'req_date' : dateval},
+                            success : function(data){
+                                    console.log(data);
+                                    $("#meal_select_"+order_id).html(data);
+                            },
+                            error : function(){
+                                    alert('Something went Wrong.')
+                            }
+                    });
+            }
+
+            if(meal_type_id == 1 || true ){ 
+                    //snakes
+                    $('.breakfast').show();
+            }else{
+                    $('.breakfast').hide();
+            }
+	}
+
+function getMealEggs(elem,order_id,main_sub_package_id){
+		product_id = elem.val();
+
+		if(meal_type_id != 0){
+			$.ajax({
+				url : "{{path('admin_orders_getmealsegssbyproduct')}}",
+				method : "POST",
+				data : {'main_product_id':product_id , 'main_sub_package_id' : main_sub_package_id },
+				success : function(data){
+					console.log(data);
+					data = JSON.parse(data);
+					if(data.white_eggs_html != ''){
+						$("#white_eggs_"+order_id).html(data.white_eggs_html);
+					}
+					if(data.raw_eggs_html != ''){
+                                            $("#raw_eggs_"+order_id).html(data.raw_eggs_html);
+					}
+					if(data.product_max_value_html != ''){
+                                            $("#meal_qty_"+order_id).html(data.product_max_value_html);
+					}
+                                        if(data.pro_carb_flag == 'false'){
+                                            $("#prot_"+order_id).addClass('hide').removeClass('show');
+                                            $("#carb_"+order_id).addClass('hide').removeClass('show')
+                                        }
+                                        if(data.pro_carb_flag == 'true'){
+                                            $("#prot_"+order_id).addClass('show').removeClass('hide');
+                                            $("#carb_"+order_id).addClass('show').removeClass('hide')
+                                        }
+					
+				},
+				error : function(){
+					alert('Something went Wrong.')
+				}
+			});
+		}
+	}
+
+  </script>
+{% endblock %}

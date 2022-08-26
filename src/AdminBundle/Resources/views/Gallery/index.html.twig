@@ -1,0 +1,107 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Gallery Listing
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+        <div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Gallery</h3>
+				<a href="{{ path('admin_gallery_addgallery') }}" class="btn btn-primary btn-flat pull-right"><i class="glyphicon glyphicon-plus"></i><b>&nbsp;&nbsp;Add Gallery</b></a>
+			</div>
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				<th>Media</th>
+				<th>Media Type</th>
+				<th>Operation</th>
+              </thead>
+              <tbody>
+                {%if gallery is defined and gallery is not empty%}
+					{%for gallery in gallery%}
+						<tr>
+							<td>{{loop.index}}</td>
+							<td>
+								<a data-fancybox='gallery' href="{{gallery.media_url}}">			
+									{%if gallery.media_type == 'img'%}
+										<img src="{{gallery.media_url}}" style="height:50px;width:50px" class="img-responsive img-thumbnail"/>
+									{%endif%}
+									
+									{%if gallery.media_type == 'video'%}
+									
+										<video width="50px" height="50px">
+										  <source src="{{gallery.media_url}}" type="video/mp4">
+										  <source src="{{gallery.media_url}}" type="video/ogg">
+										Your browser does not support the video tag.
+										</video>
+									{%endif%}
+								</a>	
+								
+							</td>
+							<td>{{gallery.media_type | capitalize}}</td>
+							<td>
+								<a href="{{path('admin_gallery_addgallery',{'gallery_id':gallery.common_gallery_master_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+								<a href="{{path('admin_gallery_deletegallery',{'gallery_id':gallery.common_gallery_master_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure wwant to delete ? ')"><i class="fa fa-trash"></i></a>								
+							</td>
+						</tr>
+					{%endfor%}
+				{%endif%}
+              </tbody>
+              <tfoot>
+                 <th>No</th>
+				<th>Media</th>
+				<th>Media Type</th>
+				<th>Operation</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}

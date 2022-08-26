@@ -1,0 +1,115 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Contact Settings
+            <small></small>
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                      {#  <h3 class="box-title"> Contact Settings</h3>#}
+                    </div>
+                    <!-- end: box header -->
+
+                    <div class="box-body">
+                        <form class="form-horizontal" method="post" action="{{path('admin_contactus_savesettings')}}" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>FaceBook</label>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" name="facebook" class="form-control" value="{%if  contactSettingsData is defined and contactSettingsData is not empty %} {{contactSettingsData.facebook_link}} {%endif%}">
+                            </div>                            
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Twiiter</label>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" name="twitter" class="form-control" value="{%if  contactSettingsData is defined and contactSettingsData is not empty %} {{contactSettingsData.twitter_link}} {%endif%}">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Google</label>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" name="google" class="form-control" value="{%if  contactSettingsData is defined and contactSettingsData is not empty %} {{contactSettingsData.google_link}} {%endif%}">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>LinkedIn</label>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" name="linkedin" class="form-control" value="{%if  contactSettingsData is defined and contactSettingsData is not empty %} {{contactSettingsData.linkedin_link}} {%endif%}">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Whatsapp</label>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" name="whatsapp" class="form-control" value="{%if  contactSettingsData is defined and contactSettingsData is not empty %} {{contactSettingsData.whatsapp_link}} {%endif%}">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Whatsapp Number</label>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="text" name="whatsappnumber" class="form-control" value="{%if  contactSettingsData is defined and contactSettingsData is not empty %} {{contactSettingsData.whatsapp_number}} {%endif%}">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">                             
+                            <div class="col-md-3"><input type="submit" class="btn btn-success" value="Save Settings"/></div>
+                        </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>		
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('#datatable').DataTable();
+        });
+    </script>
+{% endblock %}

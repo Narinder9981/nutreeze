@@ -1,0 +1,97 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Time Slot Listing
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+		<div class="box-header">
+			<a href="{{path('admin_timeslots_addtimeslot')}}" class="btn btn-primary theme-btn pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add Time Slot</a>		
+		</div>
+        <div class="box box-primary">
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+								{% if languages is defined and languages is not empty%}
+									{%for language in languages%}
+										<th>Name : {{language.language_name}}</th>
+									{%endfor%}	
+								{% endif%}
+								<th>Start Time</th>
+								<th>End Time</th>
+								<th>Operation</th>
+              </thead>
+              <tbody>
+                {%if time_slots is defined and time_slots is not empty%}
+									{%for time_slots in time_slots %}
+										<tr>
+											<td>{{loop.index}}</td>
+											{%if time_slots.lang_wise is defined and time_slots.lang_wise is not empty %}
+												{%for name in time_slots.lang_wise %}
+													<td>{{name.name}}</td>
+												{%endfor%}
+											{%endif%}
+											<td>{{time_slots.start_time | date('h:i a')}}</td>
+											<td>{{time_slots.end_time | date('h:i a')}}</td>
+
+											<td>
+												<a href="{{path('admin_timeslots_addtimeslot',{'main_id':time_slots.main_time_slot_master_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+												<a href="{{path('admin_timeslots_delete',{'main_id':time_slots.main_time_slot_master_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure wwant to delete ? ')"><i class="fa fa-trash"></i></a>								
+											</td>
+										</tr>
+									{%endfor%}
+								{%endif%}
+              </tbody>
+              <tfoot>
+                <th>No</th>
+								{% if languages is defined and languages is not empty%}
+									{%for language in languages%}
+										<th>Name : {{language.language_name}}</th>
+									{%endfor%}	
+								{% endif%}
+								<th>Start Time</th>
+								<th>End Time</th>
+								<th>Operation</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+  </script>
+{% endblock %}

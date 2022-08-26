@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="{{asset('bundles/design/appLogo.png')}}" rel="shortcut icon">
+        <title>{% block title %}Nutrezee{% endblock %}</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <!-- Bootstrap 3.3.4 -->
+        <link href="{{asset('bundles/design/')}}css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <!-- Fontawesome --->
+        <link href="{{asset('bundles/design/')}}css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{asset('bundles/design/')}}css/AdminLTE.min.css" rel="stylesheet" type="text/css" />
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+             folder instead of downloading all of them to reduce the load. -->
+        <link href="{{asset('bundles/design/')}}css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- DataTable ---->
+        <link href="{{asset('bundles/design/')}}css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="{{asset('bundles/design/')}}css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" rel="stylesheet" type="text/css" />
+
+        <link href="{{asset('bundles/design/')}}css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
+
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.css" rel="stylesheet" type="text/css" />
+
+    {% block css %}
+        <style>
+            {#.no-js #loader { display: none;  }
+            .js #loader { display: block; position: absolute; left: 100px; top: 0; }
+            .se-pre-con {
+                    position: fixed;
+                    left: 0px;
+                    top: 0px;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 9999;
+                    
+                    background: lightblue url(https://smallenvelop.com/wp-content/uploads/2014/08/Preloader_51.gif) no-repeat fixed center;
+            }#}
+        </style>
+    {% endblock %}
+    <!-- jQuery 2.1.4 -->
+    <script src="{{asset('bundles/design/')}}js/jQuery-2.1.4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <!-- Bootstrap 3.3.2 JS -->
+    <script src="{{asset('bundles/design/')}}js/bootstrap.min.js" type="text/javascript"></script>
+    <!-- AdminLTE App -->
+    <script src="{{asset('bundles/design/')}}js/app.min.js" type="text/javascript"></script>
+
+    <script src="{{asset('bundles/design/')}}js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="{{asset('bundles/design/')}}js/dataTables.bootstrap.min.js" type="text/javascript"></script>
+    <script src="{{asset('bundles/design/')}}js/buttons.print.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js" type="text/javascript"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" type="text/css" media="screen" />
+
+</head>
+<body class="skin-blue sidebar-mini">
+    <div class="se-pre-con"></div>
+    <div class="wrapper">
+
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="#" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini">
+                    <img src="{{asset('bundles/design/appLogo.png')}}" style="height: 50px ; width: 50px">
+                </span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg">
+                    <img src="{{asset('bundles/design/appLogo.png')}}" style="height: 50px">
+                </span>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="user user-menu">
+                            <a href="{{path('admin_default_logout')}}" onclick="return confirm('Are you sure want to Logout?');" class="bg-navy">
+                                <span class="hidden-xs"><i class="fa fa-power-off"></i></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                    <li class="header" style="color: #e2e2e2;">{% if app.session.has('logged_in_username') %}{{ app.session.get('logged_in_username') }}{% endif %}</li>
+                    <li class="active treeview">
+                        <a href="{{path('admin_dashboard_index')}}">
+                            <i class="fa fa-dashboard"></i> 
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    {%if app.session.get('role_id') == 2 %}
+                        <li class="">
+                                <a href="{{path('admin_users_index',{'user_role_id':2})}}">
+                                    <i class="fa fa-user"></i>
+                                    <span>Drivers</span>
+                                </a>
+                            </li>
+                    {%endif%}
+                    {%if app.session.get('role_id') == 1 %}
+                    <li class="treeview menu-open">
+                        <a href="#">
+                            <i class="fa fa-users"></i>
+                            <span>Users</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class=""> 
+                                <a href="{{path('admin_users_index',{'user_role_id':3})}}">
+                                    <i class="fa fa-user"></i>
+                                    <span>Users</span>
+                                </a>
+                            </li>
+                            <li class="">
+                                <a href="{{path('admin_users_index',{'user_role_id':2})}}">
+                                    <i class="fa fa-user"></i>
+                                    <span>Drivers</span>
+                                </a>
+                            </li>
+                            {#		
+                                <li class="">
+                                    <a href="{{path('admin_users_index',{'user_role_id':4})}}">
+                                            <i class="fa fa-user"></i>
+                                            <span>Company</span>
+                                    </a>
+                                </li>
+                            #}	
+                        </ul>
+                    </li>
+                    <li class="treeview menu-open">
+                        <a href="#">
+                            <i class="fa fa-film"></i>
+                            <span>Video Section</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class="active treeview">
+                                <a href="{{path('admin_uservideocategory_index')}}">
+                                    <i class="fa fa-film"></i> 
+                                    <span>Video Categories</span>
+                                </a>
+                            </li>
+                            <li class="active treeview">
+                                <a href="{{path('admin_uservideo_index')}}">
+                                    <i class="fa fa-film"></i> 
+                                    <span>User's Video</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+
+                    {#            <li class="active treeview">
+                                  <a href="{{path('admin_schedule_index')}}">
+                                    <i class="fa fa-book"></i> 
+                                                    <span>User's Schedule</span>
+                                  </a>
+                                </li>	#}		
+                    <li class="treeview">
+                        <a href="{{path('admin_product_index')}}">
+                            <i class="fa fa-list"></i> 
+                            <span>Products</span>
+                        </a>
+                    </li>			
+                    <li class="treeview">
+                        <a href="{{path('admin_ratings_index')}}">
+                            <i class="fa fa-star"></i> 
+                            <span>Ratings</span>
+                        </a>
+                    </li>						
+                    <li class="treeview">
+                        <a href="{{path('admin_package_index')}}">
+                            <i class="fa fa-list"></i> 
+                            <span>Packages</span>
+                        </a>
+                    </li>			
+                    <li class="treeview menu-open">
+                        <a href="#">
+                            <i class="fa fa-file"></i>
+                            <span>Orders</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class=""> 
+                                <a href="{{path('admin_orders_index')}}">
+                                    <i class="fa fa-file"></i>
+                                    <span>Customer Orders</span>
+                                </a>
+                            </li>
+
+                            <li class="active treeview">
+                                <a href="{{path('admin_driverorders_index')}}">
+                                    <i class="fa fa-list"></i> 
+                                    <span>Orders Driver Wise</span>
+                                </a>
+                            </li>		
+
+                        </ul>
+                    </li>	
+                    {%endif%}
+
+                    {% if app.session.get('role_id') == 2 %}
+                     <!-- Drivers--> 
+                    
+                        <li class="treeview">
+                            <a href="{{path('admin_driverorders_index')}}">
+                                <i class="fa fa-list"></i> 
+                                <span>Orders</span>
+                            </a>
+                        </li>
+                     {% endif %}
+
+                     {% if app.session.get('role_id') == 5 %}
+                        <!-- Accountant -->
+                    
+                        <li class="treeview">
+                            <a href="{{path('admin_orders_index')}}">
+                                <i class="fa fa-list"></i> 
+                                <span>Orders</span>
+                            </a>
+                        </li>
+
+                        <li class=""> 
+                            <a href="{{ path('admin_salesreports_index') }}">
+                                <i class="fa fa-gear"></i>
+                                <span>Monthly Sales report</span>
+                            </a>
+                        </li>	
+
+                     {% endif %}
+
+                     {% if app.session.get('role_id') == 7 %}
+                        <!-- Supervisor -->
+
+                        <li class="treeview menu-open">
+                            <a href="#">
+                                <i class="fa fa-users"></i>
+                                <span>Users</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li class=""> 
+                                    <a href="{{path('admin_users_index',{'user_role_id':3})}}">
+                                        <i class="fa fa-user"></i>
+                                        <span>Users</span>
+                                    </a>
+                                </li>
+                                <li class="">
+                                    <a href="{{path('admin_users_index',{'user_role_id':2})}}">
+                                        <i class="fa fa-user"></i>
+                                        <span>Drivers</span>
+                                    </a>
+                                </li>
+                                {#		
+                                    <li class="">
+                                        <a href="{{path('admin_users_index',{'user_role_id':4})}}">
+                                                <i class="fa fa-user"></i>
+                                                <span>Company</span>
+                                        </a>
+                                    </li>
+                                #}	
+                            </ul>
+                        </li>
+
+                        <li class="treeview">
+                            <a href="{{path('admin_orders_index')}}">
+                                <i class="fa fa-list"></i> 
+                                <span>Orders</span>
+                            </a>
+                        </li>
+
+                        <li class=""> 
+                            <a href="{{path('admin_contactus_index')}}">
+                                <i class="fa fa-envelope"></i>
+                                <span>Contact Us</span>
+                            </a>
+                        </li>
+
+                     {% endif %}
+
+                     {% if app.session.get('role_id') == 6 %}
+                        <!-- Customer Service -->
+
+                        <li class="treeview">
+                            <a href="{{path('admin_users_index',{'user_role_id':3})}}">
+                                <i class="fa fa-user"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
+
+                        <li class="treeview">
+                            <a href="{{path('admin_customerservice_notpaid')}}">
+                                <i class="fa fa-bank"></i> 
+                                <span>Customer Service</span>
+                            </a>
+                        </li>
+
+                        <li class=""> 
+                            <a href="{{path('admin_contactus_index')}}">
+                                <i class="fa fa-envelope"></i>
+                                <span>Contact Us</span>
+                            </a>
+                        </li>
+
+                     {% endif %}
+                     
+                     
+                     {% if app.session.get('role_id') == 1 %}
+                    {# <li class="active treeview">
+                        <a href="{{path('admin_coupon_index')}}">
+                            <i class="fa fa-fire"></i> 
+                            <span>Coupon Master</span>
+                        </a>
+                    </li> #}
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-fire"></i>
+                            <span>Coupon Module</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class=""> 
+                                <a href="{{path('admin_coupon_index')}}">
+                                    <i class="fa fa-fire"></i>
+                                    <span>Coupon Master</span>
+                                </a>
+                            </li>
+
+                            <li class="active treeview">
+                                <a href="{{path('admin_coupon_categorylist')}}">
+                                    <i class="fa fa-list"></i> 
+                                    <span>Coupon Category</span>
+                                </a>
+                            </li>		
+
+                        </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="{{path('admin_customerservice_notpaid')}}">
+                            <i class="fa fa-bank"></i> 
+                            <span>Customer Service</span>
+                        </a>
+                    </li>
+                    
+                    <li class="treeview"> 
+                        <a href="{{path('admin_advertise_index')}}">
+                            <i class="fa fa-image"></i>
+                            <span>Advertisements / Offer</span>
+                        </a>
+                    </li>																									
+                    <li class="treeview">
+                        <a href="{{path('admin_gallery_index')}}">
+                            <i class="fa fa-image"></i> 
+                            <span>Common Gallery</span>
+                        </a>
+                    </li>						
+                    <li class="treeview menu-open">
+                        <a href="#">
+                            <i class="fa fa-plus"></i>
+                            <span>Masters</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class=""> 
+                                <a href="{{path('admin_area_index')}}">
+                                    <i class="fa fa-map-marker"></i>
+                                    <span>Area</span>
+                                </a>
+                            </li>
+                            {# <li class=""> 
+                                    <a href="{{path('admin_country_index')}}">
+                                            <i class="fa fa-map-marker"></i>
+                                            <span>Country</span>
+                                    </a>
+                            </li> 
+                            <li class=""> 
+                                    <a href="{{path('admin_weight_index')}}">
+                                            <i class="fa fa-map-marker"></i>
+                                            <span>Weight</span>
+                                    </a>
+                            </li>
+                            <li class=""> 
+                                    <a href="{{path('admin_height_index')}}">
+                                            <i class="fa fa-map-marker"></i>
+                                            <span>Height</span>
+                                    </a>
+                            </li>#}
+                            <li class="active treeview">
+                                <a href="{{path('admin_goal_index')}}">
+                                    <i class="fa fa-list"></i> 
+                                    <span>Goal</span>
+                                </a>
+                            </li>																								
+                            <li class=""> 
+                                <a href="{{path('admin_mealtypes_index')}}">
+                                    <i class="fa fa-list"></i>
+                                    <span>Meal Types</span>
+                                </a>
+                            </li>
+                            <li class=""> 
+                                <a href="{{path('admin_packagefor_index')}}">
+                                    <i class="fa fa-list"></i>
+                                    <span>Package For Types</span>
+                                </a>
+                            </li>
+                            <li class=""> 
+                                <a href="{{path('admin_deliveryreason_index')}}">
+                                    <i class="fa fa-list"></i>
+                                    <span>Delivery Reason</span>
+                                </a>
+                            </li>					
+                            <li class=""> 
+                                <a href="{{path('admin_timeslots_index')}}">
+                                    <i class="fa fa-list"></i>
+                                    <span>Delivery Time</span>
+                                </a>
+                            </li>					
+                            <li class=""> 
+                                <a href="{{path('admin_deliverymethods_index')}}">
+                                    <i class="fa fa-list"></i>
+                                    <span>Delivery Methods</span>
+                                </a>
+                            </li>
+                            <li class=""> 
+                                <a href="{{path('admin_contactus_settings')}}">
+                                    <i class="fa fa-list"></i>
+                                    <span>Contact Settings</span>
+                                </a>
+                            </li>	
+                        </ul>
+                    </li>
+                    <li class=""> 
+                        <a href="{{path('admin_contactus_index')}}">
+                            <i class="fa fa-envelope"></i>
+                            <span>Contact Us</span>
+                        </a>
+                    </li>
+                    <li class=""> 
+                        <a href="{{path('admin_aboutus_index')}}">
+                            <i class="fa fa-user"></i>
+                            <span>About Us</span>
+                        </a>
+                    </li>										
+                    <li class=""> 
+                        <a href="{{path('admin_terms_index')}}">
+                            <i class="fa fa-list"></i>
+                            <span>Term and Condition</span>
+                        </a>
+                    </li>															
+                    <li class=""> 
+                        <a href="{{path('admin_generalsettings_index')}}">
+                            <i class="fa fa-gear"></i>
+                            <span>General Setting</span>
+                        </a>
+                    </li>
+                    <li class=""> 
+                        <a href="{{ path('admin_pushnotification_index') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>Push Notification</span>
+                        </a>
+                    </li>
+                     <li class=""> 
+                        <a href="{{ path('admin_reports_summary') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>Report Summary</span>
+                        </a>
+                    </li>
+                    <li class=""> 
+                        <a href="{{ path('admin_salesreports_index') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>Monthly Sales report</span>
+                        </a>
+                    </li>
+                    {#<li class=""> 
+                        <a href="{{ path('admin_salesreports_salesreportv2') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>Sales Report V2</span>
+                        </a>
+                    </li>#}
+                     <li class=""> 
+                        <a href="{{ path('admin_userreports_index') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>User Package Summary</span>
+                        </a>
+                    </li>
+                    <li class=""> 
+                        <a href="{{ path('admin_adminstatus_updateshopstatus') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>MuscleFuel Shop Status</span>
+                        </a>
+                    </li>
+                    <li class=""> 
+                        <a href="{{ path('admin_adminstatus_notifylist') }}">
+                            <i class="fa fa-gear"></i>
+                            <span>Notify List</span>
+                        </a>
+                    </li>
+                     {%endif%}
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+        <div class="content-wrapper" style="min-height: 916px;">
+
+            <!--------------------- Main page contents loads here ------------------------------------>
+        {% block content %}{% endblock %}
+        <!---------------------------------------------------------------------------------------->
+
+    </div>
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+            <b>Admin Panel</b>
+        </div>
+        <strong>Copyright &copy; Nutrezee {{'now' | date('Y')}}
+    </footer>
+</div><!-- ./wrapper -->
+<div class="" id="wait" data-backdrop="static" data-keyboard="false" style="display: none;position:fixed;top:40%;left:50%;z-index: 2147483647;padding: 15px 18px;background-color:#CCC;"><span><i class="fa fa-circle-o-notch fa-spin fa-3x"></i></div>
+</body>
+</html>
+<script>
+    $(document).ajaxStart(function () {
+        $("#wait").show();
+    });
+    $(document).ajaxStop(function () {
+        $("#wait").hide();
+
+    });
+  $(window).load(function() {
+       {# $( document ).ready(function() {#}
+		// Animate loader off screen
+		//$(".se-pre-con").fadeOut("slow");;
+	});
+</script>
+{% block js %}{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block title %}Anona : Report Summary{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Pause User Summary
+            {%if flag_type == 'off_day' %}
+                <small><label>Users who have the off day</label></small>
+            {%elseif flag_type == 'meal_not_added' %}
+                <small><label>Users who are eligible but have not added their meals yet</label></small>
+            {%elseif flag_type == 'meal_added' %}
+                <small><label>Users who are eligible and have added their meals</label></small>
+            {%elseif flag_type == 'suspend_day' %}
+                 <small><label>Users who have freeze Package on this day</label></small>            
+            {%elseif flag_type == '0' %}
+                 <small><label>Users allowed to add meals on that day based on their package if they are eligible</label></small>
+            {%endif%}
+            
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <form name="filterdatewise" method="Post" action = "{{path('admin_pauseuserreports_pausereports')}}/{{flag_type}}">
+                <section class="col-lg-12 ">
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-2"><label>Selected Date</label></div>
+                                <div class="col-md-4">
+                                    <input type="hide" name="flag_type" value="{{flag_type}}" class="form-control datepicker" />
+                                    <input type="text" name="date_filter" value="{%if filter_date == '' %} {{ "now"|date("Y-m-d") }} {%else%} {{filter_date}} {%endif%}" class="form-control datepicker" />
+                                </div>
+                                <div class="col-md-2"><input type="submit" name="submit" value="Filter" class="btn btn-success"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-xs-6">
+                <!-- small box -->
+                <div class="small-box bg-aqua" style="    background-color: #34480270 !important;">
+                    <div class="inner">
+                        <h3>{{pause_user_count}}</h3>
+
+                        <p>Paused Users</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-bag"></i>
+                    </div>
+                    <a href="{{path('admin_pauseuserreports_pausereports')}}/pause_users/{{filter_date |trim}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-4 col-xs-6">
+                <!-- small box -->
+                <div class="small-box bg-green " style="background-color: #537788 !important;">
+                    <div class="inner">
+                        <h3>{{pause_user_package_nt_start_count}}</h3>
+
+                        <p>Active but package not start user</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-stats-bars"></i>
+                    </div>
+                    <a href="{{path('admin_pauseuserreports_pausereports')}}/active_not_start_users/{{filter_date |trim}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+          
+        </div>	
+        <div class="form-group">
+            <div class="table-responsive">
+                <table id="list" class="table display table-striped table-bordered scroll-horizontal ">
+                    <thead>
+                        <th>UserID</th>
+                        <th>Order</th>
+                        <th>User name</th>
+                        <th>Phone No</th>
+                                         
+                        <th class="text-center">Notification</th>
+                      
+                                       
+                    </thead>
+                    <tbody>
+                        {%if order_data is defined and order_data is not empty %}
+                            {%for order_data in order_data %}
+                                <tr>
+                                    <td>{{order_data.unique_user_id}}</td>
+                                    <td>{{order_data.unique_no}}</td>
+                                    <td>{{order_data.user_firstname}} {{order_data.user_lastname}}</td>
+                                    <td>{{order_data.user_mobile}}</td>
+                                   
+                                    <td class="text-center"><a target="_blank" href="{{path('admin_pushnotification_addpushnotification',{"user_id":order_data.user_id})}}" ><i class="fa fa-send-o "></i></a></td>
+
+                                    
+                                </tr>
+                            {%endfor%}
+                        {%else%}
+                            <tr><td colspan="5" class="text-center">No Records Found </td></tr>
+                        {%endif%}
+                        
+                    </tbody>
+                    <tfooter>
+                        <th>UserID</th>
+                        <th>Order</th>
+                        <th>User name</th>
+                        <th>Phone No</th>
+                                        
+                        <th class="text-center">Notification</th>
+                      
+                                                
+                    </tfooter>
+                </table>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $('.datepicker').datepicker({  format: 'yyyy-mm-dd', });
+    //	$('#example').DataTable();
+     //$('#list').DataTable();
+     $('#list').DataTable( {
+             dom: 'Bfrtip',
+
+    buttons: [
+        'copy', 'excel', 'pdf'
+    ]
+} );
+    });
+         </script>	
+{% endblock %}

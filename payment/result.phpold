@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Anona</title>
+ <link rel='shortcut icon' type='image/x-icon'  href="./favicon.ico">
+</head>
+<body>
+<div style="width: 100%;text-align: center;">
+	<img src="./anona.svg" style="width:250px;height: 100px;text-align: center;">
+</div>
+
+<h1 style="font-weight:400;font-family: 'Brush Script MT','Brush Script Std',cursive;text-align: center;">Thank You For Your Order....</h1>
+<div style="width:50%;background:rgb(252, 214, 191);margin-left: 25%;">
+	<?php
+
+error_reporting(E_ALL & ~E_NOTICE);
+
+include('settings.php');
+
+if(!empty($_GET)) extract($_GET);
+
+if(!empty($_POST)) extract($_POST); 
+
+
+echo $dispaly_message = "<table width='70%' align='center'  border='0' cellspacing='0' cellpadding='5' style='font-family: Verdana, Arial, Helvetica, sans-serif; font-size:12px; border:double;	border-color:#ccc; padding:20px 10px;border:none;'>
+
+				  <tr>
+
+					<td colspan='4' align='center'   style='font-family: Verdana, Arial, Helvetica, sans-serif; font-size:14px;'><strong class='text'>$webappname Transaction Details</strong></td>
+
+					</tr>
+
+				  <tr>
+
+					<td colspan='4' align='left'  style='padding-left: 10px;'><p> <br>   
+
+					  Reference Number :". @$ReferenceNumber ."</p>
+
+					       
+
+					  <p> PayTxnID :". @$PayTxnID."  </p>
+
+					
+
+					  <p> Paymode :". @$Paymode  ."   </p>
+
+					  <p> PayTxnID :".  @$PayTxnID  ." </p>
+
+					  <p> Result :".  @$Result ."   </p>
+
+					   <p> Package Name :". @$package_name."</p>             
+
+					  <p> Message:".  @$msg ."   </p>
+
+					  <p> Order Track ID:".  @$udf1 ."   </p>
+
+					   <p> Order Amount:".  @$udf2 ." KWD   </p>
+
+					</td>
+
+				  </tr>
+
+				  <tr><td width='26%' colspan='2'>&nbsp;</td>
+
+					<td width='20%' colspan='2'><a href='http://anonadiet.com/#/dashboard' style=' background-color:#fcc9ad;
+  color: #000;
+  padding: 15px 25px;
+  text-decoration: none;'>Back</a></td>
+
+					
+
+					
+
+				  </tr>
+
+				  </table>";
+
+
+
+if (@$Result == "CAPTURED") {
+	$message = $dispaly_message;
+    $to = @$CustomerEmail;
+//    $to = "phpdev1@infoware.ws";
+    $from = "admin@musclefuelkw.com";
+
+            
+    $subject = "Lifestyle - Payment Successfull";
+    $headers = 'MIME-Version: 1.0' . "\r\n";
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+    $headers .= 'From: '.$from."\r\n".
+    'Reply-To: '.$to."\r\n".
+    'X-Mailer: PHP/'.phpversion();
+
+	$response = true;
+
+	@mail($to,$subject,$message,$headers);
+    
+}
+
+?>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+{% extends "AdminBundle::Layout/adminlayout.html.twig" %}
+{% block title %} Push Notification List {% endblock %}
+{% block css %}
+<style>
+	.paddBottom { padding-bottom: 20px; }
+	.container1 {
+		display: block;
+		position: relative;
+		padding-left: 35px;
+		margin-bottom: 12px;
+		cursor: pointer;
+		font-size: 22px;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+
+	/* Hide the browser's default checkbox */
+	.container1 input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+		display: none;
+	}
+
+	/* Create a custom checkbox */
+	.checkmark {
+		position: absolute;
+		top: -22px;;
+		left: 50px;
+		height: 23px;
+		width: 23px;
+		background-color: #e5e5e5;
+	}
+
+	/* On mouse-over, add a grey background color */
+	.container1:hover input ~ .checkmark {
+		background-color: #ccc;
+	}
+
+	/* When the checkbox is checked, add a blue background */
+	.container1 input:checked ~ .checkmark {
+		background-color: #3c8dbc;
+	}
+
+	/* Create the checkmark/indicator (hidden when not checked) */
+	.checkmark:after {
+		content: "";
+		position: absolute;
+		display: none;
+	}
+
+	/* Show the checkmark when checked */
+	.container1 input:checked ~ .checkmark:after {
+		display: block;
+	}
+
+	/* Style the checkmark/indicator */
+	.container1 .checkmark:after {
+		left: 9px;
+		top: 5px;
+		width: 5px;
+		height: 10px;
+		border: solid white;
+		border-width: 0 3px 3px 0;
+		-webkit-transform: rotate(45deg);
+		-ms-transform: rotate(45deg);
+		transform: rotate(45deg);
+	}
+	#delete_selected_input .btn{
+		background: #3c8dbc;
+		border: 1px solid #3c8dbc;
+	}
+</style>
+{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <h1>
+            Push notification list
+            <small></small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+            <li class="active">Push notification list</li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div role="alert" class="alert alert-success alert-dismissible fade in">
+                <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span></button>
+                <strong>Alert!</strong>&nbsp; {{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div role="alert" class="alert alert-danger alert-dismissible fade in">
+                <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span></button>
+                <strong>Alert!</strong>&nbsp; {{ flashMessage }}
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-solid">
+                    <div class="nav-tab-custom">
+
+                        <ul class="nav nav-tabs">
+
+                            <li  class="active"><a href="#general" data-toggle="tab">General</a></li>
+                           
+
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active"  id="general">
+                                <div class="box-header with-border">
+                                    {#<h3 class="box-title">Progress Bars Different Sizes</h3>#}
+                                    <div class="pull-right">
+                                        <a href="{{path('admin_pushnotification_addpushnotification',{'domain':app.session.get('domain')})}}" class="btn btn-primary btn-flat"><i class="fa fa-plus"></i>&nbsp;&nbsp;ADD</a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="container-fluid table-responsive">
+                                        <table id="example1" class="table table-bordered table-striped text-center">
+                                            <thead>
+                                            <th>No.</th>
+                                            <th>Notification Title</th>
+                                            <th>Notification Message</th>
+                                            {# <th>Send to</th> #}
+                                            <th>Send Date</th>
+											<th>Delete</th>
+                                            </thead>
+                                            <tbody>
+                                                {% if note_list is defined and note_list is not empty %}
+                                                    {% for note in note_list %}
+                                                        <tr id="note_{{ note.general_notification_id }}">
+                                                            <td>{{loop.index}}</td>
+                                                            <td>{{note.title}}</td>
+                                                            <td>{{note.message}}</td>
+                                                          {#   <td>{% if note.send_to == 'CUST' %}Customer{%endif%}{% if note.send_to == 'DEL' %} Delivery Boy {% endif %}</td> #}
+                                                            <td>{{note.create_date}}</td>
+															<td>
+																<a class="deletecategory btn btn-danger btn-xs" href="{{ path('admin_pushnotification_deletenotification', {'id': note.general_notification_id}) }}" data-toggle="tooltip" data-placement="top" data-original-title="delete">
+																	<i class="fa fa-trash-o"></i>
+																</a>
+																<label class="container1">
+																	<input type="checkbox">
+																	<span class="checkmark" onclick="del_response({{ note.general_notification_id }});"></span>
+																</label>
+															</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tbody>
+                                            <tfoot>
+                                            <th>No.</th>
+                                            <th>Notification Title</th>
+                                            <th>Notification Message</th>
+                                           {#  <th>Send to</th> #}
+                                            <th>Send Date</th>
+											<th>Delete</th>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="tab-pane "  id="healthtip">
+                                <div class="box-header with-border">
+                                    {#<h3 class="box-title">Progress Bars Different Sizes</h3>#}
+                                    <div class="pull-right">
+                                        <a href="{{path('admin_pushnotification_addpushnotification',{'domain':app.session.get('domain')})}}" class="btn btn-primary btn-flat"><i class="fa fa-plus"></i>&nbsp;&nbsp;ADD</a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="container-fluid table-responsive">
+                                        <table id="example1" class="table table-bordered table-striped text-center">
+                                            <thead>
+                                            <th>No.</th>
+                                            <th>Notification Title</th>
+                                            <th>Notification Message</th>
+                                            <th>Send to</th>
+                                            <th>Send Date</th>
+											<th>Delete</th>
+                                            </thead>
+                                            <tbody>
+                                                {% if health_list is defined and health_list is not empty %}
+                                                    {% for note in health_list %}
+                                                        <tr>
+                                                            <td>{{loop.index}}</td>
+                                                            <td>{{note.title}}</td>
+                                                            <td>{{note.message}}</td>
+                                                            <td>{% if note.send_to == 'CUST' %}Customer{%endif%}{% if note.send_to == 'DEL' %} Delivery Boy {% endif %}</td>
+                                                            <td>{{note.create_date}}</td>
+                                                            <td>
+																<a class="deletecategory btn btn-danger btn-xs" href="{{ path('admin_product_deleteproduct', {'cat_id':category.main_product_id}) }}" data-toggle="tooltip" data-placement="top" data-original-title="delete">
+																	<i class="fa fa-trash-o"></i>
+																</a>
+															</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tbody>
+                                            <tfoot>
+                                            <th>No.</th>
+                                            <th>Notification Title</th>
+                                            <th>Notification Message</th>
+                                            <th>Send to</th>
+                                            <th>Send Date</th>
+                                            <th>Delete</th>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+    </section>
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">	  
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Message</h4>
+                </div>
+                <form action="#" method="post" id="model_form"></form>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-flat">Yes</button>
+                    <button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+                </div>
+                </form>
+            </div>
+
+        </div>
+    </div>	
+{% endblock %}
+
+{% block js %}
+    <script>
+        /*function delete_msg(id) {
+         $("#model_form").attr("action").val();
+         $("#myModal").modal("show");
+         }*/
+        $(document).ready(function () {
+            $('#example1').DataTable();
+        });
+		$('.deletecategory').click(function () {
+			var cnfm = confirm('Are you sure, you want to delete?');
+			if (cnfm) {
+				var cnfm1 = confirm("Confirmation: Are you sure, you want to delete?");
+				if (cnfm1) {
+					return true;
+				}
+			}
+			return false;
+		});
+		
+		var note_ids = [];
+		var search_html = '';
+		function del_response(note_id){
+			
+			var i = 0;
+			var add_flag = true;
+			for(i=0;i<note_ids.length;i++){
+				if(note_ids[i] == note_id){
+					add_flag = false;
+					note_ids.splice(i,1);
+				}
+			}
+			if(add_flag == true){
+				note_ids.push(note_id);
+			}
+			
+			if(note_ids.length > 0){
+				if(note_ids.length == 1){
+					$('#example1_filter').addClass('hide');
+					$('#delete_selected_input').remove();
+					$('#example1_filter').after('<div id="delete_selected_input" class="text-right"><input type="button" class="btn btn-primary" onclick="delete_selected_questions();" value="Delete Selected"></div>');
+				}
+			} else {
+				$('#example1_filter').removeClass('hide');
+				$('#delete_selected_input').remove();
+			}
+		}
+		
+		function delete_selected_questions(){
+			var cnfm = confirm("Do you want delete the comments'?");
+			if(cnfm){
+				var cnfm2 = confirm("Are you sure?");
+				if(cnfm2){			
+					if(note_ids.length == 0){
+						alert('Please select checkbox');
+						return false;
+					}
+					
+					var url = "{{ path('admin_pushnotification_deletenotificationbulk') }}";
+					$.ajax({
+						url: url,
+						data: {"note_ids": note_ids.join()},
+						method: 'POST',
+						success: function(response){
+							var res = JSON.parse(response);
+							console.log(res);
+							if(res['message'] == 'failed'){
+								location.href = "{{ path('admin_dashboard_index') }}";
+							}
+							if(res['success'] == true){
+								alert(res['message']);
+								for(i=0;i<note_ids.length;i++){
+									$('#note_' + note_ids[i]).remove();
+								}
+								
+								note_ids = [];
+								$('#example1_filter').removeClass('hide');
+								$('#delete_selected_input').remove();
+							}
+						},
+						error: function(error){
+							console.log(error);
+						}
+					});			
+				}
+			}
+		}
+		
+    </script>
+{% endblock %}

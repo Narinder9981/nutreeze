@@ -1,0 +1,114 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+<style>
+.filter-category {
+    padding: 10px;
+    border: 1px solid #e2e2e2;
+    border-radius: 4px;
+}
+</style>
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Social Media Listing
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+	<div class="box-header">
+		<a href="{{path('admin_socialmedia_addmedia')}}" class="btn btn-sm btn-primary btn-flat theme-btn pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add Social Media Item</a>
+	</div>
+    <div class="row">
+      <div class="col-md-12">
+		<div class="box box-primary">
+			
+          	<div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				<th>Title</th>
+				<th>Link</th>
+				
+				<th>Operation</th>
+              </thead>
+              <tbody>
+			  {%if medias is not empty and medias is defined%}
+			    {%for medias in medias%}
+                <tr>
+					<td>{{loop.index}}</td>
+					<td>{{medias.title}}</td>
+					<td>{{medias.link}}</td>
+					
+					<td>
+						<a href="{{path('admin_socialmedia_addmedia',{'social_media_id':medias.social_media_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+						<a href="{{path('admin_socialmedia_deletemedia',{'media_id':medias.social_media_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ? ')"><i class="fa fa-trash"></i></a>					
+					</td>
+				</tr>
+				{%endfor%}
+			  {%endif%}
+              </tbody>
+              <tfoot>
+                <th>No</th>
+				<th>Title</th>
+				<th>Link</th>
+				
+				<th>Operation</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_status(main_coupon_id,status){
+		$.ajax({
+			url : "{{path('admin_coupon_changecouponstatus')}}",
+			method : "POST",
+			data : {'main_coupon_id':main_coupon_id,'status':status},
+			success : function(data){
+				console.log('done');
+			}
+		});
+	}
+	
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}
+

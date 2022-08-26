@@ -1,0 +1,736 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <style>
+        @media print
+        {    
+            .no-print, .no-print *
+            {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Order Meals
+            <small></small>
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Order Meals </h3></br>
+                        <div class="row">
+                            {% if orderMaster is defined and orderMaster is not empty %}
+                                <div class="col-md-2">
+                                    <b>Order Id : </b> {{ orderMaster.unique_no }} 
+                                </div>	
+                                <div class="col-md-3">
+                                    <b>Start Date : </b> {{ orderMaster.start_date | date('d-m-Y') }} 
+                                </div>	
+                                <div class="col-md-3">
+                                    <b>End Date : </b> {{ orderMaster.end_date | date('d-m-Y') }} 
+                                </div>												
+                                <div class="col-md-3">
+                                    <b>Customer : </b> {% if order_data is defined and order_data is not empty %}{{order_data[0].customer_name}} {% endif %} 
+                                </div>												
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body">
+                        <div class="row col-md-4 form-group no-print">
+                            <form class="form-inline" action="" method="POST">
+                                <div class="form-group">
+                                    <label for="email">Date:</label>
+                                    <input type="text" class="form-control datepicker" name="order_date"  id="order_date" value="{{date}}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Go</button> 
+
+{#<button onclick="location.reload()" class="btn btn-default">Reset</button>#}	
+                            </form>
+                        </div>
+                        {% if orderMaster is defined and orderMaster is not empty %}
+                        <button type="button" class="btn btn-warning btn-xs no-print pull-right" data-toggle="modal" data-target="#myModal_{{orderMaster.order_master_id}}">Add Meal With new Date</button> 
+                        {% endif %}  
+                        
+                        <table class="table table-responsive table-stripped">
+
+                            <tbody>
+{% if orderMaster is defined and orderMaster is not empty %}
+                                 <div id="myModal_{{orderMaster.order_master_id}}" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Add Meal</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{{path('admin_orders_addmealbyadmin')}}">
+
+                                            <input type="hidden" name="order_id" value="{{orderMaster.order_master_id}}"/>
+                                            <input type="hidden" name="meal_id" value="0"/>
+
+                                            <div class="form-group col-md-12">
+                                                <div class="col-md-6">
+                                                    <label class="">Date</label>
+                                                    <input type='text' name="meal_date" id="datepciker_{{orderMaster.order_master_id}}" class="form-control datepicker_{{orderMaster.order_master_id}}" onchange="resetmealtype('datepciker_{{orderMaster.order_master_id}}',{{orderMaster.order_master_id}})" />
+                                                </div>
+                                                
+                                                <div class="col-md-6">
+                                                    <label class="">Meal Type</label>
+                                                    <select class="form-control" name="meal_type" onchange="getMeals($(this), $('#datepciker_' +{{orderMaster.order_master_id}} ).val(), {{orderMaster.order_master_id}},{{orderMaster.sub_package_id}},{{orderMaster.order_master_id}} );" required >
+                                                        <option value="">-- Select Meal Type --</option>
+                                                        {% if meal_cat_all is defined and meal_cat_all is not empty %}
+                                                            {% for meal_cat_all in meal_cat_all %}
+                                                                <option value="{{meal_cat_all.main_product_category_master_id}}">{{meal_cat_all.product_category_name}}</option>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                
+                                            </div>
+                                            <script>
+                                                order_id = "{{orderMaster.order_master_id}}";
+                                                pickDate = "{{orderMaster.start_date | date('Y-m-d')}}";
+                                                pickDate1 = "{{orderMaster.end_date | date('Y-m-d')}}";
+                                                $("#datepciker_" + order_id).datepicker('setStartDate', new Date());
+                                            </script>   
+                                            <div class="form-group  col-md-12">
+                                                <div class="col-md-6">
+                                                    <label class="">Meal</label>
+                                                    <select class="form-control" name="meal" id="meal_select_{{orderMaster.order_master_id}}" onchange="getMealEggs($(this), {{orderMaster.order_master_id}},{{orderMaster.sub_package_id}} );" required>
+                                                        <option value="">-- Select Meal --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="">Meal Qty</label>
+                                                    {#<input type="number" class="form-control" name="meal_qty" id="meal_qty_{{orderMaster.order_master_id}}" placeholder="Enter Meal Qty " required /> #}
+                                                    <select class="form-control" name="meal_qty" id="meal_qty_{{orderMaster.order_master_id}}" required>
+                                                        <option value="">-- Select Meal --</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-12 hide">
+                                                <div class="col-md-6">
+                                                    <label class="">Protiens</label>
+                                                    <select class="form-control" name="prot" id="prot_{{orderMaster.order_master_id}}">
+
+                                                        <option value="0">-- Select Protiens --</option>
+                                                        {% if sub_package_details_grams is defined and sub_package_details_grams is not empty %}
+                                                            {% for i in range(0, sub_package_details_grams, 50) %}
+                                                                <option value="{{ i }}">{{ i }}</option>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </select>                                               
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="">Carbs</label>
+                                                    <select name="carb" class="form-control" id="carb_{{orderMaster.order_master_id}}">>
+                                                        <option value="0">-- Select Carbs --</option>
+                                                        {% if sub_package_details_grams is defined and sub_package_details_grams is not empty %}
+                                                            {% for i in range(0, sub_package_details_grams, 50) %}
+                                                                <option value="{{ i }}">{{ i }}</option>
+                                                            {% endfor %}
+                                                        {% endif %}                                                     
+                                                    </select>
+                                                </div>                                              
+                                            </div>  
+
+                                            <div class="form-group breakfast col-md-12 hide" style="display:none">
+                                                <div class="col-md-6">
+                                                    <label class="">Raw Eggs</label>
+                                                    <select name="raw_eggs" class="form-control" id="raw_eggs_{{orderMaster.order_master_id}}">
+                                                        <option value="0">-- Select Raw Eggs --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="">White Eggs</label>
+                                                    <select name="white_eggs" class="form-control" id="white_eggs_{{orderMaster.order_master_id}}">
+                                                        <option value="0">-- Select White Eggs --</option>
+                                                    </select>
+                                                </div>                                              
+                                            </div>  
+
+                                            <div class="modal-footer">                                          
+                                                <button class="btn btn-block btn-primary no-print ">Add Meal </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endif %}
+                                {%if order_data is defined and order_data is not empty%}
+                                    {%for order_data in order_data %}
+                                        <tr style="background:lightblue">
+                                            <td>
+                                                Order No : {{order_data.order_unique_no}}
+                                            </td>
+                                            <td>
+                                                Req Date : {{order_data.date_time}}
+                                            </td>
+                                            <td>
+                                                Customer : {{order_data.customer_name}}
+                                            </td>
+                                            <td class="no-print">Status : {{ order_data.status_name }}</td>
+                                            <td>Last Modified Date time : {{ order_data.last_modified_datetime }}</td>
+                                            <td class="no-print">
+                                                Assign Driver :
+                                                <select class="form-control" onchange="assign_driver($(this), '{{order_data.meal_id}}', '{{order_data.order_id}}')">
+                                                    <option>
+                                                        Select Driver
+                                                    </option>
+                                                    {%if order_data.drivers is defined and order_data.drivers is not empty%}
+                                                        {%for driver in order_data.drivers %}
+                                                            <option value="{{driver.user_master_id}}" 
+                                                                    {%if order_data.driver_id == driver.user_master_id %} selected {%endif%}>
+                                                                {{driver.user_firstname ~' '~ driver.user_lastname}}
+                                                            </option>
+                                                        {%endfor%}
+                                                    {%endif%}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                {% if order_data.req_date_pause == 'false' %}
+                                                    <button type="button" class="btn btn-warning btn-xs no-print" data-toggle="modal" data-target="#myModal_{{order_data.order_id}}_{{order_data.meal_id}}_{{order_data.date_time}}">Add Meal</button>									
+                                                    <button type="button" class="btn btn-danger btn-xs no-print" onclick="deletewholedaymeal({{order_data.order_id}},{{order_data.meal_id}},$(this))">Delete Meal</button>	
+                                                {%else%}
+                                                    <font color='red'><b>Package Paused</b></font>
+                                                {%endif%}								
+                                            </td>
+                                        </tr>	
+                                        <tr>
+                                            <td colspan="7">
+                                                <table class="table table-responsive table-stripped">
+                                                    <thead>
+                                                    <th>
+                                                        Product
+                                                    </th>
+                                                    <th>
+                                                        Meal Type 
+                                                    </th>
+                                                    <th>
+                                                        Meal Quantity 
+                                                    </th>
+                                                   {# <th>
+                                                        Protiens
+                                                    </th>
+                                                    <th>
+                                                        Carbs
+                                                    </th>
+                                                    <th>
+                                                        Raw Eggs
+                                                    </th>
+                                                    <th>
+                                                        White Eggs
+                                                    </th>#}
+                                                    </thead>
+                                                    <tbody>
+                                                        {%if order_data.products_array is defined and order_data.products_array is not empty%}
+                                                            {%for product in order_data.products_array%}
+                                                               
+                                                                <tr>
+                                                                    <td>
+                                                                        <span id ="display_product_{{product.meal_product_relation_id}}" >{{product.product_name}}</span>
+
+                                                                        <select class="form-control" id="change_product_{{product.meal_product_relation_id}}" style="display:none;" onchange="getQtyLimit('change_product_{{product.meal_product_relation_id}}' ,'change_qty_{{product.meal_product_relation_id}}');">
+                                                                            {% if products_all is defined and products_all is not empty %}
+                                                                                <option value="0" max_qty_limit = "0">--Select Meal Quantity--</option>
+                                                                                {% for products_all in products_all %}
+                                                                                    {% if product.meal_type == products_all.meal_type_id and order_data.package_id in products_all.product_packageArray and order_data.day_id in products_all.product_daysArray %}
+                                                                                        <option value="{{products_all.main_product_master_id}}" max_qty_limit = "{{products_all.product_max_meal_value}}">
+                                                                                            {{products_all.lang_name}} - {{ products_all.meal_type_id}}
+                                                                                        </option>
+                                                                                    {%endif%}
+                                                                                {% endfor %}
+                                                                            {% endif %}	
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        {{product.order_meal_type_name}}
+                                                                    </td>
+                                                                    <td>
+                                                                        <span id ="display_qty_{{product.meal_product_relation_id}}" >{{product.meal_qty}}</span></br>
+                                                                     {#   <input class="form-control"  type="number" id="change_qty_{{product.meal_product_relation_id}}" value="{{product.meal_qty}}" style="display:none" />#}
+                                                                        <select class="form-control" id="change_qty_{{product.meal_product_relation_id}}" style="display:none;width: 74px;">
+                                                                            <option value="0">Select</option>
+                                                                            {% for i in range(0, product.product_max_meal_value) %}
+                                                                                <option value="{{ i }}">{{ i }}</option>
+                                                                            {% endfor %}
+                                                                                   
+                                                                        </select>
+                                                                    </td>
+                                                                   {# <td>
+                                                                        <span id ="display_pro_{{product.meal_product_relation_id}}" >{{product.proteins_amount}}</span></br>
+                                                                        <input class="form-control"  type="text" id="change_pro_{{product.meal_product_relation_id}}" value="{{product.proteins_amount}}" style="display:none" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <span id ="display_carbs_{{product.meal_product_relation_id}}" >{{product.carbs_amount}}</span></br>
+                                                                        <input class="form-control" type="text" id="change_carbs_{{product.meal_product_relation_id}}" value="{{product.carbs_amount}}" style="display:none" />
+                                                                    </td>
+                                                                    <td>
+                                                                        {% if product.meal_type == 1 or true %}
+                                                                            <span id ="display_egs_{{product.meal_product_relation_id}}" >{{product.raw_eggs}}</span></br>
+                                                                            <input class="form-control"type="text" id="change_egs_{{product.meal_product_relation_id}}" value="{{product.raw_eggs}}" style="display:none" />
+                                                                        {%else%}
+                                                                            N/A
+                                                                        {%endif%}	
+                                                                    </td>
+                                                                    <td>
+                                                                        {% if product.meal_type == 1  or true %}
+                                                                            <span id ="display_white_egs_{{product.meal_product_relation_id}}" >{{product.white_eggs}}</span></br>
+                                                                            <input class="form-control" type="text" id="change_white_egs_{{product.meal_product_relation_id}}" value="{{product.white_eggs}}" style="display:none" />
+
+                                                                        {%else%}
+                                                                            N/A
+                                                                        {%endif%}	
+
+                                                                    </td> #}
+                                                                    <td >
+                                                                        {% if order_data.req_date_pause == 'false' %}
+                                                                            <label class="btn btn-info btn-xs" id="edit_btn_{{product.meal_product_relation_id}}" onclick="show_Edit('{{product.meal_product_relation_id}}', $(this))"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></label>
+                                                                            <label class="btn btn-danger btn-xs" id="delete_btn_{{product.meal_product_relation_id}}" onclick="deleteproductmeal('{{product.meal_product_relation_id}}', $(this))"><i class="fa fa-trash" aria-hidden="true"></i></label>
+                                                                            <label class="btn btn-success btn-xs" id="update_btn_{{product.meal_product_relation_id}}"  onclick="update_Edit('{{product.meal_product_relation_id}}', $(this))" style="display:none"><i class="fa fa-check" aria-hidden="true"></i></label>
+                                                                            <label class="btn btn-default btn-xs" id="cancle_btn_{{product.meal_product_relation_id}}"  onclick="hide_Edit('{{product.meal_product_relation_id}}', $(this))" style="display:none"><i class="fa fa-ban" aria-hidden="true"></i></label>
+                                                                        {%else%}
+                                                                            N/A
+                                                                        {%endif%}
+                                                                    </td>
+                                                                </tr>	
+                                                            {%endfor%}
+                                                        {%endif%}
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>	
+
+                                    <div id="myModal_{{order_data.order_id}}_{{order_data.meal_id}}_{{order_data.date_time}}" class="modal fade" role="dialog">
+                                        <div class="modal-dialog">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h4 class="modal-title">Add Meal</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{{path('admin_orders_addmealbyadmin')}}">
+
+                                                        <input type="hidden" name="order_id" value="{{order_data.order_id}}"/>
+                                                        <input type="hidden" name="meal_id" value="{{order_data.meal_id}}"/>
+                                                        <input type="hidden" name="order_date_id" value="{{order_data.date_time}}"/>
+
+                                                        <div class="form-group">
+                                                            <label class="">Meal Type</label>
+                                                            {#<select class="form-control" name="meal_type" onchange="getMeals($(this), $('#order_date').val(), {{order_data.meal_id}},{{order_data.sub_package_id}} );" required >#}
+                                                            <select class="form-control" name="meal_type" onchange="getMeals($(this), '{{order_data.date_time}}', {{order_data.meal_id}},{{order_data.sub_package_id}},{{order_data.order_id}} );" required >
+                                                                <option value="">-- Select Meal Type --</option>
+                                                                {% if meal_cat_all is defined and meal_cat_all is not empty %}
+                                                                    {% for meal_cat_all in meal_cat_all %}
+                                                                        <option value="{{meal_cat_all.main_product_category_master_id}}">{{meal_cat_all.product_category_name}}</option>
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-md-12">
+                                                            <div class="col-md-6">
+                                                                <label class="">Meal</label>
+                                                                <select class="form-control" name="meal" id="meal_select_{{order_data.meal_id}}" onchange="getMealEggs($(this), {{order_data.meal_id}});" required>
+                                                                    <option value="">-- Select Meal --</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                 <label class="">Qty</label>
+                                                               {# <input type="number" name="meal_qty" Placeholder="Enter Meal Qty" class="form-control" required />#}
+                                                                      <select class="form-control" name="meal_qty" id="meal_qty_{{order_data.meal_id}}"  required>
+                                                                    <option value="">-- Select Qty --</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-md-12 hide">
+                                                            <div class="col-md-6">
+                                                                <label class="">Protiens</label>
+                                                                <select class="form-control" name="prot" id="prot_{{order_data.meal_id}}">
+
+                                                                    <option value="0">-- Select Protiens --</option>
+
+                                                                    {% for i in range(0, order_data.grams_of_package, 50) %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endfor %}
+
+                                                                </select>												
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="">Carbs</label>
+                                                                <select name="carb" class="form-control" id="carb_{{order_data.meal_id}}">
+                                                                    <option value="0">-- Select Carbs --</option>
+
+                                                                    {% for i in range(0, order_data.grams_of_package, 50) %}
+                                                                        <option value="{{ i }}">{{ i }}</option>
+                                                                    {% endfor %}
+
+                                                                </select>
+                                                            </div>												
+                                                        </div>	
+
+                                                        <div class="form-group breakfast col-md-12 hide">
+                                                            <div class="col-md-6">
+                                                                <label class="">Raw Eggs</label>
+                                                                <select name="raw_eggs" class="form-control" id="raw_eggs_{{order_data.meal_id}}">
+                                                                    <option value="0">-- Select Raw Eggs --</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="">White Eggs</label>
+                                                                <select name="white_eggs" class="form-control" id="white_eggs_{{order_data.meal_id}}">
+                                                                    <option value="0">-- Select White Eggs --</option>
+                                                                </select>
+                                                            </div>												
+                                                        </div>	
+
+                                                        <div class="modal-footer">											
+                                                            <button class="btn btn-block btn-primary no-print">Add Meal</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                {%endfor%}
+                            {%else%}
+                                <tr>
+                                    <td>
+                                        No meal Found
+                                    </td>
+                                </tr>
+                            {%endif%}	
+
+                            </tbody>
+                        </table>
+                        {%if order_data is defined and order_data is not empty%}
+                            <div class="row col-md-12 no-print">
+                                <button class="btn btn-default" onclick="window.print()">
+                                    Print
+                                </button>
+                            </div>
+                        {%endif%}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!-- PAGE HEADER : END -->
+    <!-- Main content : START -->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+
+<script>	
+
+    function update_Edit(meal_rel, element){
+        var cnf = confirm('Are you sure want to edit Meal ? ');
+        if (!cnf){
+            return false;
+        }
+        var product = $('#change_product_' + meal_rel).val();
+        var product_name = $('#change_product_' + meal_rel).text();
+        var product_qty = $('#change_qty_' + meal_rel).val();
+        var pro = $('#change_pro_' + meal_rel).val();
+        var carbs = $('#change_carbs_' + meal_rel).val();
+        var eggs = $('#change_egs_' + meal_rel).val();
+        var white_eggs = $('#change_white_egs_' + meal_rel).val();
+        if (eggs == undefined){
+            eggs = 0;
+        }
+
+        if (white_eggs == undefined){
+            white_eggs = 0;
+        }
+
+        $.ajax({
+            url : "{{path('admin_orders_editmeal')}}",
+            method : "POST",
+            data : {'meal_rel':meal_rel, 'product':product, 'pro':pro, 'carbs':carbs, 'eggs':eggs, 'white_eggs':white_eggs,'meal_qty':product_qty},
+            success : function(data){
+               
+                if ($.trim(data) != 'not_done'){
+                    alert('Meal has been Updated');
+                    data = JSON.parse(data);
+                    $('#display_product_' + meal_rel).text('');
+                    $('#display_product_' + meal_rel).text(data.product_name);
+                    $('#display_pro_' + meal_rel).text('');
+                    $('#display_pro_' + meal_rel).text(data.pro);
+                    $('#display_carbs_' + meal_rel).text('');
+                    $('#display_carbs_' + meal_rel).text(data.carbs);
+                    $('#display_egs_' + meal_rel).text('');
+                    $('#display_egs_' + meal_rel).text(data.eggs);
+                    $('#display_qty_' + meal_rel).text('');
+                    $('#display_qty_' + meal_rel).text(data.product_qty);
+                    $('#display_white_egs_' + meal_rel).text('');
+                    $('#display_white_egs_' + meal_rel).text(data.white_eggs);
+                }
+                else{
+                     alert('Meal has not been Updated , Limit Exceeds');
+                }
+
+            },
+                error : function(){
+                alert('Something went wrong');
+            }
+
+        });
+    }
+    function deletewholedaymeal(order_id, day_meal_id,element){
+    
+         $.ajax({
+            url : "{{path('admin_orders_deletemeal')}}",
+            method : "POST",
+            data : {'meal_id':day_meal_id, 'order_id':order_id},
+            success : function(data){
+                if(data == 'true'){
+                    alert('Meal successfully deleted');
+                     location.reload(true);                    
+                }
+                else{
+                  alert('Something went wrong..');
+                 }  
+            },
+                error : function(){
+                alert('Something went wrong');
+            }
+
+        });
+    }
+
+    function show_Edit(meal_rel, element){
+
+    $('#display_product_' + meal_rel).hide();
+    $('#display_pro_' + meal_rel).hide();
+    $('#display_qty_' + meal_rel).hide();
+    $('#display_carbs_' + meal_rel).hide();
+    $('#display_egs_' + meal_rel).hide();
+    $('#display_white_egs_' + meal_rel).hide();
+    $('#change_product_' + meal_rel).slideDown();
+    $('#change_pro_' + meal_rel).slideDown();
+    $('#change_qty_' + meal_rel).slideDown();
+    $('#change_carbs_' + meal_rel).slideDown();
+    $('#change_egs_' + meal_rel).slideDown();
+    $('#change_white_egs_' + meal_rel).slideDown();
+    element.hide();
+    $('#delete_btn_' + meal_rel).hide();
+    $('#update_btn_' + meal_rel).show();
+    $('#cancle_btn_' + meal_rel).show();
+    }
+
+    function hide_Edit(meal_rel, element){
+
+
+    $('#change_product_' + meal_rel).slideUp();
+    $('#change_pro_' + meal_rel).slideUp();
+    $('#change_qty_' + meal_rel).slideUp();
+    $('#change_carbs_' + meal_rel).slideUp();
+    $('#change_egs_' + meal_rel).slideUp();
+    $('#change_white_egs_' + meal_rel).slideUp();
+    element.hide();
+    $('#update_btn_' + meal_rel).hide();
+    $('#cancle_btn_' + meal_rel).hide();
+    $('#edit_btn_' + meal_rel).show();
+    $('#delete_btn_' + meal_rel).show();
+    $('#display_product_' + meal_rel).show();
+    $('#display_pro_' + meal_rel).show();
+    $('#display_qty_' + meal_rel).show();
+    $('#display_carbs_' + meal_rel).show();
+    $('#display_egs_' + meal_rel).show();
+    $('#display_white_egs_' + meal_rel).show();
+    }
+
+
+    function assign_driver(element, meal_id, global_order_id){
+        if (global_order_id != 0){
+            $.ajax({
+                url : "{{path('admin_orders_assigndriver')}}",
+                method : "POST",
+                data : {'order_id':global_order_id, 'driver_id':element.val(), 'meal_id':meal_id},
+                success : function(data){
+                    alert(data);
+                },
+                error : function(){
+                    alert('Something went wrong');
+                }
+            });
+        }
+    }
+     function resetmealtype(ele,order_id){         
+            $('#'+ele).parent().next().find('select').val('');  
+            // get package Gram Value
+            var selected_date = $('#'+ele).val();
+            $.ajax({
+                url : "{{path('admin_orders_getupgradegramvaluebydate')}}",
+                method : "POST",
+                data : {'order_id':order_id , 'selected_date' : selected_date },
+                success : function(data){
+                   // console.log(data);                    
+                    $("#prot_"+order_id).html(data);
+                    $("#carb_"+order_id).html(data);
+                }
+            });
+            
+        }
+    function getMeals(elem,dateval,order_meal_id,main_sub_package_id,order_id){
+        console.log(elem);
+        meal_type_id = elem.val();
+        if (meal_type_id != 0){
+            $.ajax({
+                url : "{{path('admin_orders_getmealsbytype')}}",
+                method : "POST",
+                    data : {'meal_type_id': meal_type_id ,'main_sub_package_id' : main_sub_package_id ,'req_date' : dateval},
+                    success : function(data){
+                    console.log(data);
+                        $("#meal_select_" + order_meal_id).html(data);
+                        
+                        $.ajax({
+                            url : "{{path('admin_orders_getupgradegramvaluebydate')}}",
+                            method : "POST",
+                            data : {'order_id':order_id , 'selected_date' : dateval },
+                            success : function(data){
+                               // console.log(data);                    
+                                $("#prot_"+order_meal_id).html(data);
+                                $("#carb_"+order_meal_id).html(data);
+                            }
+                        });
+                    },
+                    error : function(){
+                        alert('Something went Wrong.')
+                    }
+                });
+            }
+            if (meal_type_id == 1 || true){
+                //snakes
+                $('.breakfast').show();
+            } 
+            else{
+                    $('.breakfast').hide();
+            }
+        }
+    function deleteproductmeal(productmeal_id,element){        
+        $.ajax({
+            url : "{{path('admin_orders_deletemealproduct')}}",
+            method : "POST",
+            data : {'meal_product_relation_id':productmeal_id},
+            success : function(data){
+                console.log(data);
+                data = JSON.parse(data);
+                if (data == true){
+                    alert("Successfully deleted");
+                }
+                else{
+                     alert('Something went Wrong.')
+                     }
+            },
+            error : function(){
+                alert('Something went Wrong.')
+            }
+        });
+        element.parent().parent().remove();
+    }
+    function getQtyLimit(selectedID,QtyId){
+        qtyMax_limit = $('#'+selectedID).find(':selected').attr('max_qty_limit') ;
+        //change_qty_213349
+        alert(qtyMax_limit);
+        htmlop = ''; 
+        for (i = 0 ; i<= qtyMax_limit ; i++ ){
+            htmlop += '<option value=' + i + '> '+ i + '</option>';
+        }
+        console.log(QtyId);
+        console.log(htmlop);
+        $('#'+QtyId).find('option').remove() ;
+        $('#'+QtyId).append(htmlop); 
+    }
+    function getMealEggs(elem, order_id){
+        product_id = elem.val();
+        if (meal_type_id != 0){
+            $.ajax({
+                url : "{{path('admin_orders_getmealsegssbyproduct')}}",
+                    method : "POST",
+                        data : {'main_product_id':product_id, 'main_sub_package_id' : {{main_sub_package_id}} },
+                        success : function(data){
+                        console.log(data);
+                        data = JSON.parse(data);
+                        if (data.white_eggs_html != ''){
+                            $("#white_eggs_" + order_id).html(data.white_eggs_html);
+                        }
+                        
+                        if (data.pro_carb_flag == 'false'){
+                            $("#prot_" + order_id).find('option').remove() ;
+                            $("#prot_" + order_id).append('<option value="0" >Select</option>'); 
+                            $("#carb_" + order_id).find('option').remove() ;
+                            $("#carb_" + order_id).append('<option value="0" >Select</option>'); 
+                        }
+                        if (data.raw_eggs_html != ''){
+                            $("#raw_eggs_" + order_id).html(data.raw_eggs_html);
+                        }
+                        if (data.product_max_value_html != ''){
+                            $("#meal_qty_" + order_id).html(data.product_max_value_html);
+                        }
+
+                        },
+                        error : function(){
+                        alert('Something went Wrong.')
+                        }
+                });
+        }
+    }
+
+
+    $(document).ready(function() {
+    $('.datepicker').datepicker({ dateFormat: 'dd/mm/yy' });
+//	$('#example').DataTable();
+    });
+</script>	
+{% endblock %}

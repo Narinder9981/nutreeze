@@ -1,0 +1,94 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Weight
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+		<div class="box-header">
+			<a href="{{path('admin_weight_addweight')}}" class="btn btn-xs btn-primary pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add Weight</a>		
+		</div>
+        <div class="box box-primary">
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				{% if languages is defined and languages is not empty%}
+					{%for language in languages%}
+						<th>Name : {{language.language_name}}</th>
+					{%endfor%}	
+				{% endif%}
+				<th>Operation</th>
+              </thead>
+              <tbody>
+			  
+                {%if reason is defined and reason is not empty%}
+					{%for reason in reason%}
+						<tr>
+							<td>{{loop.index}}</td>
+
+							{%if reason.lang_wise is defined and reason.lang_wise is not empty %}
+								{%for name in reason.lang_wise %}
+									<td>{{name.weight}}</td>
+								{%endfor%}
+							{%endif%}
+							<td>
+								<a href="{{path('admin_weight_addweight',{'main_weight_id':reason.main_weight_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+								<a href="{{path('admin_weight_deleteweight',{'main_weight_id':reason.main_weight_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ? ')"><i class="fa fa-trash"></i></a>								
+							</td>
+						</tr>
+					{%endfor%}
+				{%endif%}
+              </tbody>
+              <tfoot>
+                <th>No</th>
+				{% if languages is defined and languages is not empty%}
+					{%for language in languages%}
+						<th>Name : {{language.language_name}}</th>
+					{%endfor%}	
+				{% endif%}
+				<th>Operation</th>	
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+  </script>
+{% endblock %}

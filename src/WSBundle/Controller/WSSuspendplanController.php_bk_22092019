@@ -1,0 +1,229 @@
+<?php
+
+namespace WSBundle\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use AdminBundle\Entity\Freezesubpackage;
+
+class WSSuspendplanController extends WSBaseController {
+
+    /**
+     * @Route("/ws/suspendplan/{param}",defaults = {"param"=""},requirements={"param"=".+"})
+     */
+    public function suspendplanAction($param) {
+
+        try {
+            $this->title = "Freeze Subpackage";
+            $param = $this->requestAction($this->getRequest(), 0);
+            $this->validateRule = array(
+                array(
+                    'rule' => 'NOTNULL',
+                    'field' => array(
+                        'user_id',
+                        'sub_package_id',
+                        'start_date',
+                        'end_date',
+                        'order_id'
+                    ),
+                ),
+                    );
+
+            if ($this->validateData($param)) {
+
+                $user_id = $param->user_id;
+                $end_date = $param->end_date;
+                $order_id = $param->order_id;
+                $start_date = $param->start_date;
+                $sub_package_id = $param->sub_package_id;
+
+                // check sub package found or not
+                $checkPackage = $this->getDoctrine()->getRepository("AdminBundle:Subpackagemaster")->findOneBy(
+                        array(
+                            "main_sub_package_id" => $sub_package_id,
+                            "is_deleted" => 0
+                        )
+                );
+
+                if (empty($checkPackage)) {
+                    $this->error = "NRF";
+                    $this->error_msg = "Sub package not found";
+                    $this->data = false;
+                    return $this->responseAction();
+                }
+
+                // check sub package is monthly package
+                $checkMonthlyPackage = $this->getDoctrine()->getRepository("AdminBundle:Ordermaster")->findOneBy(
+                        array(
+                            "order_master_id" => $order_id,
+                            "is_deleted" => 0
+                        )
+                );
+
+                if ($checkMonthlyPackage) {
+                    if ($checkMonthlyPackage->getPackage_for() != 1) {
+                        $this->error = "PIW";
+                        $this->error_msg = "Sub package is not Monthly package";
+                        $this->data = false;
+                        return $this->responseAction();
+                    }
+                }
+
+
+                // check sub package already freeze
+                $checkFreeze = $this->getDoctrine()->getRepository("AdminBundle:Freezesubpackage")->findOneBy(
+                        array(
+                            "user_id" => $user_id,
+                            "order_id" => $order_id,
+                            "sub_package_id" => $sub_package_id,
+                            "is_deleted" => 0
+                        )
+                );
+
+                if (!empty($checkFreeze)) {
+                    $this->error = "PAF";
+                    $this->error_msg = "Sub package Already Freezed";
+                    $this->data = false;
+                    return $this->responseAction();
+                }
+
+                $sql = "select days_master.days_name,days_master.main_days_master_id from order_off_days_relation 
+				JOIN days_master ON days_master.main_days_master_id = order_off_days_relation.off_day 
+				where order_off_days_relation.is_deleted = 0 and order_id = '$order_id' group by days_master.main_days_master_id";
+
+                $offDays = $this->fireQuery($sql);
+
+                $offDaysArray = null;
+                if ($offDays) {
+                    foreach ($offDays as $_offDays) {
+                        $offDaysArray [] = $_offDays['main_days_master_id'];
+                    }
+                }
+                $start_date = strtotime($start_date);
+                $end_date = strtotime($end_date);
+
+                $given_start_date = $start_date;
+                $given_end_date = $end_date;
+
+                $totalWorkingDays = 0;
+
+                if (!empty($offDaysArray)) {
+                    $dates = null;
+                    while ($given_start_date <= $given_end_date) {
+                        $dates [] = date('N', $given_start_date);
+
+                        if (!in_array(date('N', $given_start_date), $offDaysArray) && date('N', $given_start_date) != 5) {
+                            $totalWorkingDays += 1;
+                        }
+                        $given_start_date = strtotime("+1 days", $given_start_date);
+                    }
+                }
+
+
+                $entity = $this->getDoctrine()->getManager();
+                $entity->beginTransaction();
+
+                $freeze_subpackage = new Freezesubpackage();
+                $freeze_subpackage->setSub_package_id($sub_package_id);
+                $freeze_subpackage->setUser_id($user_id);
+                $freeze_subpackage->setOrder_id($order_id);
+                $freeze_subpackage->setStart_date(date('Y-m-d H:i:s', $start_date));
+                $freeze_subpackage->setEnd_date(date('Y-m-d H:i:s', $end_date));
+                $freeze_subpackage->setCreated_datetime(date('Y-m-d H:i:s'));
+                $freeze_subpackage->setIs_deleted(0);
+
+                $entity->persist($freeze_subpackage);
+                $entity->flush();
+
+                if ($freeze_subpackage) {
+                    $start_date_read = date('Y-m-d H:i:s', $start_date);
+                    $end_date_read = date('Y-m-d H:i:s', $end_date);
+                    #delete Old Entry Entered Before Suspension.
+                    $sql_update_order_meal_relation = "UPDATE order_meal_relation SET is_deleted = 1 where
+					requested_datetime BETWEEN '$start_date_read' AND '$end_date_read' ";
+                    $connection = $entity->getConnection();
+                    $stmt = $connection->prepare($sql_update_order_meal_relation);
+                    $stmt->execute();
+                }
+                // extend subscription expiry date
+                $order = $entity->getRepository("AdminBundle:Ordermaster")->findOneBy([
+                    'sub_package_id' => $sub_package_id,
+                    'order_master_id' => $order_id,
+                    'order_by' => $user_id,
+                    'is_deleted' => 0,
+                ]);
+
+                $date1 = date_create(date('Y-m-d H:i:s', $start_date));
+                $date2 = date_create(date('Y-m-d H:i:s', $end_date));
+                $diff = date_diff($date1, $date2);
+
+                $daydiff = 0;
+
+                $daydiff = (floor(($end_date - $start_date) / (60 * 60 * 24))) + 1;
+
+                /*
+                  if(!empty($diff)){
+                  $daydiff = $diff->d;
+                  }
+                 */
+                
+
+
+                if (!empty($order)) {
+
+#################### NEW METHOD ####################
+//					echo $totalWorkingDays;exit;
+                    $end_date = $order->getEnd_date();
+
+                    if (!empty($totalWorkingDays)) {
+
+                        $given_end_date = strtotime($order->getEnd_date());
+
+                        $total_days_added = 0;
+
+                        while ($totalWorkingDays > 0) {
+
+                            $given_end_date = strtotime("+1 days", $given_end_date);
+                         //   echo "<br> date :" .date("Y-m-d", $given_end_date );
+                            if (!in_array(date('N', $given_end_date), $offDaysArray) && date('N', $given_end_date) != 5) {
+                                $totalWorkingDays -= 1;
+//								$total_days_added = $total_days_added + 1;
+                            }
+                        }
+                    //    echo " after Working Days : ". $totalWorkingDays;
+                        $end_date = date('Y-m-d', $given_end_date);
+                    }
+                   
+#################### NEW METHOD ####################
+//					echo $end_date;exit;
+                    $order->setEnd_date($end_date);
+                    $entity->flush();
+                }
+
+                $entity->commit();
+                $entity->clear();
+
+                $this->error = "SFD";
+            } else {
+                $this->error = "PIM";
+            }
+            if (empty($response)) {
+                $response = false;
+            }
+            $this->data = $response;
+            return $this->responseAction();
+        } catch (\Exception $e) {
+
+            echo $e->getMessage();
+            exit;
+
+            $this->error = "SFND";
+            $this->data = false;
+            return $this->responseAction();
+        }
+    }
+
+}
+
+?>

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">	
+<title>Delivery Sticker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">	
+	
+<style type="text/css" media="print">
+	
+body 		{width: 150mm; height: 100mm; font-family: 'Roboto', sans-serif; font-size: 0.75rem; color: #333333;}	
+
+@page		{size: 150mm 100mm;}
+@page 		{size: landscape;}
+@page 		{}
+	
+@media print {
+	
+
+	
+.wrapper		{page-break-after: always; width: 150mm; height: 100mm; padding: 0.5rem;}
+
+.row-logo		{margin-bottom: .5rem; padding-bottom: .5rem; border-bottom: 1px solid #999999; text-align: center;}
+	
+.row-a			{margin-bottom: .5rem; padding-bottom: .5rem; border-bottom: 1px solid #999999;}	
+.row-b			{margin-bottom: .5rem; padding-bottom: .5rem; border-bottom: 1px solid #999999;}
+.row-c			{}
+.row-d			{}
+.row-table		{margin-bottom: .5rem; padding-bottom: .5rem; border-bottom: 1px solid #999999;}	
+
+
+}	
+</style>	
+	
+</head>
+
+<body>
+<page>
+
+<div class="wrapper">
+	<div class="row-logo"><img src="/bundles/design/images/logotext.png" alt="Muscle Fuel" width="65"></div>
+	{% for driverOrdersData in driverOrdersData1 %}
+
+	<div class="row g-4">
+		<div class="col-6">
+			<div class="row-a">
+			  <table cellspacing="0" cellpadding="1">
+					<tbody>
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td>Full Name :</td>
+							<td>{{driverOrdersData['customer_name']}}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td>Subscription :</td>
+							<td>{{ driverOrdersData['date_given']  ? driverOrdersData['date_given']|date("l jS F Y") :"" }}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td>Delivery Time :</td>
+							<td>{{driverOrdersData['title']}}</td>
+						</tr>
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td>Days Remaining :</td>
+							<td>{{driverOrdersData['remaining_days_to_end_order']}}</td>
+						</tr>
+						<tr>
+							<td>Delivery Method :</td>
+							<td>{{driverOrdersData['delivery_method_name']}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<div class="row-b">
+				<table border="0" cellspacing="0" cellpadding="0">
+					<tbody>
+						
+
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td colspan="2">{{ driverOrdersData['package_details'].description|striptags(200, true) }}<strong></strong></td>
+						</tr>
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td>User ID <strong>{{driverOrdersData['owner_id']}}</strong></td>
+							<td align="right">User ID <strong>{{driverOrdersData['owner_id']}}</strong></td>
+						</tr>
+						<tr style="border-bottom: 1px solid #e5e5e5;">
+							<td colspan="2"><strong>Area:</strong> {{driverOrdersData['area_name']}}, <strong>Block:</strong> {{driverOrdersData['address_name']}}, <strong>Street:</strong> {{driverOrdersData['street']}}</td>
+						</tr>
+						<tr>
+							<td colspan="2"><strong>Building:</strong> {{driverOrdersData['flate_house_number']}},  <strong>Flat:</strong> {{driverOrdersData['flat_no']}}, <strong>Direction:</strong> {{driverOrdersData['landmark']}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<div class="row-c">
+				<table border="0" cellspacing="0" cellpadding="2">
+					<tbody>
+						<tr>
+							<td>Date of Delivery :</td>
+							<td>(Dummy 24-10-2022)</td>
+						</tr>
+						<tr>
+							<td>Driver Name :</td>
+							<td>(Dummy Mohammed Al Kandari)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			
+		</div>
+		
+		<div class="col-6">
+			<div class="row-table">
+                {% if driverOrdersData['meal_of_orders'] is defined and driverOrdersData['meal_of_orders'] is not empty %}
+				<table class="table table-bordered table-sm mb-0">
+					<tbody>
+						<tr style="background-color: #CCCCCC;">
+							<th>Dish Name</th>
+							<th>Protein</th>
+							<th>Carb</th>
+						</tr>
+                        {% for meal_of_orders in driverOrdersData['meal_of_orders']  %}
+                          {% if (loop.index is odd) %}
+
+                        <tr>
+                            <td>
+                                <small >{{meal_of_orders.product_category_name}}:</small>
+                                <div style="text-transform: uppercase;">{{meal_of_orders.product_name}}</div>
+                                <div>PRO - {{meal_of_orders.prot}}G | CARB - {{meal_of_orders.carb}}G | FAT {{meal_of_orders.fat}}G</div>
+                            </td>
+                            <td>1.0</td>
+                            <td>{{meal_of_orders.calory}}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+						
+					</tbody>
+				</table>
+                {% endif %}
+			</div>
+			
+			<div class="row-d">
+			  <table width="100%">
+					<tbody>
+						<tr>
+							<td rowspan="2">Total Nutrition</td>
+							<td align="center">Protein</td>
+							<td align="center">Carb</td>
+							<td align="center">Fat</td>
+							<td align="center">Calories</td>
+						</tr>
+						<tr>
+							<td align="center">4773</td>
+							<td align="center">4773</td>
+							<td align="center">4773</td>
+							<td align="center">4773</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+        {% endfor %}
+	</div>
+</div>	
+</page>
+	
+
+	
+</body>
+</html>

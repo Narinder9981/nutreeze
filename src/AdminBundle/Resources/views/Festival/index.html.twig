@@ -1,0 +1,114 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Festival Listing
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Festival</h3>
+                        <a href="{{ path('admin_festival_addfestival', {'domain': app.session.get('domain')}) }}" class="btn btn-primary btn-flat pull-right"><i class="glyphicon glyphicon-plus"></i><b>&nbsp;&nbsp;Add Festival</b></a>
+                    </div>
+					<!-- end: box header -->
+					
+					<div class="box-body">
+						<table id="datatable" class="table display table-striped table-bordered scroll-horizontal">
+							<thead>
+								<th>No</th>
+								<th>Festival Name English</th>
+								<th>Festival Name Arabic</th>
+								<th>Status</th>
+								<th>Operation</th>								
+							</thead>
+							<tbody>
+								{% if festival_list is defined and festival_list is not empty %}
+									{% for festival in festival_list %}
+										<tr>
+											<td>{{ loop.index }}</td>
+											<td>{{ festival.festival_name_english }}
+											<td>{{ festival.festival_name_arabic }}
+											<td>
+										
+												{% set checked = ''%}
+												{% if festival.status == 'active'%}
+													{% set checked = 'checked'%}
+												{%endif%}
+												<input data-on="active" class="status status_1" data-off="inactive" onchange="change_status({{festival.festival_master_id}},$(this).is(':checked'))" type="checkbox" data-toggle="toggle" data-size="mini" data-onstyle="success" {{checked}}/>
+												
+											</td>
+											<td>
+												<a onclick="return confirm('Are you sure want to edit ?');" href="{{ path('admin_festival_addfestival', {'domain': app.session.get('domain'),'festival_master_id':festival.festival_master_id}) }}" class="btn btn-xs btn-primary "><i class="fa fa-pencil" data-toggle="tooltip" data-title="Edit Festival"></i></a>
+																								
+												<a class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ?');" href="{{path('admin_festival_deletefestival',{'domain':app.session.get('domain'),'festival_master_id':festival.festival_master_id})}}" data-toggle="tooltip" data-title="Delete Festival"><i class="fa fa-trash"></i></a>											
+											
+											</td>
+										</tr>
+									{% endfor %}
+								{% endif %}
+							</tbody>
+							<tfoot>
+								<th>No</th>
+								<th>Festival Name English</th>
+								<th>Festival Name Arabic</th>
+								<th>Status</th>								
+								<th>Operation</th>
+							</tfoot>
+						</table>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_status(festival_master_id,status){
+		$.ajax({
+			url : "{{path('admin_festival_changefestivalstatus',{domain:app.session.get('domain')})}}",
+			method : "POST",
+			data : {'festival_master_id':festival_master_id,'status':status},
+			success : function(data){
+				console.log('done');
+			}
+		});
+	}
+	
+	
+    $(document).ready(function() {
+      var dtable = $('#datatable').DataTable();
+	  
+    });
+  </script>
+{% endblock %}

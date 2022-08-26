@@ -1,0 +1,459 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+   {% block css %}<style>
+
+.hr-text {
+  line-height: 1em;
+  position: relative;
+  outline: 0;
+  border: 1;
+  color: black;
+  text-align: center;
+  height: 1.5em;
+  opacity: .5;
+  &:before {
+    content: '';   
+    background: linear-gradient(to right, transparent, #818078, transparent);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+  }
+  &:after {
+    content: attr(data-content);
+    position: relative;
+    display: inline-block;
+    color: black;
+
+    padding: 0 .5em;
+    line-height: 1.5em;
+   
+    color: #818078;
+    background-color: #fcfcfa;
+  }
+}    
+</style>
+{%endblock%}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Default Values [ Package name : {{package_name}} ] 
+            <small></small>
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <form class="form-horizontal" method="post" action="{{path('admin_package_savedefaultmealsubpackage')}}" enctype="multipart/form-data">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <input type = "hidden" name="main_package_id" value= "{{main_package_id}}" />
+                            <input type = "hidden" name="sub_package_id" value= "{{sub_package_id}}" />
+                            {%if days is defined and days is not empty %}
+                                {%for day in days %}
+                                    {%if day.days_master_id != '5' %}
+                                     <div class="panel panel-default" >
+                                         <div class="panel-heading"> Day Name : {{day.days_name}} </div>
+                                         <div class="panel-body">
+                                             <br><label >Week 1</label><br>
+                                             <div class="row">
+                                            {%if sub_package_meal_config is defined and sub_package_meal_config  is not empty %}
+                                                {%for sub_package_meal_config  in sub_package_meal_config  %}
+
+                                                    {% set meal_type_id = sub_package_meal_config.meal_type_id %}
+                                                    {% set  meal_type_name = sub_package_meal_config.product_category_name %}
+                                                    {% set meal_type_value = sub_package_meal_config.meal_value %}
+                                                    {% if meal_type_value != 0 %}
+                                                        {%set selectArray = [] %}
+                                                        {%set selectArrayValue = [] %}
+                                                        
+                                                       
+                                                        {%if day.w1_1 is defined and day.w1_1 is not empty and meal_type_id == "1" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_1 ) %}                                                     
+                                                        {%elseif day.w1_2 is defined and day.w1_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_2 ) %}  
+															{%if day.w1_1 is defined and day.w1_1 is not empty  %} 	
+																{% set selectArray = selectArray|merge(day.w1_1 ) %}   
+															{%endif%} 																
+                                                        {%elseif  day.w1_3 is defined and day.3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_3 ) %}                                                     
+                                                        {%elseif  day.w1_11 is defined and day.w1_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArray = selectArray|merge(day.11 ) %}                                                     
+                                                        {%endif%} 
+                                                        {%if day.selected_w1_1 is defined and day.selected_w1_1 is not empty and meal_type_id == "1" %}   
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w1_1 ) %}                                                     
+                                                        {%elseif day.selected_w1_2 is defined and day.selected_w1_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w1_2 ) %} 
+															{%if day.selected_w1_1 is defined and day.selected_w1_1 is not empty %}	
+																{% set selectArrayValue = selectArrayValue|merge(day.selected_w1_1 ) %} 
+															{%endif%}																
+                                                        {%elseif  day.selected_w1_3 is defined and day.selected_w1_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w1_3 ) %}  
+                                                        {%elseif  day.selected_w1_11 is defined and day.selected_w1_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w1_11 ) %}  
+                                                        {%endif%} 
+                                                        {%set selectedValue= ''%}
+                                                        <div class="col-md-2">{{meal_type_name}}  </div>
+                                                        <div class="col-md-4">
+                                                               {% for i in 1..meal_type_value %}
+                                                                    {%if selectArrayValue is defined and selectArrayValue is not empty %}
+                                                                        {%if  selectArrayValue[i-1] is defined %}
+                                                                            {%set selectedValue= selectArrayValue[i-1]%} 
+                                                                         {%endif%}
+                                                                   {%endif%}
+                                                                    <select name="w1_days_{{day.days_master_id}}_{{meal_type_id}}[]" class="form-control" required >
+                                                                        <option value=""> Select Product</option>
+                                                                        {%if selectArray is defined and selectArray is not empty %}
+                                                                            {%for selectArray in selectArray %}
+                                                                                <option value="{{selectArray.main_product_id}}" 
+                                                                                {%if selectedValue == selectArray.main_product_id%} selected {%endif%} 
+                                                                                >{{selectArray.product_name}}</option>
+                                                                            {%endfor%}
+                                                                        {%endif%}
+                                                                    </select>
+                                                                {% endfor %} 
+                                                            </div>
+                                                    {%endif%}
+                                                {%endfor%}
+                                            {%endif%}
+                                             </div>
+                                              <table><tr>
+                                                <td style="border-bottom: 1px solid gray; width: 43%">&nbsp;</td>
+                                                <td style="vertical-align:middle;text-align:center" rowspan="2">Upgrade Meal Values</td>
+                                                <td style="border-bottom: 1px solid gray; width: 45%">&nbsp;</td>
+                                                </tr><tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                </tr></table>
+                                             <div class="row">
+                                            {%if sub_package_meal_config is defined and sub_package_meal_config  is not empty %}
+                                                {%for sub_package_meal_config  in sub_package_meal_config  %}
+
+                                                    {% set meal_type_id = sub_package_meal_config.meal_type_id %}
+                                                    {% set  meal_type_name = sub_package_meal_config.product_category_name %}
+                                                    {% set meal_type_value = sub_package_meal_config.meal_value %}
+                                                    {% if meal_type_value != 0 %}
+                                                        {%set selectArray = [] %}
+                                                        {%set selectArrayValue = [] %}
+                                                        {%set selectArrayValueUpgarde = [] %}
+                                                        
+                                                        {%if day.w1_1 is defined and day.w1_1 is not empty and meal_type_id == "1" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_1 ) %}                                                     
+                                                        {%elseif day.w1_2 is defined and day.w1_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_2 ) %}  
+															{%if day.w1_1 is defined and day.w1_1 is not empty  %} 			
+																{% set selectArray = selectArray|merge(day.w1_1 ) %}    
+															{%endif%}					
+                                                        {%elseif  day.w1_3 is defined and day.w1_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_3 ) %}                                                     
+                                                        {%elseif  day.w1_11 is defined and day.w1_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArray = selectArray|merge(day.w1_11 ) %}                                                     
+                                                        {%endif%} 
+                                                        {%if day.selected_w2_1 is defined and day.selected_w2_1 is not empty and meal_type_id == "1" %}   
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_1 ) %}                                                     
+                                                        {%elseif day.selected_w2_2 is defined and day.selected_w2_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_2 ) %}
+															{%if day.selected_w2_1 is defined and day.selected_w2_1 is not empty  %}  
+																{% set selectArrayValue = selectArrayValue|merge(day.selected_w2_1 ) %} 
+															{%endif%}		
+                                                        {%elseif  day.selected_w2_3 is defined and day.selected_w2_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_3 ) %}  
+                                                        {%elseif  day.selected_w2_11 is defined and day.selected_w2_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_11 ) %}  
+                                                        {%endif%} 
+                                                       
+                                                        {%if day.selected_upgrade_w1_1 is defined and day.selected_upgrade_w1_1 is not empty and meal_type_id == "1" %}   
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w1_1 ) %}                                                     
+                                                        {%elseif day.selected_upgrade_w1_2 is defined and day.selected_upgrade_w1_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w1_2 ) %}
+															{%if day.selected_upgrade_w1_1 is defined and day.selected_upgrade_w1_1 is not empty  %} 	
+																{% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w1_1 ) %}  
+															{%endif%}
+                                                        {%elseif  day.selected_upgrade_w1_3 is defined and day.selected_upgrade_w1_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w1_3 ) %}  
+                                                        {%elseif  day.selected_upgrade_w1_11 is defined and day.selected_upgrade_w1_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w1_11 ) %}  
+                                                        {%endif%} 
+                                                        {%set selectedValue= ''%}
+                                                        <div class="col-md-2">{{meal_type_name}}  </div>
+                                                        <div class="col-md-4">
+                                                                {% for i in 1..3 %}
+                                                                    {%if selectArrayValueUpgarde is defined and selectArrayValueUpgarde is not empty %}
+                                                                        {%set selectedValue= selectArrayValueUpgarde[i-1]%}
+                                                                   {%endif%}
+                                                                   
+                                                                    <select name="w1_up_days_{{day.days_master_id}}_{{meal_type_id}}[]" class="form-control" required >
+                                                                        <option value=""> Select Product</option>
+                                                                        {%if selectArray is defined and selectArray is not empty %}
+                                                                            {%for selectArray in selectArray %}
+                                                                                <option value="{{selectArray.main_product_id}}" {%if selectedValue == selectArray.main_product_id%} selected {%endif%} >{{selectArray.product_name}}</option>
+                                                                            {%endfor%}
+                                                                        {%endif%}
+                                                                    </select>
+                                                                {% endfor %} 
+                                                            </div>
+                                                    {%endif%}
+                                                {%endfor%}
+                                            {%endif%}
+                                             </div>
+
+                                             <br><label >Week 2</label><br>
+                                             <div class="row">
+                                            {%if sub_package_meal_config is defined and sub_package_meal_config  is not empty %}
+                                                {%for sub_package_meal_config  in sub_package_meal_config  %}
+
+                                                    {% set meal_type_id = sub_package_meal_config.meal_type_id %}
+                                                    {% set  meal_type_name = sub_package_meal_config.product_category_name %}
+                                                    {% set meal_type_value = sub_package_meal_config.meal_value %}
+                                                    {% if meal_type_value != 0 %}
+                                                        {%set selectArray = [] %}
+                                                        {%set selectArrayValue = [] %}
+                                                        
+                                                        {%if day.w2_1 is defined and day.w2_1 is not empty and meal_type_id == "1" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_1 ) %}                                                     
+                                                        {%elseif day.w2_2 is defined and day.2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_2 ) %}
+															{%if day.w2_1 is defined and day.w2_1 is not empty %} 	
+																{% set selectArray = selectArray|merge(day.w2_1 ) %}
+															{%endif%} 																
+                                                        {%elseif  day.w2_3 is defined and day.w2_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_3 ) %}                                                     
+                                                        {%elseif  day.w2_11 is defined and day.w2_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_11 ) %}                                                     
+                                                        {%endif%} 
+                                                        {%if day.selected_w2_1 is defined and day.selected_w2_1 is not empty and meal_type_id == "1" %}   
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_1 ) %}                                                     
+                                                        {%elseif day.selected_w2_2 is defined and day.selected_w2_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_2 ) %} 
+															{%if day.selected_w2_1 is defined and day.selected_w2_1 is not empty  %}
+																{% set selectArrayValue = selectArrayValue|merge(day.selected_w2_1 ) %} 
+															{%endif%}																
+                                                        {%elseif  day.selected_w2_3 is defined and day.selected_w2_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_3 ) %}  
+                                                        {%elseif  day.selected_w2_11 is defined and day.selected_w2_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_11 ) %}  
+                                                        {%endif%} 
+                                                        {%set selectedValue= ''%}
+                                                        <div class="col-md-2">{{meal_type_name}}  </div>
+                                                        <div class="col-md-4">
+                                                               {% for i in 1..meal_type_value %}
+                                                                    {%if selectArrayValue is defined and selectArrayValue is not empty %}
+                                                                        {%if  selectArrayValue[i-1] is defined %}
+                                                                            {%set selectedValue= selectArrayValue[i-1]%} 
+                                                                         {%endif%}
+                                                                   {%endif%}
+                                                                    <select name="w2_days_{{day.days_master_id}}_{{meal_type_id}}[]" class="form-control" required >
+                                                                        <option value=""> Select Product</option>
+                                                                        {%if selectArray is defined and selectArray is not empty %}
+                                                                            {%for selectArray in selectArray %}
+                                                                                <option value="{{selectArray.main_product_id}}" {%if selectedValue == selectArray.main_product_id%} selected {%endif%} >{{selectArray.product_name}}</option>
+                                                                            {%endfor%}
+                                                                        {%endif%}
+                                                                    </select>
+                                                                {% endfor %} 
+                                                            </div>
+                                                    {%endif%}
+                                                {%endfor%}
+                                            {%endif%}
+                                             </div>
+                                              <table><tr>
+                                                <td style="border-bottom: 1px solid gray; width: 43%">&nbsp;</td>
+                                                <td style="vertical-align:middle;text-align:center" rowspan="2">Upgrade Meal Values</td>
+                                                <td style="border-bottom: 1px solid gray; width: 45%">&nbsp;</td>
+                                                </tr><tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                </tr></table>
+                                             <div class="row">
+                                            {%if sub_package_meal_config is defined and sub_package_meal_config  is not empty %}
+                                                {%for sub_package_meal_config  in sub_package_meal_config  %}
+
+                                                    {% set meal_type_id = sub_package_meal_config.meal_type_id %}
+                                                    {% set  meal_type_name = sub_package_meal_config.product_category_name %}
+                                                    {% set meal_type_value = sub_package_meal_config.meal_value %}
+                                                    {% if meal_type_value != 0 %}
+                                                        {%set selectArray = [] %}
+                                                        {%set selectArrayValue = [] %}
+                                                        {%set selectArrayValueUpgarde = [] %}
+                                                        
+                                                        {%if day.w2_1 is defined and day.w2_1 is not empty and meal_type_id == "1" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_1 ) %}                                                     
+                                                        {%elseif day.w2_2 is defined and day.w2_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_2 ) %} 
+															{%if day.w2_1 is defined and day.w2_1 is not empty  %} 	
+																{% set selectArray = selectArray|merge(day.w2_1 ) %} 
+															{%endif%}																
+                                                        {%elseif  day.w2_3 is defined and day.w2_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_3 ) %}                                                     
+                                                        {%elseif  day.w2_11 is defined and day.w2_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArray = selectArray|merge(day.w2_11 ) %}                                                     
+                                                        {%endif%} 
+														{#
+                                                        {%if day.selected_w2_1 is defined and day.selected_w2_1 is not empty and meal_type_id == "1" %}   
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_1 ) %}                                                     
+                                                        {%elseif day.selected_w2_2 is defined and day.selected_w2_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_2 ) %}  
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_1 ) %}  
+                                                        {%elseif  day.selected_w2_3 is defined and day.selected_w2_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_3 ) %}  
+                                                        {%elseif  day.selected_w2_11 is defined and day.selected_w2_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArrayValue = selectArrayValue|merge(day.selected_w2_11 ) %}  
+                                                        {%endif%} 
+														#}
+                                                       
+                                                        {%if day.selected_upgrade_w2_1 is defined and day.selected_upgrade_w2_1 is not empty and meal_type_id == "1" %}   
+                                                           {# {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w2_1 ) %}   #}                                                  
+                                                        {%elseif day.selected_upgrade_w2_2 is defined and day.selected_upgrade_w2_2 is not empty and meal_type_id == "2" %} 
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w2_2 ) %} 
+															{%if day.selected_upgrade_w2_1 is defined and day.selected_upgrade_w2_1 is not empty %}   	
+																{% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w2_1 ) %}	
+															{%endif%}		
+                                                        {%elseif  day.selected_upgrade_w2_3 is defined and day.selected_upgrade_w2_3 is not empty and meal_type_id == "3" %} 
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w2_3 ) %}  
+                                                        {%elseif  day.selected_upgrade_w2_11 is defined and day.selected_upgrade_w2_11 is not empty and meal_type_id == "11" %} 
+                                                            {% set selectArrayValueUpgarde = selectArrayValueUpgarde|merge(day.selected_upgrade_w2_11 ) %}  
+                                                        {%endif%} 
+                                                        {%set selectedValue= ''%}
+                                                        <div class="col-md-2">{{meal_type_name}}  </div>
+                                                        <div class="col-md-4">
+                                                                {% for i in 1..3 %}
+                                                                    {%if selectArrayValueUpgarde is defined and selectArrayValueUpgarde is not empty %}
+                                                                        {%set selectedValue= selectArrayValueUpgarde[i-1]%}
+                                                                   {%endif%}
+                                                                   
+                                                                    <select name="w2_up_days_{{day.days_master_id}}_{{meal_type_id}}[]" class="form-control" required >
+                                                                        <option value=""> Select Product</option>
+                                                                        {%if selectArray is defined and selectArray is not empty %}
+                                                                            {%for selectArray in selectArray %}
+                                                                                <option value="{{selectArray.main_product_id}}" {%if selectedValue == selectArray.main_product_id%} selected {%endif%} >{{selectArray.product_name}}</option>
+                                                                            {%endfor%}
+                                                                        {%endif%}
+                                                                    </select>
+                                                                {% endfor %} 
+                                                            </div>
+                                                    {%endif%}
+                                                {%endfor%}
+                                            {%endif%}
+                                             </div>
+                                         </div>
+                                     </div>
+                                    {%endif%}
+                                 {%endfor%}
+                            {%endif%}
+                        </div>
+                         <div class="box-footer">
+                             <input type="submit" name="save" value="Save Default Menu" class="btn btn-success" />
+                             <input type="button" name="back" value="Back" class="btn btn-default" />
+                         </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+
+    function remove_combo(element) {
+
+        if (element.parents('div').siblings(".first_one").length > 1) {
+            var elemnt_first = element.parents('div').prev(".first_one:last");
+            elemnt_first.remove();
+        }
+
+        if (element.parents('div').siblings(".first_one").length == 1) {
+            $('#remove_combo_btn').hide();
+        }
+    }
+
+    function remove_subpackagecombo(element) {
+        if (element.parents('div').siblings(".first_one").length == 0) {
+           alert("You can not delete all sub packages");
+        }else{
+            element.parent().parent().remove();
+        }
+    }
+    
+    function defaultsubpackagecombo(package_id,subpackage_id){
+        
+    }
+   
+    function add_combo(element,lang_id) {
+        var elemnt_last;
+       // console.log($(".first_one").length);
+        langwise_cnt = ( ($(".first_one_"+lang_id).length) )  ;
+        langwise_cnt_minus = langwise_cnt - 1 ;
+       // alert('current cnt : '+langwise_cnt);
+        if ($(".first_one").length > 1) {
+            $('#remove_combo_btn').show();
+        } else {
+            $('#remove_combo_btn').hide();
+        }
+       // console.log(langwise_cnt);
+       // console.log(element.parents('div').prev(".first_one:last").html());
+ // console.log((element).find('input'));
+        var CloneData = element.parents('div').siblings(".first_one:last").clone();
+        CloneData.find('input').each(function() {
+            this.name= this.name.replace('_'+langwise_cnt_minus, '_'+ langwise_cnt);
+        });
+       
+        console.log(CloneData.find('input[name="sub_'+langwise_cnt+'"]').val(0));
+       // console.log
+        CloneData.insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+
+        /*      elemnt_last = element.parents('div').prev(".first_one");
+         console.log(elemnt_last.html());
+         var html = element.parents('div').prev(".first_one").html(); 
+         html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+
+         elemnt_last.after(html).find("input[type='number']").val("");
+         //.find("input[type='number']").val("") */
+    }
+
+    $(function () {
+        
+        if ($('.first_one').length <= 2) {
+            $('#remove_combo_btn').hide();
+        }
+
+        $('.editor1cls').each(function (e) {
+            CKEDITOR.replace(this.id);
+        });
+    });
+
+    $(document).ready(function () {
+
+        $('[data-fancybox="gallery"]').fancybox({
+            // Options will go here
+        });
+
+    });
+
+    </script>   
+{% endblock %}

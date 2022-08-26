@@ -1,0 +1,291 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+<style>
+
+@media print
+{    
+	.no-print, .no-print *
+	{
+			display: none !important;
+	}
+}
+
+.del-info {
+    margin-top: 15px;
+}
+.del-info td{
+    width: 50px;
+	height: 50px;
+	text-align: center;
+}
+.del-info td.odd {
+    background: #ddd;
+}
+.td-bg-gray{
+	background: #ddd;
+}
+.del-info .odd span {
+    font-weight: 700;
+}
+.sub-info {
+    margin-top: 15px;
+    text-align: center;
+}
+.sub-info td.odd {
+    font-weight: 700;
+	padding: 8px;
+}
+.meal-info {
+    margin-top: 30px;
+	margin-bottom: 20px;
+}
+.meal-info td {
+    width: 220px;
+	padding: 8px;
+	text-align: center;
+}
+</style>
+	<section class="content-header">
+		<h1>
+		  Order
+		</h1>
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+		{% if delivery_note.meal is empty  and delivery_note.breakfast is empty and delivery_note.snacks is empty %}
+		    <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>No meals are added for given date.
+            </div>
+		{% endif %}
+
+		{%set status_name = ['pending','accept','reject','cancel','success','ongoing'] %}
+		{% set endDate = '' %}				
+		{%if delivery_note is defined and delivery_note is not empty%}
+			<section class="invoice"> 
+				<!-- title row -->
+				<div class="col-md-12 no-print">
+					<div class="row col-md-4 form-group no-print">
+						<form class="form-inline" action="" method="POST">
+							<div class="form-group">
+							<label for="email">Date:</label>
+							<input type="text" class="form-control datepicker" name="order_date" value="{{delivery_note._today | date('d-m-Y') }}">
+							</div>
+							<button type="submit" class="btn btn-primary">Go</button>
+						</form>
+					</div>				
+				</div>
+				<div id="invoice">
+					<div class="row">
+						<div class="col-xs-12 text-center">
+							<h1>DELIVERY NOTE</h1>
+						</div>
+					</div>		
+					<div class="row">
+						<div class="col-xs-12">
+							<h2 class="">
+								<small class="pull-right">
+									Date: {{delivery_note.today}}<br>
+									Day: {{delivery_note.day}}
+								</small>
+							</h2>
+						</div>
+						
+						{% if delivery_note.order_info is defined and delivery_note.order_info is not empty %}
+							{% set order_info = delivery_note.order_info %}
+						<div class="col-xs-12">
+							<table border="1" class="col-xs-12 del-info">
+								<tr>
+									<td class="odd"><span>Name</span></td>
+									<td class="even">{{ order_info.name }}</td>
+									<td class="odd"><span>Mobile No.</span></td>
+									<td class="even">{{ order_info.mobile }}</td>
+								</tr>
+								<tr>
+									<td class="odd"><span>Subscription No.</span></td>
+									<td class="even">{{ order_info.unique_no }}</td>
+									<td class="odd"><span>Address</span></td>
+									<td class="even">{{ order_info.address }}</td>
+								</tr>
+								<tr>
+									<td class="odd"><span>Package</span></td>
+									<td class="even">{{ order_info.package_name }}</td>
+									<td class="odd"><span>{{ order_info.plan }}</span></td>
+									<td class="even">{{ order_info.diff }}</td>
+								</tr>
+							</table>
+							
+							<table border="1" class="col-xs-12 sub-info">
+								<tr>
+									<td class="odd td-bg-gray"><span>Subscription starts</span></td>
+									
+									{% set endDate = order_info.end_date %}				
+
+									<td class="even">{{ order_info.start_date ~ '  till  ' ~ order_info.end_date }}</td>
+								</tr>
+							</table>
+							
+						</div>
+						{% endif %}
+						
+						<div class="col-xs-12">
+							<table border="1" class="col-xs-12 meal-info">
+								<tr>
+									<td class="odd"></td>
+									<td class="even"></td>
+									<td class="odd td-bg-gray" style="font-weight:700;">Protein</td>
+									<td class="odd td-bg-gray" style="font-weight:700;">Carb</td>
+								</tr>
+								{% if delivery_note.breakfast is defined and delivery_note.breakfast is not empty %}
+									{% set breakfast = delivery_note.breakfast %}
+									{% for breakfast1 in breakfast %}
+										<tr>
+											<td class="odd {% if breakfast1.type != '' %}td-bg-gray{% endif %}" style="font-weight:700;">{{ breakfast1.type }}</td>
+											<td class="even">{{ breakfast1.product_name }}</td>
+											<td class="odd">{{ breakfast1.proteins_amount }}</td>
+											<td class="even">{{ breakfast1.carbs_amount }}</td>
+										</tr>
+										
+									{% endfor %}
+								{% endif %}
+								
+								{% if delivery_note.meal is defined and delivery_note.meal is not empty %}
+									<tr>
+										<td class="odd"></td>
+										<td class="even"></td>
+										<td class="odd"></td>
+										<td class="even"></td>
+									</tr>
+									{% set meal = delivery_note.meal %}
+									{% for meal1 in meal %}
+										<tr>
+											<td class="odd {% if meal1.type != '' %}td-bg-gray{% endif %}" style="font-weight:700;">{{ meal1.type }}</td>
+											<td class="even">{{ meal1.product_name }}</td>
+											<td class="odd">{{ meal1.proteins_amount }}</td>
+											<td class="even">{{ meal1.carbs_amount }}</td>
+										</tr>
+										
+									{% endfor %}
+								{% endif %}
+								
+								{% if delivery_note.snacks is defined and delivery_note.snacks is not empty %}
+									<tr>
+										<td class="odd"></td>
+										<td class="even"></td>
+										<td class="odd"></td>
+										<td class="even"></td>
+									</tr>
+									{% set snacks = delivery_note.snacks %}
+									{% for snacks1 in snacks %}
+										<tr>
+											<td class="odd {% if snacks1.type != '' %}td-bg-gray{% endif %}" style="font-weight:700;">{{ snacks1.type }}</td>
+											<td class="even">{{ snacks1.product_name }}</td>
+											<td class="odd">N/A</td>
+											<td class="even">N/A</td>
+										</tr>
+										
+									{% endfor %}
+								{% endif %}
+							</table>
+						</div>
+						
+					</div>
+				</div>
+				<!-- info row -->
+				
+				<div class="row no-print">
+					<button class="btn btn-info print-btn" onclick="window.print()" ><i class="fa fa-print"></i>Print</button>
+				</div>
+			</section>
+			
+		{%endif%}
+	</section>		
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+		  
+
+  
+	function change_status(order_master_id,element){
+		
+		var status = element.val();
+		$.ajax({
+			url : "",
+			method : "POST",
+			data : {'order_master_id':order_master_id,'status':status},
+			success : function(data){
+				if($.trim(data) == 'done'){
+					alert('Status updated successfully');
+				}else{
+					alert('Somehing went wrong');				
+				}
+			},
+			error : function(){
+				alert("Somehing went wrong");
+			}
+		});
+	}
+
+function assign_driver(element,order_master_id){
+		
+		var driver = element.val();
+		$.ajax({
+			url : "{{path('admin_orders_assigndrivertoallorder')}}",
+			method : "POST",
+			data : {'order_master_id':order_master_id,'driver_id':driver},
+			success : function(data){
+				if($.trim(data) == 'done'){
+					alert('Driver Assigned successfully');
+				}else{
+					alert('Somehing went wrong');				
+				}
+			},
+			error : function(){
+				alert("Somehing went wrong");
+			}
+		});
+	}
+
+	
+    $(document).ready(function() {
+
+		{% if endDate is defined and endDate is not empty %}
+			let endDate = new Date('{{endDate}}');
+			console.log({endDate});
+			$('.datepicker').datepicker({ format: 'dd-mm-yyyy' ,startDate : new Date() , endDate : endDate });
+		{% else %}
+			$('.datepicker').datepicker({ format: 'dd-mm-yyyy' ,startDate : new Date() });
+		{% endif %}		
+
+		$('#datatable').DataTable();
+
+	  
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});	  
+    });
+	
+	function printDivInvoice() 
+	{
+
+	}
+		
+  </script>
+{% endblock %}

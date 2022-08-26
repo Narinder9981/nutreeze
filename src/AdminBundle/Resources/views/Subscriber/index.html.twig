@@ -1,0 +1,112 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Subscribers Listing
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Subscriber</h3>
+                       
+                    </div>
+					<!-- end: box header -->
+					
+					<div class="box-body">
+						<table id="datatable" class="table display table-striped table-bordered scroll-horizontal">
+							<thead>
+								<th>No</th>
+								<th>Email:</th>
+								<th>Status</th>
+								<th>Operation</th>								
+							</thead>
+							<tbody>
+								{% if subscribers is defined and subscribers is not empty %}
+									{% for subscriber in subscribers %}
+										<tr>
+											<td>{{ loop.index }}</td>
+											
+											<td>{{subscriber.email}}</td>
+											<td>
+										
+												{% set checked = ''%}
+												{% if subscriber.status == '1'%}
+													{% set checked = 'checked'%}
+												{%endif%}
+												<input data-on="active" class="status status_1" data-off="inactive" onchange="change_status({{subscriber.subscription_id}},$(this).is(':checked'))" type="checkbox" data-toggle="toggle" data-size="mini" data-onstyle="success" {{checked}}/>
+												
+											</td>
+											<td>
+												
+												<a class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ?');" href="{{path('admin_subscriber_delete',{'domain':app.session.get('domain'),'subscription_id':subscriber.subscription_id})}}" data-toggle="tooltip" data-title="Delete Subscriber"><i class="fa fa-trash"></i></a>											
+											
+											</td>
+										</tr>
+									{% endfor %}
+								{% endif %}
+							</tbody>
+							<tfoot>
+								<th>No</th>
+								<th>Email:</th>
+								<th>Status</th>
+								<th>Operation</th>
+							</tfoot>
+						</table>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_status(subscription_id,status){
+		$.ajax({
+			url : "{{path('admin_subscriber_changestatus',{domain:app.session.get('domain')})}}",
+			method : "POST",
+			data : {'subscription_id':subscription_id,'status':status},
+			success : function(data){
+				console.log('done');
+			}
+		});
+	}
+	
+	
+    $(document).ready(function() {
+      var dtable = $('#datatable').DataTable();
+	  
+    });
+  </script>
+{% endblock %}
+

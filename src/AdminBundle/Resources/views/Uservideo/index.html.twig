@@ -1,0 +1,226 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  User Video Listing
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+    <div class="row">
+      <div class="col-md-12">
+        <div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">User Video</h3>
+
+				{% if user_id is defined and user_id != 0 %}
+					{% set action_link = path('admin_uservideo_adduservideo',{'video_id':0,'user_id':user_id}) %}
+				{% else %}
+					{% set action_link = path('admin_uservideo_adduservideo') %}
+				{% endif %}
+				<a href="{{ action_link }}" class="btn btn-primary btn-flat pull-right"><i class="glyphicon glyphicon-plus"></i><b>&nbsp;&nbsp;Add Video {% if user_id is defined and user_id != 0 %} For {{user_name}} {% endif %}</b></a>
+			</div>
+          <div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+                <th>Title</th>
+				<th>Media</th>
+				{% if user_id is defined and user_id != 0%}
+				<th>Assigned</th>	
+				{% endif%}
+				<th>Catgory</th>
+				<th>Operation</th>
+              </thead>
+              <tbody>
+                {%if gallery is defined and gallery is not empty%}
+					{%for gallery in gallery%}
+						<tr>
+							<td>{{loop.index}}</td>
+							<td>{{gallery.title}}</td>
+							<td>
+								<a data-fancybox='gallery' href="{{gallery.media_url}}">									
+									<video width="50px" height="50px">
+									  <source src="{{gallery.media_url}}" type="video/mp4">
+									  <source src="{{gallery.media_url}}" type="video/ogg">
+									Your browser does not support the video tag.
+									</video>
+								</a>	
+								
+							</td>
+							{% if user_id is defined and user_id != 0%}
+							<td>
+								{% set btn_class = 'btn-danger'%}
+								{% set btn_text = 'Not Assigned'%}
+								{% set day = 0%}
+								{% if gallery is defined and gallery.user_video_relation_id is defined and gallery.user_video_relation_id != null%}
+									{% set btn_class = 'btn-success'%}
+									{% set btn_text = 'Assigned'%}
+									{% set day = gallery.day %}
+								{%endif%}
+								<button class="btn btn-sm {{btn_class}}" onclick="assign_video('{{user_id}}','{{gallery.main_video_master_id}}',$(this),event)">{{btn_text}}
+								</button>&nbsp;&nbsp;
+								{% set style_lable = ''%}
+								{% if gallery is defined and gallery.user_video_relation_id is defined and gallery.user_video_relation_id == null%}
+									{% set style_lable = 'display:none'%}
+								{%endif%}	
+									<label id="day_label_{{gallery.main_video_master_id}}" style="{{style_lable}}" class="lable label-info">Title : {{day}}</label>	
+							</td>
+							{%endif%}
+							<td>{{gallery.video_category}}</td>
+							<td>
+								<a href="{{path('admin_uservideo_adduservideo',{'video_id':gallery.main_video_master_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+								<a href="{{path('admin_uservideo_deleteuservideo',{'video_id':gallery.main_video_master_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure wwant to delete ? ')"><i class="fa fa-trash"></i></a>								
+							</td>
+						</tr>
+					{%endfor%}
+				{%endif%}
+              </tbody>
+              <tfoot>
+                 <th>No</th>
+								 <th>Title</th>
+				<th>Media</th>
+				{% if user_id is defined and user_id != 0%}
+				<th>Assigned</th>	
+				{% endif%}				
+				<th>Category</th>
+				<th>Operation</th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Specify Video Title For User</h4>
+      </div>
+      <div class="modal-body">
+		<input type="text" class="form-control" id="video_day"/>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn_day" class="btn btn-default">Add</button>
+      </div>
+    </div>
+
+  </div>
+</div>		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+	
+	var user_id_global = 0;
+	var video_id_global = 0;
+	var btn_element_global ;
+	function assign_video(user_id,video_id,btn_element,e){
+		e.preventDefault();
+		user_id_global = user_id;
+		video_id_global = video_id;
+		btn_element_global = btn_element;
+		
+		if(btn_element_global.hasClass('btn-danger')){
+		
+			$('#video_day').val('');
+			$('#myModal').modal('show');		
+		
+		}else{
+		
+			if(confirm('Are you sure want to remove video from user List ?')){
+			
+				//call ajax not assigned
+				
+				change_assign(user_id_global,video_id_global,$('#video_day').val(),'remove');				
+			
+			}
+			
+			
+		}
+	}
+	
+	$('#btn_day').click(function(){
+		if($('#video_day').val() != 0){
+			if(btn_element_global.hasClass('btn-danger')){
+			
+				//call ajaxx for assign
+				change_assign(user_id_global,video_id_global,$('#video_day').val(),'assign');
+				
+				$('#myModal').modal('hide');
+			}
+			
+		}else{
+			alert("Please mention Day");
+		}
+	});
+	
+	function change_assign(user_id,video_id,day = 0,operation='assign'){
+		$.ajax({
+			url : "{{path('admin_uservideo_assignvideo')}}",
+			method : "POST",
+			data : {'user_id':user_id,'video_id':video_id,'day':day,'operation':operation},
+			success : function(data){
+				if(operation == 'assign'){
+					btn_element_global.removeClass('btn-danger').addClass('btn-success');
+					btn_element_global.text('Assigned');
+					$('#day_label_'+video_id).show();
+					$('#day_label_'+video_id).text('Title : '+day);
+				}
+				if(operation == 'remove'){
+				
+					btn_element_global.removeClass('btn-success').addClass('btn-danger');
+					btn_element_global.text('Not Assigned');
+					$('#day_label_'+video_id).hide();	
+				}
+				
+				user_id_global = 0;
+				video_id_global = 0;										
+				$('#video_day').val(0);
+			},
+			error : function (){
+				alert('Something went wrong');
+				return false;
+			}
+		});
+	}
+	
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}

@@ -1,0 +1,397 @@
+{% extends "AdminBundle::Layout/adminlayout.html.twig" %}
+{% block title %}Nutrezee - Dashboard{% endblock %}
+{% block css %}
+
+<link rel="stylesheet" href="{{asset('bundles/design/')}}fileupload/css/blueimp-gallery.min.css">
+<link rel="stylesheet" href="{{asset('bundles/design/')}}fileupload/css/jquery.fileupload.css">
+<link rel="stylesheet" href="{{asset('bundles/design/')}}fileupload/css/jquery.fileupload-ui.css">
+
+{% endblock %}
+
+{% block content %}
+    <!-- PAGE HEADER : START -->
+    <section class="content-header">
+        <!-- PAGE TITLE -->
+        <h1>
+            Dashboard
+        </h1>
+        <!-- BREADCUMB -->
+        <ol class="breadcrumb">
+            <li class="active"><i class="fa fa-dashboard"></i> Dashboard</a></li></li>
+        </ol>
+    </section>
+    <!-- PAGE HEADER : END -->
+    <!-- Main content : START -->
+    <section class="content">
+        <!-- Message block -->
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-error alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+            <div class="alert alert-warning alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        {% if app.session.get('role_id') == 1 %}
+            <div class="row">
+
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-yellow"><i class="ion ion-ios-people-outline"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Unique Registered Users</span>
+                      <span class="info-box-number">{{statstics.users}}</span>
+                    </div>
+                  </div>
+                </div> 
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-green"><i class="ion ion-bag"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Active Subscriptions</span>
+                      <span class="info-box-number">{{statstics.orders}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-red"><i class="ion ion-coffee"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Week of Nutrezee</span>
+                        <span class="info-box-number">{{schedule_week_id}}</span>
+                    </div>
+                  </div>
+                </div>                         
+                <!-- <div class="col-lg-4 col-xs-6">
+                 
+                    <div class="small-box " style="background-color: #86b57e !important;">
+                        <div class="inner">
+                            <h3>{{statstics.users}}</h3>
+                            <p>Unique Registered Users</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                         <a href="{{path('admin_users_index',{'user_role_id':3})}}" class="small-box-footer">More info<i class="fa fa-arrow-circle-right"></i></a> 
+                    </div>
+                </div> -->
+
+                
+                <!-- <div class="col-lg-4 col-xs-6">
+                   
+                    <div class="small-box " style="background-color: #b36e66 !important;">
+                        <div class="inner">
+                            <h3>{{statstics.orders}}</h3>
+                            <p>Active Subscriptions</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a href="{{path('admin_orders_index')}}" class="small-box-footer">More info<i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>	 -->
+
+               <!--  <div class="col-lg-4 col-xs-6">
+                    <div class="small-box " style="background-color: #c398ce !important;">
+                        <div class="inner">
+                            <h3><i class="fa fa-database" aria-hidden="true"></i></h3>
+                            <a href="{{backupfile}}"  target="_blank" class="btn btn-sm btn-primary form-group">Database Backup
+                            </a>
+
+
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a  class="small-box-footer">Backup<i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>   -->		 
+            </div>
+            <div class="row">
+                 <div class="col-md-4 col-sm-6 col-xs-12">
+                    <!-- small box -->
+                    <div class="info-box " style="background-color: #87af3a !important;">
+                        <div class="inner">
+                            <a href="{{path('admin_orders_gettotalorders',{'quick_access':'tommorow'})}}" class="btn btn-sm btn-default form-group">Total Of Tommorow
+                            </a> 
+                            <br>
+                           {# <a href="{{path('admin_orders_getmealsdatewisefilter',{'quick_access':'tommorow'})}}" class="btn btn-sm btn-default form-group" style="margin-top:5px">Tommorow
+                            </a>
+                            <a href="{{path('admin_orders_getmealsdatewisefilter',{'quick_access':'day_after_tommorow'})}}" class="btn btn-sm btn-default form-group" style="margin-top:5px">Day after Tommorow
+                            </a>#}
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a href="{{path('admin_orders_gettotalorders',{'quick_access':'all'})}}" class="small-box-footer">All Meals<i class="fa fa-arrow-circle-right"></i></a> 
+                    </div>
+                </div> 
+             </div>
+               <div class="row"> 
+                <div class="col-lg-4 col-xs-6 hide">
+                    <!-- small box -->
+                    <div class="small-box" style="background-color: #5d2071;">
+                        <div class="inner">
+                            <label class="" style="color: rgba(255,255,255,0.8);">Send Before </label><br>
+                            <a onclick="send_notification_before_days(4);" class="btn btn-sm btn-default form-group"> <b>4</b> Days</a>
+                            <a onclick="send_notification_before_days(5);" class="btn btn-sm btn-default form-group"><b>5</b> Days </a>
+                            <a onclick="send_notification_before_days(6);" class="btn btn-sm btn-default form-group"><b>6</b> Days </a>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a class="small-box-footer">Send Notification to Users who have not filled Meal before X Days</a>
+                    </div>
+                </div>    
+                    
+                <div class="col-lg-4 col-xs-6 hide">
+                    <!-- small box -->
+                    <div class="small-box" style="background-color: #43a2a7 !important;">
+                        <div class="inner">
+                            <a onclick="assign_automaticmeal('{{nextDatePass}}');" class="btn btn-sm btn-default form-group">For <b>{{nextDatePass}}</b>
+                            </a>
+
+
+                            <a onclick="assign_automaticmeal('{{tomorowDatePass}}');" class="btn btn-sm btn-default form-group">For <b>{{tomorowDatePass}}</b>
+                            </a>
+
+
+                        </div>
+                        <div class="inner">
+                            <a onclick="assign_automaticmeal('{{dayaftertomorowDatePass}}');" class="btn btn-sm btn-default form-group">For <b>{{dayaftertomorowDatePass}}</b>
+                            </a>
+                            <a onclick="assign_automaticmeal('{{dayaftertomorowDatePass_plus1day}}');" class="btn btn-sm btn-default form-group">For <b>{{dayaftertomorowDatePass_plus1day}}</b>
+                            </a>
+                            <a onclick="assign_automaticmeal('{{dayaftertomorowDatePass_plus2day}}');" class="btn btn-sm btn-default form-group">For <b>{{dayaftertomorowDatePass_plus2day}}</b>
+                            </a>
+
+                        </div>
+
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a class="small-box-footer">Assign Automatic Meal</a>
+                    </div>
+                </div>      
+                  <div class="col-lg-3 col-xs-6 hide" >
+                    <!-- small box -->
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3>{{schedule_week_id}}</h3>
+                            <p>Current Week No of Nutrezee</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                       {#  <!-- <a href="{{path('admin_package_index')}}" class="small-box-footer">More info<i class="fa fa-arrow-circle-right"></i></a> --> #}
+                    </div>
+                </div>
+                {#<div class="col-lg-3 col-xs-6 hide">
+                    <!-- small box -->
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3>{{statstics.packages}}</h3>
+                            <p>Packages</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                       <!--  <a href="{{path('admin_package_index')}}" class="small-box-footer">More info<i class="fa fa-arrow-circle-right"></i></a> -->
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6 hide">
+                    <!-- small box -->
+                    <div class="small-box bg-green">
+                        <div class="inner">
+                            <h3>{{statstics.drivers}}</h3>
+                            <p>Drivers</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <!-- <a href="{{path('admin_users_index',{'user_role_id':2})}}" class="small-box-footer">More info<i class="fa fa-arrow-circle-right"></i></a> -->
+                    </div>
+                </div>           
+                          
+                        <div class="col-lg-3 col-xs-6 hide">
+                          <!-- small box -->
+                          <div class="small-box bg-yellow">
+                                <div class="inner">
+                                  <h3>{{statstics.companies}}</h3>
+                                  <p>Companies</p>
+                                </div>
+                                <div class="icon">
+                                  <i class="ion ion-bag"></i>
+                                </div>
+                                <!-- <a href="{{path('admin_users_index',{'user_role_id':4})}}" class="small-box-footer">More info<i class="fa fa-arrow-circle-right"></i></a> -->
+                          </div>
+                        </div>           
+                        #}
+
+               
+            </div>
+        {% endif %}
+
+        
+    </section>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        function assign_automaticmeal(datepass) {
+            $.ajax({
+                url: "{{path('admin_dashboard_assignautomaticmeal')}}",
+                method: "POST",
+                data: {'datepass': datepass},
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    status = obj.status;
+                    assigncount = obj.count;
+
+                    if ($.trim(status) == 'done') {
+                        alert('Automatic meal [Count : ' + assigncount + ' ] Assigned successfully');
+                    } else if ($.trim(status) == 'nomeal') {
+                        alert('No meal selection Pending for selected Date');
+                    } else {
+                        alert('Something went wrong');
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong");
+                }
+            });
+        }
+        
+        function send_notification_before_days(day) {
+            $.ajax({
+                url: "{{path('admin_dashboard_sendnotificationbeforedays')}}",
+                method: "POST",
+                data: {'day': day},
+                success: function (data) {
+                    var obj = JSON.parse(data);
+                    status = obj.status;
+                    sentcount = obj.count;
+                    sentfordate = obj.date ;
+
+                    if ($.trim(status) == 'done') {
+                        alert('Notification sent to ' + sentcount + ' Users for Date : '+sentfordate+' successfully');
+                    } else if ($.trim(status) == 'nomeal') {
+                        alert('No meal selection Pending by users for '+sentfordate+' Date');
+                    } else {
+                        alert('Something went wrong');
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            //      $('#list').DataTable();
+        });
+    </script>
+
+
+<script id="template-upload" type="text/x-tmpl">
+{% verbatim %}
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-upload fade">
+        <td>
+            <span class="preview"></span>
+        </td>
+        <td>
+            <p class="name">{%=file.name%}</p>
+            <strong class="error text-danger"></strong>
+        </td>
+        <td>
+            <p class="size">Processing...</p>
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+        </td>
+        <td>
+            {% if (!i && !o.options.autoUpload) { %}
+                <button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Start</span>
+                </button>
+            {% } %}
+            {% if (!i) { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% } %}
+        </td>
+    </tr>
+{% } %}
+{% endverbatim %}
+</script>
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% verbatim %}
+{% endverbatim %}
+</script>
+
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.ui.widget.js"></script>
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="{{asset('bundles/design/')}}fileupload/js/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="{{asset('bundles/design/')}}fileupload/js/load-image.all.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="{{asset('bundles/design/')}}fileupload/js/canvas-to-blob.min.js"></script>
+<!-- blueimp Gallery script -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.blueimp-gallery.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload-process.js"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload-image.js"></script>
+<!-- The File Upload audio preview plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload-audio.js"></script>
+<!-- The File Upload video preview plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload-video.js"></script>
+<!-- The File Upload validation plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload-validate.js"></script>
+<!-- The File Upload user interface plugin -->
+<script src="{{asset('bundles/design/')}}fileupload/js/jquery.fileupload-ui.js"></script>
+<!-- The main application script -->
+{# src="{{asset('bundles/design/')}}fileupload/js/main.js"></script>#}
+
+<script>
+$(function () {
+var html = "";
+    'use strict';
+    // Initialize the jQuery File Upload widget:
+    $('#fileupload').fileupload({
+        // Uncomment the following to send cross-domain cookies:
+
+        url: 'http://localhost/lifestyle/bundles/design/index.php?temp_dir=product_image',
+      //  acceptFileTypes: /(\.|\/)(zip)$/i,
+        success: function(response)
+        {
+            console.log(response.files[0]);
+            //database insert ajax
+           
+            
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,332 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{%block css%}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css">
+{%endblock%}
+{% block content %}
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Add Coupon
+		  <small></small>
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Coupon</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+						
+						<!-- tab-content -->
+						{% set coupon_master_id = 0 %}
+						{% set coupon_name = '' %}
+						{% set coupon_code = '' %}
+						{% set no_of_users_use = '' %}
+						{% set no_of_times_use = '' %}
+						{% set start_date = '' %}
+						{% set end_date = '' %}
+						{% set discount_type = '' %}
+						{% set discount_amount = '' %}
+						{% set coupon_category_id = 0 %}
+						{% set minimum_amount = 0 %}
+						{% set status = '' %}
+						{% set loyalty_points = 0 %}
+						{% set media_url = '' %}
+									{% set action = path('admin_coupon_savecoupon') %}
+									{% set product_name = '' %}
+									{% set product_description = '' %}
+									
+									{% if main_coupon is defined and main_coupon is not empty %}
+										
+										{% for main_coupon in main_coupon %}
+												
+												{% set coupon_master_id = main_coupon.coupon_master_id %}
+												{% set coupon_name = main_coupon.coupon_name %}
+												{% set coupon_code = main_coupon.coupon_code %}
+												{% set no_of_users_use = main_coupon.no_of_users_use %}
+												{% set no_of_times_use = main_coupon.no_of_times_use %}
+												{% set start_date = main_coupon.start_date %}
+												{% set end_date = main_coupon.end_date %}
+												{% set media_url = main_coupon.media_url %}
+												{% set discount_type = main_coupon.discount_type %}
+												{% set minimum_amount = main_coupon.minimum_amount %}
+												{% set discount_amount = main_coupon.discount_value %}
+												{% set coupon_category_id = main_coupon.coupon_category_id %}
+												{% set loyalty_points = main_coupon.loyalty_points %}
+												{% set status = main_coupon.status %}
+											
+										{% endfor %}
+									{% endif %}
+									
+									<form id="form" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+										
+										<input type="hidden" name="coupon_master_id" value="{{ coupon_master_id }}">
+										
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Coupon Name</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="coupon_name" value="{{coupon_name}}" />
+												</div>
+											</div>
+											
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Coupon Code</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="coupon_code" value="{{coupon_code}}" />
+												</div>
+											</div>
+											
+										</div>
+										</br>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>No of users use</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="no_of_users_use" value="{{no_of_users_use}}" />
+												</div>
+											</div>
+											
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>No of times use</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="no_of_times_use" value="{{no_of_times_use}}" />
+												</div>
+											</div>
+											
+										</div>
+										</br>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Start Date</label>
+												</div>
+												<div class="col-md-8">
+													<input type="text" class="form-control datepicker" name="start_date" value="{{start_date}}" />
+												</div>
+											</div>
+											
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>End Date</label>
+												</div>
+												<div class="col-md-8">
+													<input type="text" class="form-control datepicker" name="end_date" value="{{end_date}}" />
+												</div>
+											</div>
+											
+										</div>
+										</br>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Discount Type</label>
+												</div>
+												<div class="col-md-8">
+													<select name="discount_type" class="form-control">
+														<option value="0">--select discount type--</option>
+														<option value="amount" {%if discount_type == 'amount'%}selected="selected"{%endif%}>Amount</option>
+														<option value="percentage" {%if discount_type == 'percentage'%}selected="selected"{%endif%}>Percentage</option>
+													</select>
+												</div>
+											</div>
+											
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Discount Amount</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="discount_amount" value="{{discount_amount}}" />
+												</div>
+											</div>
+											
+										</div>
+										</br>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Category</label>
+												</div>
+												<div class="col-md-8">
+													<select class="form-control" name="coupon_category_id" required>
+														<option value="">Select Coupon Category</option>
+														{% if coupon_category is defined and coupon_category is not empty %}
+															{% for category in coupon_category %}
+																<option value="{{ category.main_coupon_category_id }}" {% if category.main_coupon_category_id == coupon_category_id %}selected{% endif %}>{{ category.coupon_category_name }}</option>
+															{% endfor %}
+														{% endif %}
+													</select>
+												</div>
+											</div>
+
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Mininum Amount</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="minimum_amount" value="{{minimum_amount}}" required />
+												</div>
+											</div>
+										</div>	</br>
+
+										<div class="row form-group">
+											<div class="col-md-6 hide">
+												<div class="col-md-4">
+													<label>Loyalty Points</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="loyalty_points" value="{{loyalty_points}}" />
+												</div>
+											</div>
+
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Status</label>
+												</div>
+												{% set active_check = ''%}
+												{% set inactive_check = ''%}
+												{% if status == 'active'%}
+													{% set active_check = 'checked'%}
+												{% endif %}
+												{% if status == 'inactive'%}
+													{% set inactive_check = 'checked'%}
+												{% endif %}												
+												<div class="col-md-8">
+													<label class="radio-inline">
+													  <input type="radio" name="status" value="active" {{active_check}}>Active
+													</label>
+													<label class="radio-inline">
+													  <input type="radio" name="status" value="inactive" {{inactive_check}}>Inactive
+													</label>
+												</div>												
+											</div>
+										</div>			
+
+										</br>
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" class="btn btn-success" value="1">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if coupon_master_id is defined and coupon_master_id is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+													<a href="{{path('admin_coupon_index')}}" name="cancel" class="btn btn-default">
+														<span><i class="fa fa-times"></i>&nbsp;
+															Cancel	
+														</span>
+													</a>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+								
+						<!-- end: tab-content -->
+											
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>
+
+	function remove_combo(element){
+
+		if (element.parents('div').siblings(".first_one").length > 1 ){
+			var elemnt_first = element.parents('div').prev(".first_one:last");
+			elemnt_first.remove();
+		}
+
+		if (element.parents('div').siblings(".first_one").length == 1 ){
+			$('#remove_combo_btn').hide();
+		}
+	}
+	
+	function add_combo(element){
+		var elemnt_last ;
+		if($(".first_one").length > 1 ){
+			$('#remove_combo_btn').show();
+		}else{
+			$('#remove_combo_btn').hide();
+		}
+		console.log(element.parents('div').prev(".first_one:last").html());
+
+		element.parents('div').siblings(".first_one:last").clone().insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+		
+/*		elemnt_last = element.parents('div').prev(".first_one");
+		console.log(elemnt_last.html());
+		var html = element.parents('div').prev(".first_one").html(); 
+		html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+		
+		elemnt_last.after(html).find("input[type='number']").val("");
+		//.find("input[type='number']").val("") */
+	}
+	
+	$(function () {
+
+		if($('.first_one').length <= 2 ){
+			$('#remove_combo_btn').hide();
+		}
+		
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	});
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+		
+		$('.datepicker').datepicker({
+			format : 'yyyy-mm-dd'
+		});
+	});	
+	
+</script>	
+{% endblock %}

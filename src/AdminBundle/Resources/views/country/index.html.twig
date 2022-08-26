@@ -1,0 +1,97 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Country Listing
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Country</h3>
+                        <a href="{{ path('admin_country_addcountry') }}" class="btn btn-primary btn-flat pull-right"><i class="glyphicon glyphicon-plus"></i><b>&nbsp;&nbsp;Add Country</b></a>
+                    </div>
+					<!-- end: box header -->
+					
+					<div class="box-body">
+						<table id="datatable" class="table display table-striped table-bordered scroll-horizontal">
+							<thead>
+								<th>No</th>
+								{% if language_list is defined and language_list is not empty %}
+									{% for language in language_list %}
+										<th>Name : {{ language.language_name }}</th>
+									{% endfor %}
+								{% endif %}
+								<th>Action</th>
+							</thead>
+							<tbody>
+								{% if country_details is defined and country_details is not empty %}
+									{% for country_details in country_details %}
+										<tr>
+											<td>{{ loop.index }}</td>
+											{% if country_details.lang_wise is defined and country_details.lang_wise is not empty %}
+												{%for name in country_details.lang_wise%}
+													<td>{{name.country_name}}</td>
+												{%endfor%}	
+											{% endif %}
+											<td>
+												<a onclick="return confirm('Are you sure want to edit ?');" href="{{ path('admin_country_addcountry', {'country_id':country_details.main_country_id}) }}" class="btn btn-xs btn-primary "><i class="fa fa-pencil" data-toggle="tooltip" data-title="Edit Country"></i></a>
+																								
+												<a class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ?');" href="{{path('admin_country_deletecountry',{'country_id':country_details.main_country_id})}}" data-toggle="tooltip" data-title="Delete Country"><i class="fa fa-trash"></i></a>											
+												
+											</td>
+										</tr>
+									{% endfor %}
+								{% endif %}
+							</tbody>
+							<tfoot>
+								<th>No</th>
+								{% if language_list is defined and language_list is not empty %}
+									{% for language in language_list %}
+										<th>Name : {{ language.language_name }}</th>
+									{% endfor %}
+								{% endif %}
+								<th>Action</th>
+							</tfoot>
+						</table>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+    $(document).ready(function() {
+      $('#datatable').DataTable();
+    });
+  </script>
+{% endblock %}

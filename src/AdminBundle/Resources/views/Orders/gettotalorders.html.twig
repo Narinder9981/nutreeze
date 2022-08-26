@@ -1,0 +1,110 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Orders Total of {{ date | date('d-m-Y') }}
+        </h1>
+          <form class="form-inline" action="" method="POST">
+            <div class="form-group">
+                <label for="email">Date:</label>
+                <input type="text" class="form-control datepicker" name="order_date" value="{{date}}">
+            </div>
+            <button type="submit" class="btn btn-primary">Go</button> 
+            {%if total_order_of_day is defined and total_order_of_day is not empty %}
+               {# Total Order Of Day : {{total_order_of_day}}#}
+             {%endif%}
+        </form>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-body table-responsive">
+                        <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                            <th>No</th>
+                            <th>Product Name</th>
+                            <th>Product Type</th>
+                            <th>No. Normal Users</th>
+                            <th>Total Selected Protiens</th>
+                            <th>Total Selected Carbs</th>
+                            {#{% if notes is defined and notes is not empty %}
+                                    {% for note in notes %}
+                                        <th>No. {{note['order_note_text']}}</th>
+                                     {% endfor %}
+                                {% endif %}#}
+                                <th>Total</th>
+
+                            </thead>
+                            <tbody>
+                                {% if order_data is defined and order_data is not empty %}
+                                   
+                                    {% for order_data in order_data %}
+                                    {%set total = order_data.normal %}
+                                        <tr>
+                                            <td>{{ loop.index }}</td>
+                                            <td>{{ order_data.product_name }}</td>
+                                            <td>{{ order_data.order_meal_type_name }}</td>
+                                            <td>{{ order_data.normal }}</td>
+                                            <td>{{ order_data.proteins_amount }}</td>
+                                            <td>{{ order_data.carbs_amount }}</td>
+                                            {# {% if notes is defined and notes is not empty %}
+                                            {% for note in notes %}
+                                            {% set fieldName = "note_" ~ note['main_order_note_id'] %}
+                                                <td>{{ attribute(order_data, fieldName) }}</td>
+                                                {% set total = total+attribute(order_data, fieldName) %}
+                                            {% endfor %}
+                                        {% endif %} #}
+                                        <th>{{total}}</th>
+                                 </tr>
+                                  {% endfor %}
+                                        {% endif %}
+                            </tbody>
+                        </table>  
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('#list').dataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
+             $('.datepicker').datepicker({ dateFormat: 'dd/mm/yy' });
+        });
+        
+    </script>
+{% endblock %}

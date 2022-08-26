@@ -1,0 +1,243 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  User Details
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		{%set status_name = ['pending','accept','reject','cancel','success','ongoing'] %}
+					
+		{%if users is defined and users is not empty%}
+			<section class="invoice" id="invoice"> 					
+			  <!-- title row -->
+			  <div class="row">
+				<div class="col-xs-12">
+				  <h2 class="page-header">
+					<i class="fa fa-user"></i>{{users.user_firstname ~' '~ users.user_lastname}}
+					<a href="{{path('admin_users_index',{'user_role_id':user_role_id})}}" class="btn btn-sm btn-primary pull-right">Back</a>							
+				  </h2>
+				</div>
+				<!-- /.col -->
+			  </div>
+			  <!-- info row -->
+			  <div class="row invoice-info">
+				<div class="col-sm-4 invoice-col">
+				  <h3>User Details</h3> </br>
+					{%if users.media_url != ''%}
+						<a href="{{users.media_url}}" data-fancybox="gallery">	
+							<img src="{{users.media_url}}" class='img-thumbnail img-responsive' style="height:50px;width:50px" />
+						</a>
+					{%else%}
+						<a href="{{asset('bundles/design/images/no_img.png')}}" data-fancybox="gallery"">
+							<img src="{{asset('bundles/design/images/no_img.png')}}" class='img-thumbnail img-responsive' style="height:50px;width:50px" />	
+						</a>	
+					{%endif%}
+					</br>
+					<b>Name</b> : {{users.user_firstname ~' '~ users.user_lastname}}</br>	
+					<b>Mobile No : </b>  {{users.user_mobile}}	</br>
+					<b>Email : </b>  {{users.email}}	</br>
+					<b>Gender : </b>  {{users.user_gender}}	</br>
+					<b>Date of Birth : </b>  {{users.date_of_birth}}	</br>
+					<b>Height : </b>  {{users.height}}	</br>
+					<b>Weight : </b>  {{users.weight}}	</br>
+					<b>Area : </b>  {{users.area_name}}</br>
+				</div>
+				<!-- /.col -->
+				
+				<!-- /.col -->
+				<div class="col-sm-4 invoice-col">
+					<h3>Address Details</h3></br>
+					{%if users.address_details is defined and users.address_details is not empty%}
+						{% set del_addr = users.address_details%}
+						<address>
+						House no : {{del_addr.flate_house_number}},Building Name : {{del_addr.society_building_name}},</br>
+						{{del_addr.address_name}},
+						Street  : {{del_addr.street}},</br>
+						Area : {{users.area_name}}</br>
+						Contact no : {% if del_addr.contact_no != 0 %}{{del_addr.contact_no}}{% else %}{{ users.user_mobile }}{% endif %}
+						</address>
+					{%endif%}				
+				
+				</div>
+				<!-- /.col -->
+			  </div>
+			  <!-- /.row -->
+			  </br></br>
+			  <!-- Table row -->
+                 {#
+			  <div class="row">
+				<div class="col-xs-12 table-responsive">
+					<h3>Body Report</h3></br>
+					{%if users.body_report_img != ''%}
+						<a href="{{users.body_report_img}}" data-fancybox="gallery" data-caption = "Body Report">	
+							<img src="{{users.body_report_img}}" class='img-thumbnail img-responsive' style="height:50px;width:50px" />
+						</a>
+					{%else%}
+						<a href="{{asset('bundles/design/images/no_img.png')}}" data-fancybox="gallery"">
+							<img src="{{asset('bundles/design/images/no_img.png')}}" class='img-thumbnail img-responsive' style="height:50px;width:50px" />	
+						</a>	
+					{%endif%}				
+				
+				</div>
+				<!-- /.col -->
+			  </div> #}
+			  <!-- /.row -->
+
+			</section>
+                        <section class="invoice">
+                            <form name="updatepassword" action="{{path('admin_users_updatepassword')}}" method="POST">
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <input type="hidden" value="{{user_master_id}}" name ="user_master_id" />
+                                    <div class="col-md-2"><label>New Password</label></div>
+                                    <div class="col-md-2"><input type="password" name="update_password" class="form-control" placeholder="Enter New Password" required /></div>
+                                    <div class="col-md-2"><input type="submit" name="Update" value="Update" class="btn btn-primary"/></div>
+                                     <div class="col-md-2 hide "><label>Wallet Amount</label></div>
+                                    <div class="col-md-2 hide"><input type="text" name="wallet_amount_s" class="form-control"  value="{{wallet_amount}}" disabled /></div>
+                                </div>
+                            </div>
+                            </form>
+                        </section>
+                        <section class="invoice hide">
+                           
+                            <div class="row">
+                            	
+                                <div class="col-md-12">
+                                   <form name="updatepassword" action="{{path('admin_users_withdrawwalletamount')}}" method="POST">
+	                                    <div class="col-md-2"><label>Withdraw Amount</label></div>
+	                                      <input type="hidden" value="{{user_master_id}}" name ="user_master_id" />
+	                                      <input type="hidden" value="{{user_role_id}}" name ="role_id_p" />
+	                                 
+	                                    <div class="col-md-2"><input type="text" name="withdraw_amount" class="form-control"  /></div>
+	                                     <div class="col-md-2"><input type="submit" name="withdraw_wallet" value="Withdraw Wallet" class="btn btn-primary"/></div>
+                                     </form>
+                                      <form name="updatepassword" action="{{path('admin_users_addwwalletamount')}}" method="POST">
+	                                      <div class="col-md-2"><label>Add Amount</label></div>
+	                                      <input type="hidden" value="{{user_master_id}}" name ="user_master_id" />
+	                                      <input type="hidden" value="{{user_role_id}}" name ="role_id_p" />
+	                                 
+	                                    <div class="col-md-2"><input type="text	" name="add_amount" class="form-control"   /></div>
+	                                     <div class="col-md-2"><input type="submit" name="add_wallet" value="Add Wallet" class="btn btn-primary"/></div>
+                                    </form>
+                                </div>
+                                
+                            </div><br>
+                            <div class="row">
+                                <div class="col-md-12">
+                                   
+                                    <table class="table">
+                                    	<thead>
+                                    		<th>No</th>
+                                    		<th>Wallet Action</th>
+                                    		<th>Transaction for</th>
+                                    		<th>Order No</th>
+                                    		<th>Package</th>
+                                    		<th>Previous Amount</th>
+                                    		<th>Transaction Amount</th>
+                                    		<th>Balance Amount</th>
+                                    		<th>Created Datetime</th>
+                                		</thead>
+                                		<tbody>
+                                			{%if walletTransactionInfo is defined and walletTransactionInfo is not empty %}
+                                				{%for walletTransactionInfo in walletTransactionInfo %}
+                                					<tr>	
+                                						<td>{{loop.index}}</td>
+                                						<td>{{walletTransactionInfo.wallet_action | capitalize }}</td>
+                                						<td>{{walletTransactionInfo.transaction_for | capitalize }}</td>
+                                						<td>{{walletTransactionInfo.orderNo}}</td>
+                                						<td>{{walletTransactionInfo.package_name}}</td>
+                                						<td>{{walletTransactionInfo.previous_amount}}</td>
+                                						
+                                						
+                                						<td>{{walletTransactionInfo.transaction_amount}}</td>
+                                						<td>{{walletTransactionInfo.after_action_amount}}</td>
+                                						<td>{{walletTransactionInfo.action_created_datetime}}</td>
+                                					
+                                					</tr>
+                                				{%endfor%}
+                                			{%endif%}
+                                		</tbody>
+                                    </table>
+                                    
+                                </div>
+                            </div>
+                        </section>
+			
+		{%endif%}
+</section>		
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+		  
+
+  
+	function change_status(order_master_id,element){
+		
+		var status = element.val();
+		$.ajax({
+			url : "",
+			method : "POST",
+			data : {'order_master_id':order_master_id,'status':status},
+			success : function(data){
+				if($.trim(data) == 'done'){
+					alert('Status updated successfully');
+				}else{
+					alert('Somehing went wrong');				
+				}
+			},
+			error : function(){
+				alert("Somehing went wrong");
+			}
+		});
+	}
+	
+    $(document).ready(function() {
+		$('#datatable').DataTable();
+	  
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});	  
+    });
+	
+	function printDivInvoice() 
+	{
+
+	  var divToPrint=document.getElementById('invoice');
+
+	  var newWin=window.open('','Print-Window');
+
+	  newWin.document.open();
+
+	  newWin.document.write("<html><body onload='window.print()'>"+divToPrint.innerHTML);
+
+	  newWin.document.close();
+
+	  setTimeout(function(){newWin.close();},10);
+
+	}
+		
+  </script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Add Order notes
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Order Nores</h3>
+
+                    </div>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body">
+                        {% if language_list is defined  and language_list is not empty%}
+                            <div class="nav-tabs-custom">
+                                <ul class="nav nav-tabs">
+                                    {% if language_list is defined %}
+                                        {% for language in language_list %}
+                                            <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                                <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            <!-- tab-content -->
+                           
+                            <div class="tab-content">
+                                {% set main_order_note_id = 0 %}
+                                {% for language in language_list %}
+                                    <div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+
+                                        {% set action = path('admin_ordernote_saveordernote') %}
+
+                                        {% set order_note_text = '' %}
+                                        
+                                        {% if ordernote is defined and ordernote is not empty %}
+
+                                            {% for ordernote in ordernote %}
+                                                {% if ordernote.language_id == language.language_master_id %}
+
+                                                    {% set main_order_note_id = ordernote.main_order_note_id %}
+                                                    {% set order_note_text = ordernote.order_note_text %}
+                                                   
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        <form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+
+                                            <input type="hidden" name="main_order_note_id" value="{{ main_order_note_id }}">
+                                            <input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Order note</label>
+                                                    </div>
+                                                    <div class="col-lg-10">
+                                                        <input type="text" class="form-control" id="order_note_text{{language.language_master_id}}" name="order_note_text" value="{{order_note_text}}" required>
+                                                    </div>
+                                                </div>
+                                            </div>	
+                                            </br>	
+                                            
+                                           
+
+                                            <div class="row paddTop">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-6">
+                                                        <button type="submit" name="submit" value="submit" class="btn btn-success">
+                                                            <span><i class="fa fa-check-square-o"></i>&nbsp;Submit</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                            <!-- end: tab-content -->
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}

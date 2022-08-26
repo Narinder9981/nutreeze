@@ -1,0 +1,161 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+<style>
+.filter-category {
+    padding: 10px;
+    border: 1px solid #e2e2e2;
+    border-radius: 4px;
+}
+</style>
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Coupon Listing
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+	<div class="box-header">
+		<a href="{{path('admin_coupon_addcoupon')}}" class="btn btn-sm btn-primary theme-btn btn-flat pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add Coupon</a>
+	</div>
+    <div class="row">
+      <div class="col-md-12">
+		<div class="box box-primary">
+			<div class="box-header hide ">
+				<div class="row">
+					<div class="col-md-12 ">
+						<form class="" method="post">
+							<div class="col-md-4">
+								<select class="form-control" name="main_coupon_category_id">
+									<option value="">Select Coupon Category</option>
+									{% if coupon_category is defined and coupon_category is not empty %}
+										{% for category in coupon_category %}	
+											<option value="{{ category.main_coupon_category_id }}" {% if main_coupon_category_id == category.main_coupon_category_id %}selected{% endif %}>{{ category.coupon_category_name }}</option>
+										{% endfor %}
+									{% endif %}
+								</select>
+							</div>
+							<div class="col-md-2">
+								<input type="submit" name="submit" class="btn btn-primary btn-flat" value="Filter">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<hr />
+          	<div class="box-body table-responsive">
+            <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+              <thead>
+                <th>No</th>
+				<th>Coupon Name</th>
+				<th>Coupon Code</th>
+				{#<th>Loyalty points</th>#}
+				<th>No Of users use</th>
+				<th>No Of times use</th>
+				{# <th>Category Name</th> #}
+				<th>Status</th>
+				<th>Operation</th>
+              </thead>
+              <tbody>
+			  {%if coupon_details is not empty and coupon_details is defined%}
+			    {%for coupon_details in coupon_details%}
+                <tr>
+					<td>{{loop.index}}</td>
+					<td>{{coupon_details.coupon_name}}</td>
+					<td>{{coupon_details.coupon_code}}</td>
+					{#<td>{{coupon_details.loyalty_points}}</td>#}
+					<td>{{coupon_details.no_of_users_use}}</td>
+					<td>{{coupon_details.no_of_times_use}}</td>
+					{#<td>
+						<label class="btn btn-xs btn-bitbucket btn-flat">{{coupon_details.coupon_category_name}}</label>
+					</td>#}
+					<td>
+						{% set checked = ''%}
+						{% if coupon_details.status == 'active'%}
+								{% set checked = 'checked'%}
+						{%endif%}
+						<input data-on="active" class="status status_1" data-off="inactive" onchange="change_status({{coupon_details.coupon_master_id}},$(this).is(':checked'))" type="checkbox" data-toggle="toggle" data-size="mini" data-onstyle="success" {{checked}}/>
+
+					</td>
+					<td>
+						<a href="{{path('admin_coupon_addcoupon',{'main_coupon_id':coupon_details.coupon_master_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+						<a href="{{path('admin_coupon_deletecoupon',{'main_coupon_id':coupon_details.coupon_master_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ? ')"><i class="fa fa-trash"></i></a>	
+						<a href="{{path('admin_coupon_couponreport',{'main_coupon_id':coupon_details.coupon_master_id})}}" class="btn btn-xs btn-bitbucket"><i class="fa fa-bar-chart"></i>&nbsp;Report</a>							
+						{# 
+							<a href="{{path('admin_coupon_sendmailtousers',{'main_coupon_id':coupon_details.coupon_master_id})}}" class="btn btn-xs btn-warning" onclick="return confirm('Are you sure want to send Mail ? ')"><i class="fa fa-email">Send Mail</i></a>
+
+							
+						#}
+					</td>
+				</tr>
+				{%endfor%}
+			  {%endif%}
+              </tbody>
+              <tfoot>
+                <th>No</th>
+				<th>Coupon Name</th>
+				<th>Coupon Code</th>
+				{#<th>Loyalty points</th>#}
+				<th>No Of users use</th>
+				<th>No Of times use</th>
+				{# <th>Category Name</th> #}
+				<th>Status</th>				
+				<th>Operation</th>				
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+	function change_status(main_coupon_id,status){
+		$.ajax({
+			url : "{{path('admin_coupon_changecouponstatus')}}",
+			method : "POST",
+			data : {'main_coupon_id':main_coupon_id,'status':status},
+			success : function(data){
+				console.log('done');
+			}
+		});
+	}
+	
+    $(document).ready(function() {
+      $('#list').DataTable();
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+  </script>
+{% endblock %}

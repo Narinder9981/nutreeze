@@ -1,0 +1,171 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Add Meal Types
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <!-- box header -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Meal Types</h3>
+                        <a href="{{ path('admin_mealtypes_index') }}" class="btn btn-primary btn-flat pull-right">Back</a>
+
+                    </div>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body">
+                        {% if language_list is defined  and language_list is not empty%}
+                            <div class="nav-tabs-custom">
+                                <ul class="nav nav-tabs">
+                                    {% if language_list is defined %}
+                                        {% for language in language_list %}
+                                            <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                                <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            <!-- tab-content -->
+                            {% set count_in_ar = ['meal','snacks','soup']%}
+                            <div class="tab-content">
+                                {% set main_product_category_master_id = 0 %}
+                                {% for language in language_list %}
+                                    <div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+
+                                        {% set action = path('admin_mealtypes_savemeal') %}
+
+                                        {% set product_category_name = '' %}
+                                        {% set package_id = '' %}
+                                        {% set count_in  = '' %}
+                                        {% if meal is defined and meal is not empty %}
+
+                                            {% for meal in meal %}
+                                                {% if meal.language_id == language.language_master_id %}
+
+                                                    {% set main_product_category_master_id = meal.main_product_category_master_id %}
+                                                    {% set product_category_name = meal.product_category_name %}
+                                                    {% set package_id = meal.package_id %}
+                                                    {% set count_in = meal.count_in %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        <form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+
+                                            <input type="hidden" name="main_product_category_master_id" value="{{ main_product_category_master_id }}">
+                                            <input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+
+                                            <div class="row form-group">
+                                                <div class="col-md-12">
+                                                    <div class="col-lg-2">
+                                                        <label>Meal Type Name</label>
+                                                    </div>
+                                                    <div class="col-lg-10">
+                                                        <input type="text" class="form-control" id="product_category_name{{language.language_master_id}}" name="product_category_name" value="{{product_category_name}}" required>
+                                                    </div>
+                                                </div>
+                                            </div>	
+                                            </br>	
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Product Package</label>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <select name="product_package[]" class="form-control" required multiple>
+                                                            <option value="0">--select package--</option>
+                                                            {%if package is not empty%}
+                                                                {%for package in package %}
+                                                                    {%if language.language_master_id == package.language_id%}
+                                                                        <option value="{{package.main_package_master_id}}" {%if package_cat_selected_arr is defined and package.main_package_master_id in package_cat_selected_arr %}selected{%endif%}>{{package.package_name}}</option>
+                                                                    {%endif%}
+                                                                {%endfor%}
+                                                            {%endif%}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            </br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-2">
+                                                        <label>Count In</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <select name="count_in" class="form-control" required>
+                                                            {%if count_in_ar is not empty%}
+                                                                {%for count_in_ar in count_in_ar %}
+                                                                    <option value="{{count_in_ar}}" {%if count_in_ar == count_in %}selected{%endif%}>{{count_in_ar | capitalize }}</option>
+
+                                                                {%endfor%}
+                                                            {%endif%}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>Image</label>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                       <input type="file" name="meal_image" class="form-control" /> 
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row paddTop">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-6">
+                                                        <button type="submit" name="submit" value="submit" class="btn btn-primary">
+                                                            <span><i class="fa fa-check-square-o"></i>&nbsp;Submit</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                            <!-- end: tab-content -->
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}

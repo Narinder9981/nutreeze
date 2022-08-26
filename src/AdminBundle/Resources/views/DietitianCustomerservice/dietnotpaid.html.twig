@@ -1,0 +1,180 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-- PAGE TITLE -->
+        <h1>
+            Customer Service
+            <small></small>
+        </h1>
+        <!-- BREADCUMB -->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <div class="box-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <a href="{{ path('admin_customerservice_notpaid') }}">
+                                    <div class="col-md-3">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-blue">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Not Subscribed</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:notsubscribedusercount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                 <a href="{{ path('admin_customerservice_triedtopurchaseusers') }}">
+                                    <div class="col-md-3">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-red-gradient">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Tried to Purchase Users</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:triedtopurchasecount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>           
+                                            
+                                <a href="{{ path('admin_customerservice_activeusers') }}">
+                                    <div class="col-md-3">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-yellow">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Active Users</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:activeusercount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <a href="{{ path('admin_customerservice_expiredusers') }}">
+                                    <div class="col-md-3">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-green">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Expired Users</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:expiredusercount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                 
+                            </div>
+                        </div>
+
+                        <hr style="margin-top: 0px;margin-bottom: 0px;" />
+
+                        <div class="row form-group">
+                            <div class="col-md-12 form-group">
+                                <h4>Not Subscribed Users</h4>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <form class="form-horizontal" method="post" action="{{path('admin_customerservice_sendnotificationcustomerserviceusers')}}" enctype="multipart/form-data">
+                                    <div class="row">
+                                        <div class="col-md-2"><label>Notification Title</label></div>
+                                        <div class="col-md-2"><input type="text" name="notification_title" class="form-control"><input type="hidden" name="notification_type_to_send" value="notsubscribedusers"></div>
+                                        <div class="col-md-2"><label>Notification Message</label></div>
+                                        <div class="col-md-3"><input type="text" name="notification_message" class="form-control"></div>
+                                        <div class="col-md-2"><input type="submit" class="btn btn-info btn-sm" value="Send Notification to Not Subscribed Users"/></div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="col-md-12">
+                                <table id="datatable" class="example table display table-striped table-bordered scroll-horizontal">
+                                    <thead>
+                                    <th>No</th>
+                                    <th>Customer Name</th>
+                                    <th>Email</th>
+                                    <th>Unique No</th>
+                                    <th>Contact No</th>
+                                    <th>Package Name</th>
+                                    <th>Sub Package</th>
+                                    <th>Start Date / End Date</th>
+                                    <th>Created Datetime</th>
+                                    </thead>
+                                    <tbody>
+                                        {% if userList is defined and userList is not empty %}
+                                            {% for user in userList %}
+                                                <tr>
+                                                    <td>{{ loop.index }}</td>
+                                                    <td><a href="{{ path('admin_users_viewuser', {'user_role_id': 3, 'user_id': user.order_by}) }}" data-toggle="tooltip" title="View User Profile"  target="_blank" >{{ user.customer_name }}</a></td>
+                                                    <td>{{ user.email}}</td>
+                                                    <td>{{ user.unique_user_id }}</td>
+                                                    <td>{{ user.mobile_no }}</td>
+                                                    <td>{{ user.package_name }}</td>
+                                                    <td>{{ user.package_grams ~ '-' ~ user.pk_for_name }}</td>
+                                                    <td>{{ user.start_date ~ ' / ' ~ user.end_date }}</td>
+                                                    <td>{{ user.created_date | date('Y-m-d H:i') }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                    <tfoot>
+                                    <th>No</th>
+                                    <th>Customer Name</th>
+                                    <th>Email</th>
+                                    <th>Unique No</th>
+                                    <th>Contact No</th>
+                                    <th>Package Name</th>
+                                    <th>Sub Package</th>
+                                    <th>Start Date / End Date</th>
+                                    <th>Created Datetime</th>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>		
+    </section>
+    <!-- PAGE HEADER : END -->
+    <!-- Main content : START -->
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+           $('.example').DataTable( {
+                dom: 'Bfrtip',
+
+               buttons: [
+                   'copy', 'excel', 'pdf'
+               ]
+            } );
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Package Listing
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-header">
+                    <a href="{{path('admin_package_addpackage')}}" class="btn btn-primary theme-btn pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add Package</a>		
+                </div>
+                <div class="box box-primary">
+                    <div class="box-body table-responsive">
+                        <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                            <th>No</th>
+                                {% if languages is defined and languages is not empty%}
+                                    {%for language in languages%}
+                                    <th>Name : {{language.language_name}}</th>
+                                    {%endfor%}	
+                                {% endif%}
+                            {#<th>Pause </th> #}
+                            <th>Priority</th>
+                            {#<th>Grams</th>#}
+                            <th>Operation</th>
+                            </thead>
+                            <tbody>
+                                {%if packages is defined and packages is not empty%}
+                                    {%for packages in packages%}
+                                        <tr>
+                                            <td>{{loop.index}}</td>
+
+                                            {%if packages.lang_wise is defined and packages.lang_wise is not empty %}
+                                                {%for name in packages.lang_wise %}
+                                                    <td>{{name.package_name}}</td>
+                                                {%endfor%}
+                                            {%endif%}
+                                           {# <td>{{packages.package_pause}}</td> #}
+                                            <td>{{packages.sort_order}}</td>
+                                           {# <td>{{packages.package_grams}}</td> #}
+                                           <td>
+                                                <a href="{{path('admin_package_addpackage',{'main_package_id':packages.main_package_master_id})}}" class="btn btn-xs btn-primary "><i class="fa fa-pencil"></i></a>
+
+                                                <a href="{{path('admin_package_deletepackage',{'main_package_id':packages.main_package_master_id})}}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ? ')"><i class="fa fa-trash"></i></a>	
+
+                                               {# <a href="{{path('admin_pause_pausepackage',{'main_package_id':packages.main_package_master_id})}}" class="btn btn-xs btn-info"><i class="fa fa-stop"></i>&nbsp; Pause</a>						
+                                               #}	
+                                            </td>
+                                        </tr>
+                                    {%endfor%}
+                                {%endif%}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script>
+
+        function change_status(main_product_id, status) {
+          $.ajax  ({
+                url: "{{path('admin_product_changeproductstatus')}}",
+                method: "POST",
+                data: {'main_product_id': main_product_id, 'status': status},
+                success: function (data) {
+                    console.log('done');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#list').DataTable();
+        });
+
+        $(document).ready(function () {
+
+            $('[data-fancybox="gallery"]').fancybox({
+                // Options will go here
+            });
+
+        });
+
+    </script>
+{% endblock %}

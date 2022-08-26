@@ -1,0 +1,491 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Add Product
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Product</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+					{% if language_list is defined  and language_list is not empty%}
+						<div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                {% if language_list is defined %}
+                                   {% for language in language_list %}
+                                        <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                            <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+						
+						<!-- tab-content -->
+						<div class="tab-content">
+						{% set main_product_master_id = 0 %}
+						{% set main_product_category_id = 0 %}
+						{% set product_image = '' %}
+						{% set product_status = '' %}
+						{% set product_combo = null %}
+						{% set product_combo1 = null %}
+						{% set package_ids = null %}
+						{% set product_nutrition = '' %}
+						{%set style_dis = ''%}
+						
+							{% for language in language_list %}
+								<div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+									
+									{% set action = path('admin_product_saveproduct') %}
+									{% set product_name = '' %}
+									{% set product_description = '' %}
+									
+									{% set package_id = '' %}
+									{% if main_product is defined and main_product is not empty %}
+										
+										{% for main_product in main_product %}
+											{% if main_product.language_id == language.language_master_id %}
+												
+												{% set main_product_master_id = main_product.main_product_master_id %}
+												{% set main_product_category_id = main_product.main_product_category_id %}
+												{% set product_image = main_product.img_url %}
+												{% set product_status = main_product.product_status %}
+												{% set product_name = main_product.product_name %}
+												{% set product_combo = main_product.new_combo %}
+												{% set product_combo1 = main_product.product_combo1 %}
+												{% set package_id = main_product.package_id %}
+												{% set product_description = main_product.product_description %}
+												{% set product_nutrition = main_product.product_nutrition %}
+												{% set package_ids = main_product.package_ids %}
+			
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+
+									<form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+										
+										<input type="hidden" name="main_product_master_id" value="{{ main_product_master_id }}">
+										<input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Product Name</label>
+												</div>
+												<div class="col-md-10">
+													<input class="form-control" name="product_name" value="{{product_name}}" />
+												</div>
+											</div>
+											
+										</div>
+{#										</br>	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Product Description</label>
+												</div>
+												<div class="col-md-10">
+													<textarea id="editor1" class="ckeditor" name="product_description">{{ product_description }}</textarea>
+												</div>
+											</div>
+											
+										</div> #}
+										<input type="hidden" name="product_description" value=""/>
+										</br>		
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Nutrition Value</label>
+												</div>
+												<div class="col-md-10">
+													<textarea id="editor1" class="ckeditor" name="product_nutrition">{{ product_nutrition }}</textarea>
+												</div>
+											</div>
+											
+										</div>
+										</br>	
+										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Product Package</label>
+												</div>
+												<div class="col-md-10">
+													<select id="product_package"  name="product_package[]" class="form-control" multiple required onchange="getSubpackage($(this).val)">
+														<option value="0">--select package--</option>
+														{%if package is not empty%}
+														   {%for package in package %}
+														   {%if language.language_master_id == package.language_id%}
+															<option value="{{package.main_package_master_id}}" {%if package.main_package_master_id in package_ids%}selected{%endif%}>{{package.package_name}}</option>
+															{%endif%}
+															{%endfor%}
+														{%endif%}
+													</select>
+												</div>
+											</div>
+											
+										</div>
+										</br>											
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Product Meal Type</label>
+												</div>
+												<div class="col-md-10">
+													<select name="main_product_category_id" class="form-control" id="meal_type" required>
+														<option value="">Select Meal type</option>
+														{% if product_cat is defined and product_cat is not empty %}
+															{%for product_cat in product_cat%}
+																{% if product_cat.language_id == language.language_master_id %}
+																	<option value="{{product_cat.main_product_category_master_id}}" {%if product_cat.main_product_category_master_id == main_product_category_id%} selected{%endif%}>
+																		{{product_cat.product_category_name}}				
+																	</option>
+																{%endif%}	
+															{%endfor%}
+														{% endif%}
+													</select>
+												</div>
+											</div>
+										</div>
+										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label></label>
+												</div>
+												<div class="col-md-10">
+													<em>*</em><label>Select Meal type breakfast for Raw Egg and Egg white</label>
+												</div>
+											</div>
+										</div>
+										</br>					
+										
+										<div class="row">
+											<div id="b_combo" {% if main_product_category_id == 1 %}style="display:block;"{% endif %}>
+										
+											{% if main_product_category_id == 1 %}
+												{% if product_combo is defined and product_combo is not empty %}
+												
+													{% for product_combo1 in product_combo %}
+														<div class='col-md-12 form-group'>
+															<div class="col-md-2"></div>
+															<div class="col-md-2">
+																<label>{{ product_combo1['package_name'] ~ "-" ~ product_combo1['grams'] }}</label>
+															</div>
+
+															{% set raw_eggs_selected = '' %}
+															{% set white_eggs_selected = '' %}
+															{% if product_combo1['prot_type'] == 'raw_eggs' %}
+																{% set raw_eggs_selected = 'checked' %}
+															{% else %}
+																{% set white_eggs_selected = 'checked' %}
+															{% endif %}
+
+															<div class="col-md-3">
+																<input id='id1-{{ product_combo1['sub_pakage_id'] }}' type='radio' name='radio-{{ product_combo1['idList'] }}' value='raw_eggs' {{ raw_eggs_selected }}>&nbsp;&nbsp;
+
+																<label for="id1-{{ product_combo1['sub_pakage_id'] }}">Raw Eggs</label> &nbsp;&nbsp;&nbsp;
+
+																<input id='id2-{{ product_combo1['sub_pakage_id'] }}' type='radio' name='radio-{{ product_combo1['idList'] }}' value='white_eggs' {{ white_eggs_selected }}>
+																&nbsp;&nbsp;
+																<label for="id2-{{ product_combo1['sub_pakage_id'] }}">Egg Whites</label>
+
+																<input id='' type='hidden' name='grams[]' value='{{ product_combo1['grams'] }}'>
+																<input id='' type='hidden' name='idList[]' value='{{ product_combo1['idList'] }}'>
+
+																<input id='' type='hidden' name='subpackid[]' value='{{ product_combo1['sub_pakage_id'] }}'>
+															</div>
+
+															<div class='col-md-2'>
+																<input type='text' name='breakfast_eggs[]' placeholder='Enter Number of Eggs' value="{{ product_combo1['prot_crab'] }}">
+															</div>
+														</div>	
+													{% endfor %}
+												{% else %}
+												
+												{% endif %}
+											{% endif %}
+											
+											{# <div class="col-md-12 form-group eggs_field" style="{{style_dis}}">
+												<a href="javascript:void(0)" id="remove_combo_btn" onclick="remove_combo($(this))" class="pull-right btn btn-sm btn-default">Remove</a>
+												<a href="javascript:void(0)" onclick="add_combo($(this))" class="pull-right btn btn-sm btn-primary">Add More</a>
+											</div> #}
+											</div>
+										</div>
+										</br>					
+										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Product Image </br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='file' class="form-control product_image" name="product_image" required="required"/>
+												</div>
+											</div>
+										</div>
+										
+										{%if product_image is defined and product_image != ''%}	
+											<script>
+												$('.product_image').removeAttr('required');
+											</script>
+											<div class="row col-md-offset-2">
+												<a data-fancybox='gallery' href="{{product_image}}">
+													<img src="{{product_image}}" class="img-responsive img-thumbnail" style="height:100px;width:100px">
+												</a>
+											</div>
+											
+										{%endif%}										
+																				
+										</br>
+
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Product Availability </br></label>
+												</div>
+												<div class="col-md-10">
+												    {%if days is not empty%}
+														{%for days in days%}
+														{%set checked = ''%}
+															{%if avail is not empty%}
+															   {%for avail in avail%}
+																	{%if avail.main_days_id == days.days_master_id %}
+																		{%set checked ='checked="checked"'%}
+																	{%endif%}
+															   {%endfor%}
+															{%endif%}
+															<input type='checkbox' name="product_availability[]" value="{{days.days_master_id}}" {{checked}}/>&nbsp;{{days.days_name}}&nbsp;&nbsp;
+														{%endfor%}
+													{%endif%}
+													
+												</div>
+											</div>
+										</div>
+										</br>											
+										
+										
+										<div class="row form-group">
+											<div class="col-md-12">
+												<div class="col-lg-2">
+													<label>Status</label>
+												</div>
+												{%set active_check = ''%}
+												{%set inactive_check = ''%}
+												{%if product_status == 'active'%}
+													{%set active_check = 'checked'%}
+												{%endif%}
+												{%if product_status == 'inactive'%}
+													{%set inactive_check = 'checked'%}
+												{%endif%}												
+												<div class="col-lg-8">
+													<label class="radio-inline">
+													  <input type="radio" name="product_status" value="active" {{active_check}}>Active
+													</label>
+													<label class="radio-inline">
+													  <input type="radio" name="product_status" value="inactive" {{inactive_check}}>Inactive
+													</label>
+												</div>												
+											</div>
+										</div>
+										</br>
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" class="btn btn-primary" value="{{ language.language_master_id }}">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if about_us is defined and about_us is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+									
+								</div>
+							{% endfor %}
+							
+						</div>
+						<!-- end: tab-content -->
+							
+					{% endif %}
+												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>
+
+	$(document).ready(function(){
+		$('#meal_type').change(function(){
+			if($('#product_package').val() != '0'){
+				$('#b_combo').css({'display': 'block'});
+				getSubpackage($('#product_package').val());
+			} else {
+				$('#b_combo').css({'display': 'none'});
+			}
+		});
+	});
+
+	function getSubpackage(main_pk_id){
+
+
+		if($('#meal_type').val() != '1'){
+			$('#b_combo').css({'display': 'none'});
+			return false;
+		}
+
+		var pk_ids = []
+		$( "#product_package option:selected" ).each(function () {
+			pk_id_single = {'pk_id':$(this).val()};
+			pk_ids.push(pk_id_single);
+
+		});
+
+		$.ajax({
+			url : "{{path('admin_product_getsubpackages')}}",
+			data : {'pk_ids':JSON.stringify(pk_ids)},
+			method : "POST",
+			success : function (data){
+				var res= JSON.parse(data);
+				if(res['success'] == true){
+					$('#b_combo').html(res['html']);
+				}
+				//$('.sub_pk').html(data);
+			}
+		});
+	}
+
+	function remove_combo(element){
+
+		if (element.parents('div').siblings(".first_one").length > 1 ){
+			var elemnt_first = element.parents('div').prev(".first_one:last");
+			elemnt_first.remove();
+		}
+
+		if (element.parents('div').siblings(".first_one").length == 1 ){
+			$('#remove_combo_btn').hide();
+		}
+	}
+	
+	function add_combo(element){
+		var elemnt_last ;
+		if($(".first_one").length > 1 ){
+			$('#remove_combo_btn').show();
+		}else{
+			$('#remove_combo_btn').hide();
+		}
+		console.log(element.parents('div').prev(".first_one:last").html());
+
+		element.parents('div').siblings(".first_one:last").clone().insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+		
+/*		elemnt_last = element.parents('div').prev(".first_one");
+		console.log(elemnt_last.html());
+		var html = element.parents('div').prev(".first_one").html(); 
+		html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+		
+		elemnt_last.after(html).find("input[type='number']").val("");
+		//.find("input[type='number']").val("") */
+	}
+	function remove_combo1(element){
+
+		if (element.parents('div').siblings(".first_one").length > 1 ){
+			var elemnt_first = element.parents('div').prev(".first_one:last");
+			elemnt_first.remove();
+		}
+
+		if (element.parents('div').siblings(".first_one").length == 1 ){
+			$('#remove_combo_btn1').hide();
+		}
+	}
+	
+	function add_combo1(element){
+		var elemnt_last ;
+		if($(".first_one").length > 1 ){
+			$('#remove_combo_btn1').show();
+		}else{
+			$('#remove_combo_btn1').hide();
+		}
+		console.log(element.parents('div').prev(".first_one:last").html());
+
+		element.parents('div').siblings(".first_one:last").clone().insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+		
+/*		elemnt_last = element.parents('div').prev(".first_one");
+		console.log(elemnt_last.html());
+		var html = element.parents('div').prev(".first_one").html(); 
+		html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+		
+		elemnt_last.after(html).find("input[type='number']").val("");
+		//.find("input[type='number']").val("") */
+	}
+	$(function () {
+
+		if($('.first_one').length <= 2 ){
+			$('#remove_combo_btn').hide();
+		}
+		
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	});
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+	/* function toggleEggsFields(type_meal){
+		//breakfast
+		if(type_meal == "1"){
+			$('.eggs_field').show();
+		}else{
+			$('.eggs_field').hide();		
+		} 
+	} */
+	
+</script>	
+{% endblock %}

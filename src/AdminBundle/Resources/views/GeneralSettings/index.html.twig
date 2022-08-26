@@ -1,0 +1,237 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  App Info
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update App Info</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+{#					{% if language_list is defined  and language_list is not empty%}
+						<div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                {% if language_list is defined %}
+                                   {% for language in language_list %}
+                                        <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                            <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>  #}
+						
+						<!-- tab-content -->
+						<div class="tab-content">
+						{% set email = '' %}
+						{% set mobile = 0 %}
+						{% set facebook_link_selected = '' %}
+						{% set twitter_link_selected = '' %}
+						{% set instagram_link_selected = '' %}
+						{% set snapchat_link_selected = '' %}
+						{% set linkedin_link_selected = '' %}
+						{% set google_link_selected = '' %}
+						{% set whatsapp_link = '' %}
+						
+						
+{#							{% for language in language_list %} #}
+								<div role="tabpanel" class="tab-pane active">
+									
+									{% set action = path('admin_generalsettings_savesetting') %}
+									
+									{% if response is defined and response is not empty %}
+										
+											{%if response.email is defined%}
+												{% set email = response.email %}
+											{%endif%}			
+											{%if response.mobile is defined%}
+												{% set mobile = response.mobile %}
+											{%endif%}
+											{%if response.social_links is defined and response.social_links is not empty%}
+												{%if response.social_links.facebook_link is defined%}
+													{% set facebook_link_selected = response.social_links.facebook_link %}
+												{%endif%}
+												{%if response.social_links.twitter_link is defined%}
+													{% set twitter_link_selected = response.social_links.twitter_link %}
+												{%endif%}
+												{%if response.social_links.linkedin_link is defined%}
+													{% set linkedin_link_selected = response.social_links.linkedin_link %}
+												{%endif%}
+												{%if response.social_links.google_link is defined%}
+													{% set google_link_selected = response.social_links.google_link %}
+												{%endif%}	
+
+												{%if response.social_links.whatsapp_link is defined%}
+													{% set whatsapp_link = response.social_links.whatsapp_link %}
+												{%endif%}	
+												
+											{%endif%}
+
+									{% endif %}
+									
+									<form  class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+										
+										</br>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Email</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='email' class="form-control" name="email" value="{{email}}" required="required"/>
+												</div>
+											</div>
+										</div>
+										</br>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Phone no</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='number' class="form-control" name="mobile" value="{{mobile}}" required="required"/>
+												</div>
+											</div>
+										</div>
+										</br>			
+												
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Facebook Link</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="facebook_link_selected" value="{{facebook_link_selected}}"required="required"/>
+												</div>
+											</div>
+										</div>												
+										</br>	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Twitter Link</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="twitter_link_selected" value="{{twitter_link_selected}}"required="required"/>
+												</div>
+											</div>
+										</div>												
+										</br>	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Google Link</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="google_link_selected" value="{{google_link_selected}}"required="required"/>
+												</div>
+											</div>
+										</div>												
+										</br>	
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Linkedin Link</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="linkedin_link_selected" value="{{linkedin_link_selected}}"required="required"/>
+												</div>
+											</div>
+										</div>												
+										</br>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Whatsapp</br></label>
+												</div>
+												<div class="col-md-10">
+													<input type='text' class="form-control" name="whatsapp_link" value="{{whatsapp_link}}"required="required"/>
+												</div>
+											</div>
+										</div>												
+										</br>
+										
+
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" class="btn btn-success" value="submit">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if gallery is defined and gallery is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+									
+								</div>
+{#							{% endfor %}
+#}							
+						</div>
+						<!-- end: tab-content -->
+							
+{#					{% endif %}
+#}												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>	
+	$(function () {
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	});
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+</script>	
+{% endblock %}

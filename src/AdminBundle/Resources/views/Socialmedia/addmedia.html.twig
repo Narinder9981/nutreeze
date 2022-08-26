@@ -1,0 +1,194 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{%block css%}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css">
+{%endblock%}
+{% block content %}
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Add Social Media Item
+		  <small></small>
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Social Media Item</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+						
+						<!-- tab-content -->
+						{% set social_media_id = 0 %}
+						{% set title = '' %}
+						{% set link = '' %}	
+						{% set media_url = '' %}
+									{% set action = path('admin_socialmedia_savemedia') %}
+									
+									
+									{% if media is defined and media is not empty %}
+										
+										{% for media in media %}
+												
+												{% set social_media_id = media.social_media_id %}
+												{% set title = media.title %}
+												{% set link = media.link %}
+												{% set media_url = media.img %}
+											
+										{% endfor %}
+									{% endif %}
+									
+									<form id="form" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+										<inpu type="hidden" name="image_url" value={{media_url}}
+										<input type="hidden" name="social_media_id" value="{{ social_media_id }}">
+										
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Title</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="title" value="{{title}}" />
+												</div>
+											</div>
+											</div>
+											
+											<br>
+											<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Link</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" name="link" value="{{link}}" />
+												</div>
+											</div>
+											
+										</div>
+										</br>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="col-md-4">
+													<label>Icon</label>
+												</div>
+												<div class="col-md-8">
+													<input class="form-control" type="file" name="img" />
+												</div>
+											</div>
+											
+										</div>
+										</br>
+										
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" class="btn btn-success" value="1">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if social_media_id is defined and social_media_id is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+								
+						<!-- end: tab-content -->
+											
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>
+
+	function remove_combo(element){
+
+		if (element.parents('div').siblings(".first_one").length > 1 ){
+			var elemnt_first = element.parents('div').prev(".first_one:last");
+			elemnt_first.remove();
+		}
+
+		if (element.parents('div').siblings(".first_one").length == 1 ){
+			$('#remove_combo_btn').hide();
+		}
+	}
+	
+	function add_combo(element){
+		var elemnt_last ;
+		if($(".first_one").length > 1 ){
+			$('#remove_combo_btn').show();
+		}else{
+			$('#remove_combo_btn').hide();
+		}
+		console.log(element.parents('div').prev(".first_one:last").html());
+
+		element.parents('div').siblings(".first_one:last").clone().insertAfter(element.parents('div').siblings(".first_one:last")).find("input[type='number']").val("");
+		
+/*		elemnt_last = element.parents('div').prev(".first_one");
+		console.log(elemnt_last.html());
+		var html = element.parents('div').prev(".first_one").html(); 
+		html = "<div class='col-md-12 first_one form-group'>"+html+"</div>"
+		
+		elemnt_last.after(html).find("input[type='number']").val("");
+		//.find("input[type='number']").val("") */
+	}
+	
+	$(function () {
+
+		if($('.first_one').length <= 2 ){
+			$('#remove_combo_btn').hide();
+		}
+		
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	});
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+		
+		$('.datepicker').datepicker({
+			format : 'yyyy-mm-dd'
+		});
+	});	
+	
+</script>	
+{% endblock %}

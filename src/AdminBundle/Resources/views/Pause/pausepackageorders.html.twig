@@ -1,0 +1,156 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Pause Package Orders
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title"><b>Pause Package </b> [ Package name :  {{package_name}} ] </h3>
+                        <h3 class="box-title"> &nbsp;<b>Pause Date</b>  [ {{pause_start_date}} to {{pause_end_date}} ] </h3>
+                    </div>
+					<!-- end: box header -->
+					<div class="box-body">
+                        {% if pause_package_history is defined and pause_package_history is not empty %}
+                            {% if pause_package_history.resume_flag == 'pending' %}
+                                <form id="form-" class="form-horizontal" method="post" action="{{path('admin_pause_updatepausepackage')}}" enctype="multipart/form-data">
+                                        
+                                        <input type="hidden" name="pause_package_history_id" value="{{ pause_package_history_id }}">
+        						<div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-2">
+                                            <label>Resume Date</label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input class="form-control datepicker" type="textbox" name="resume_date" value=""  required />
+                                        </div>
+                                       
+                                       
+                                    </div>
+                                    
+                                </div>
+                                <div class="row paddTop">
+                                            <div class="col-md-12">
+                                                <div class="col-md-6">
+                                                    <button type="submit" name="submit" class="btn btn-success" value="">
+                                                        <span><i class="fa fa-check-square-o"></i>&nbsp;
+                                                        Resume Package
+                                                        </span>
+                                                    </button>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                 </form  >   
+                            {%else%}
+                               <h4> <i>Order/Package Resumed , Pause End Date is {{pause_package_history.pause_end_date}} </i></h4>
+                            {%endif%}  
+                         {%endif%}  
+						<hr>
+						 <div class="box-body table-responsive">
+                        <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                            <th>No</th>                              
+                            <th>Order U.No</th>
+                            <th>Order Pasued</th>
+                            <th>Customer name</th>
+                            <th>Start date</th>
+                            <th>End date</th>
+                            <th>Pause Start date</th>
+                            <th>Pause End date</th>
+                            <th>Pause End date by Customer</th>
+                            <th>Comment Logs</th>
+                            <th>View Days</th>
+                            </thead>
+                            <tbody>
+                                {%if order_list is defined and order_list is not empty%}
+                                    {%for orders in order_list%}
+                                        <tr>
+                                            <td>{{loop.index}}</td>                                            
+                                            <td>{{orders.unique_no}}</td>
+                                            <td>{{orders.pause_status | capitalize }}</td>
+                                            <td>{{orders.user_firstname}} {{orders.user_lastname}}</td>
+                                            <td>{{orders.start_date}}</td>
+                                            <td>{{orders.end_date}}</td>
+                                            <td>{{orders.pause_start_date}}</td>
+                                            <td>{{orders.pause_end_date}}</td>
+                                            <td>{{orders.pause_end_date_by_update}}</td>
+                                            <td>{{orders.comment_log}}
+                                            <td> <a taget="_blank" href="{{path('admin_orders_vieworderwiseoffdays',{'order_master_id':orders.order_master_id})}}" ><button type="button" class="btn bg-navy btn-xs no-print" >Days Operation</button></a></td>
+                                            
+                                        </tr>
+                                    {%endfor%}
+                                {%endif%}
+                            </tbody>
+                            <tfoot>
+                           <th>No</th>                              
+                            <th>Order U.No</th>
+                            <th>Order Pasued</th>
+                            <th>Customer name</th>
+                            <th>Start date</th>
+                            <th>End date</th>
+                            <th>Pause Start date</th>
+                            <th>Pause End date</th>
+                            <th>Pause End date by Customer</th>
+                            <th>Comment Logs</th>
+                            <th>View</th>
+                            </tfoot>
+                        </table>
+                    </div>
+												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>
+     $('#list').DataTable();
+	$('.datepicker').datepicker({ 
+     format: 'yyyy-mm-dd',
+     startDate: "{{resume_date_would_be_pass}}",
+          
+
+      });
+	
+		
+	
+	
+	
+</script>	
+{% endblock %}

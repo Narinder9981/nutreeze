@@ -1,0 +1,89 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block css %}
+<style>
+    .tmargin{
+        margin-top: 5%;
+    }
+    .rmargin{
+        margin-right: 5%;
+        margin-left: 5%;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <!--------- PAGE TITLE ---------->
+        <h1>
+            Add FAQs
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Add FAQs</h3>
+                    </div>
+
+                <div class="box-body">
+                    {% if languages is defined  and languages is not empty%}
+                            <div class="nav-tabs-custom">
+                                <!-- select languages -->
+                                <ul class="nav nav-tabs">
+                                    {% if languages is defined %}
+                                        {% for language in languages %}
+                                            <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                                <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                                <!-- end  -->
+                            </div>
+
+                            <div class="tab-content">
+                                {% set main_faq_master_id = 0 %}
+                                {% set faq_question = '' %}
+                                {% set faq_answer = '' %}
+
+                                {% for language in languages %}
+                                <div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+                                    {% set action = path('admin_faqs_savefaqs') %}    
+                                                                    
+                                    {%if faqs is defined and faqs is not empty%}
+                                        {%for faqs in faqs %}
+                                            {% set main_faq_master_id = faqs.main_faq_master_id %} 
+                                            {% if language.language_master_id == faqs.language_id %} 
+                                                {% set faq_question = faqs.faq_question %}
+                                                {% set faq_answer =  faqs.faq_answer %}	
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                        <form id="form-{{ language.language_master_id }}" action="{{ action }}" method="post">
+                                           
+                                           <div class="form-group">
+                                        <label>Question</label>
+                                        <input type="text" class="form-control" placeholder="Question" name="faq_question" value="{{ faq_question }}">
+                                        </div>
+                                        <div class="form-group">
+                                        <label >Answer</label>
+                                        <input type="text" class="form-control" placeholder="Answer" name="faq_answer" value="{{ faq_answer }}">
+                                        <input type="hidden" class="form-control" name="main_id" value="{{ main_faq_master_id }}" >
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" value="{{ language.language_master_id }}" name="submit">
+                                            <i class="fa fa-check-square-o"></i>
+                                        Save</button>
+                                    </form>
+                                </div>
+                                {% endfor %}
+                            </div>
+                    {% endif %}
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

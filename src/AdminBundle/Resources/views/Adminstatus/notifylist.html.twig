@@ -1,0 +1,123 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+            Manage Notify User List
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <form name="filterdatewise" method="Post" action = "{{path('admin_adminstatus_sendtoall')}}">
+                    <div class="box-header with-border">
+                        <div class="row form-group">
+                                <div class="col-md-12">
+                                   
+                                    <div class="col-md-1"><label>Notify Text Title</label></div>
+                                    <div class="col-md-3">
+                                        <input type="text" name="notify_text" class="form-control" value="" placeholder="Notify Text title" />
+                                    </div>
+                                    <div class="col-md-1"><label>Notify Text Message</label></div>
+                                    <div class="col-md-3">
+                                        <input type="text" name="notify_msg" class="form-control" value="" placeholder="Notify Text Message" />
+                                    </div>
+                                    <div class="col-md-1">
+                                        <input type="submit" name="submit" class="btn btn-warning" value="Send to All"  />
+                                    </div>
+
+                                   
+                                </div>
+                            </div>					
+                    </div>
+                    </form>
+                    <!-- end: box header -->
+
+
+                    <div class="box-body table table-responsive">
+                        <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                                  <th>No</th>
+                                  <th>Cutomer Name</th>
+                                  <th>Phone</th>
+                                  <th>Package Name</th>                                 
+                                  <th>Start Date</th>
+                                  <th>Datetime</th>
+                                  <th>Send Notification</th>
+                            </thead>
+                            <tbody>
+                                {%if notify_listData is defined and notify_listData is not empty %}
+                                    {%for notify_listData in notify_listData %}
+                                        <tr>
+                                            <td>{{loop.index}}</td>
+                                            <td>{{notify_listData.user_name}}</td>
+                                            <td>{{notify_listData.phone_no}}</td>
+                                            <td>{{notify_listData.package_name}}</td>                                 
+                                            <td>{{notify_listData.start_date}}</td>
+                                            <td>{{notify_listData.notify_create_date}}</td>
+                                            <td>
+                                                {%if notify_listData.status == 'notify_me' %} <input type="button" class="btn btn-xs btn-warning" value="Send" onclick="sendNotifyme({{notify_listData.user_id}},{{notify_listData.package_id}},{{notify_listData.sub_package_id}});"/> {%else%} Notification sent {%endif%}</td>
+                                        </tr>
+                                    {%endfor%}
+                                {%endif%}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+        $(function () {
+            $('.editor1cls').each(function (e) {
+                CKEDITOR.replace(this.id);
+            });
+            
+        });
+         $(document).ready(function () {
+            $('#list').DataTable();
+        });
+        function sendNotifyme(user_id,main_package_id,main_sub_package_id){
+                $.ajax({
+                    url : "{{path('admin_adminstatus_notifysendnotification')}}",
+                    method : "POST",
+                    data : {'user_id':user_id , 'main_package_id':main_package_id,'main_sub_package_id' : main_sub_package_id },
+                    success : function(data){
+                        alert('Sent Successfully')		;
+
+                    },
+                    error : function(){
+                            alert('Something went Wrong.')
+                    }
+                });
+            }
+    </script>	
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+
+{% block css %}
+<!-- Driver Route Map Start-->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+	integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+	crossorigin="" />
+
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+	integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+	crossorigin=""></script>
+<!-- Driver Route Map End-->
+
+<style>
+	#map {
+		height: 480px;
+	}
+
+	.info.legend.leaflet-control {
+		height: 120px;
+		background: #e6e6e6e0;
+		padding: 5px;
+		border-radius: 15px;
+	}
+
+	.legend-img {
+		margin-bottom: 2px;
+	}
+</style>
+{%endblock%}
+{% block content %}
+<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+	<h1>
+		Driver Route Details of {{date}}
+	</h1>
+	<!------- BREADCUMB --------------------->
+	<ol class="breadcrumb">
+		<li>
+			<a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}">
+				<i class="fa fa-dashboard"></i>
+				Dashboard</a>
+		</li>
+	</ol>
+</section>
+<section class="content">
+	{% for flashMessage in app.session.flashbag.get('success_msg') %}
+	<div class="alert alert-success alert-dismissable">
+		<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+		<h4>
+			<i class="icon fa fa-check"></i>
+			Alert!</h4>
+		{{ flashMessage }}
+	</div>
+	{% endfor %}
+	{% for flashMessage in app.session.flashbag.get('error_msg') %}
+	<div class="alert alert-danger alert-dismissable">
+		<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+		<h4>
+			<i class="icon fa fa-check"></i>
+			Alert!</h4>
+		{{ flashMessage }}
+	</div>
+	{% endfor %}
+
+	{%set status_name = ['pending','accept','reject','cancel','success','ongoing'] %}
+
+	{%if users is defined and users is not empty%}
+	<section class="invoice" id="invoice">
+		<!-- title row -->
+		
+		<div class="row">
+			<div class="col-xs-12">
+				<h2 class="page-header">
+					<i class="fa fa-user"></i>
+					{{users.user_firstname ~' '~ users.user_lastname}}
+					<a href="{{path('admin_users_index',{'user_role_id':user_role_id})}}"
+						class="btn btn-sm btn-primary pull-right">Back</a>
+				</h2>
+			</div>
+			<!-- /.col -->
+		</div>
+
+	</section>
+	<section class="invoice">
+		<div class="row">
+			<div class="col-md-12">
+				<div id="map"></div>
+			</div>
+		</div>
+	</section>
+
+	{%endif%}
+</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+<script>
+	// leaflet map Script
+
+	var map = L.map('map', { drawControl: true }).setView([51.505, -0.09], 18);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
+
+	var latlngs = {{ lat_lng| raw}};
+	var latlngsOrder = {{lat_lng_order |raw}};
+
+	// custom icon declaration start
+	var startIcon = L.icon({
+		iconUrl: `{{ asset('bundles/design/images/map_images/location_map_pin_dark_green5.png') }}`,
+		shadowUrl: '',
+
+		iconSize: [33, 48], // size of the icon
+		shadowSize: [50, 64], // size of the shadow
+		iconAnchor: [14.25, 48], // point of the icon which will correspond to marker's location
+		shadowAnchor: [4, 62], // the same for the shadow
+		popupAnchor: [0, -40] // point from which the popup should open relative to the iconAnchor
+	});
+	var endIcon = L.icon({
+		iconUrl: `{{ asset('bundles/design/images/map_images/imagefiles_location_map_pin_purple5.png') }}`,
+		shadowUrl: '',
+
+		iconSize: [33, 48], // size of the icon
+		shadowSize: [50, 64], // size of the shadow
+		iconAnchor: [14.25, 48], // point of the icon which will correspond to marker's location
+		shadowAnchor: [4, 62], // the same for the shadow
+		popupAnchor: [0, -40] // point from which the popup should open relative to the iconAnchor
+	});
+	var normalIcon = L.icon({
+		iconUrl: `{{ asset('bundles/design/images/map_images/imagefiles_location_map_pin_blue5.png') }}`,
+		shadowUrl: '',
+
+		iconSize: [33, 48], // size of the icon
+		shadowSize: [50, 64], // size of the shadow
+		iconAnchor: [14.25, 48], // point of the icon which will correspond to marker's location
+		shadowAnchor: [4, 62], // the same for the shadow
+		popupAnchor: [0, -40] // point from which the popup should open relative to the iconAnchor
+	});
+	// custom icon declaration end
+
+	for (var i = 0; i < latlngs.length; i++) {
+		var icon_to_display = ""
+		if (i === 0) {
+			var icon_to_display = startIcon
+		} else if (i === latlngs.length - 1) {
+			var icon_to_display = endIcon
+		} else {
+			var icon_to_display = normalIcon
+		}
+		var marker = L.marker(latlngs[i], { icon: icon_to_display }).addTo(map); // marker on the specific latlng 
+		popupHtml = "<b>Order No : </b>" + latlngsOrder[i]['order_no'] + " Status updated at " + latlngsOrder[i]['date_time'];
+		marker.bindPopup(popupHtml); // popup on the specific marker click
+	}
+
+	// legends for the info window which displays icon usage start
+	var legend = L.control({ position: 'bottomright' });
+
+	legend.onAdd = function (map) {
+
+		var div = L.DomUtil.create('div', 'info legend'),
+			grades = ["Start Position", "In Between Position", "End Position"],
+			labels = [`{{ asset('bundles/design/images/map_images/location_map_pin_dark_green5.png') }}`, `{{ asset('bundles/design/images/map_images/imagefiles_location_map_pin_blue5.png') }}`, `{{ asset('bundles/design/images/map_images/imagefiles_location_map_pin_purple5.png') }}`];
+
+		// loop through our density intervals and generate a label with a colored square for each interval
+		for (var i = 0; i < grades.length; i++) {
+			div.innerHTML +=
+				(" <img src=" + labels[i] + " height='35' width='23' class='legend-img'>  ") + grades[i] + '<br>';
+		}
+
+		return div;
+	};
+
+	legend.addTo(map);
+	// legends for the info window which displays icon usage end
+
+	// polyline for the route line start
+	var polyline = L.polyline(latlngs, { color: '#b030ff' }).addTo(map);
+	// zoom the map to the polyline
+	map.fitBounds(polyline.getBounds());
+
+	// polyline for the route line end
+
+</script>
+<script>
+
+
+	function change_status(order_master_id, element) {
+		var status = element.val();
+		$.ajax({
+			url: "",
+			method: "POST",
+			data: {
+				'order_master_id': order_master_id,
+				'status': status
+			},
+			success: function (data) {
+				if ($.trim(data) == 'done') {
+					alert('Status updated successfully');
+				} else {
+					alert('Somehing went wrong');
+				}
+			},
+			error: function () {
+				alert("Somehing went wrong");
+			}
+		});
+	}
+
+	$(document).ready(function () {
+		$('#datatable').DataTable();
+
+		$('[data-fancybox="gallery"]').fancybox({ // Options will go here
+		});
+	});
+
+	function printDivInvoice() {
+
+		var divToPrint = document.getElementById('invoice');
+
+		var newWin = window.open('', 'Print-Window');
+
+		newWin.document.open();
+
+		newWin.document.write("<html><body onload='window.print()'>" + divToPrint.innerHTML);
+
+		newWin.document.close();
+
+		setTimeout(function () {
+			newWin.close();
+		}, 10);
+
+	}
+</script>
+{% endblock %}

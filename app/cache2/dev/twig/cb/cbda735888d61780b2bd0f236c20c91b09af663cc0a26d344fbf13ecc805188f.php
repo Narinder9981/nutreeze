@@ -1,0 +1,403 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+
+/* AdminBundle:Subscriber:index.html.twig */
+class __TwigTemplate_637253c8ce1303fd40e5939f09f035ceacd417315357cf3288c17a3bd826f51a extends \Twig\Template
+{
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->blocks = [
+            'content' => [$this, 'block_content'],
+            'js' => [$this, 'block_js'],
+        ];
+    }
+
+    protected function doGetParent(array $context)
+    {
+        // line 1
+        return "@Admin/Layout/adminlayout.html.twig";
+    }
+
+    protected function doDisplay(array $context, array $blocks = [])
+    {
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02->enter($__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "AdminBundle:Subscriber:index.html.twig"));
+
+        $this->parent = $this->loadTemplate("@Admin/Layout/adminlayout.html.twig", "AdminBundle:Subscriber:index.html.twig", 1);
+        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02->leave($__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02_prof);
+
+    }
+
+    // line 2
+    public function block_content($context, array $blocks = [])
+    {
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02->enter($__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "content"));
+
+        // line 3
+        echo "\t<section class=\"content-header\">
+\t<!-------- PAGE TITLE --------------->
+\t\t<h1>
+\t\t  Subscribers Listing
+\t\t  <small></small>
+\t\t</h1>
+\t<!------- BREADCUMB --------------------->
+\t\t<ol class=\"breadcrumb\">
+\t\t  <li><a href=\"";
+        // line 11
+        echo twig_escape_filter($this->env, $this->env->getExtension('Symfony\Bridge\Twig\Extension\RoutingExtension')->getPath("admin_dashboard_index", ["domain" => $this->getAttribute($this->getAttribute(($context["app"] ?? $this->getContext($context, "app")), "session", []), "get", [0 => "domain"], "method")]), "html", null, true);
+        echo "\"><i class=\"fa fa-dashboard\"></i> Dashboard</a></li>
+\t\t</ol>
+\t</section>
+\t<section class=\"content\">
+\t\t";
+        // line 15
+        $context['_parent'] = $context;
+        $context['_seq'] = twig_ensure_traversable($this->getAttribute($this->getAttribute($this->getAttribute(($context["app"] ?? $this->getContext($context, "app")), "session", []), "flashbag", []), "get", [0 => "success_msg"], "method"));
+        foreach ($context['_seq'] as $context["_key"] => $context["flashMessage"]) {
+            // line 16
+            echo "            <div class=\"alert alert-success alert-dismissable\">
+                <button aria-hidden=\"true\" data-dismiss=\"alert\" class=\"close\" type=\"button\">×</button>
+                <h4><i class=\"icon fa fa-check\"></i> Alert!</h4>";
+            // line 18
+            echo twig_escape_filter($this->env, $context["flashMessage"], "html", null, true);
+            echo "
+            </div>
+        ";
+        }
+        $_parent = $context['_parent'];
+        unset($context['_seq'], $context['_iterated'], $context['_key'], $context['flashMessage'], $context['_parent'], $context['loop']);
+        $context = array_intersect_key($context, $_parent) + $_parent;
+        // line 21
+        echo "        ";
+        $context['_parent'] = $context;
+        $context['_seq'] = twig_ensure_traversable($this->getAttribute($this->getAttribute($this->getAttribute(($context["app"] ?? $this->getContext($context, "app")), "session", []), "flashbag", []), "get", [0 => "error_msg"], "method"));
+        foreach ($context['_seq'] as $context["_key"] => $context["flashMessage"]) {
+            // line 22
+            echo "            <div class=\"alert alert-danger alert-dismissable\">
+                <button aria-hidden=\"true\" data-dismiss=\"alert\" class=\"close\" type=\"button\">×</button>
+                <h4><i class=\"icon fa fa-check\"></i> Alert!</h4>";
+            // line 24
+            echo twig_escape_filter($this->env, $context["flashMessage"], "html", null, true);
+            echo "
+            </div>
+        ";
+        }
+        $_parent = $context['_parent'];
+        unset($context['_seq'], $context['_iterated'], $context['_key'], $context['flashMessage'], $context['_parent'], $context['loop']);
+        $context = array_intersect_key($context, $_parent) + $_parent;
+        // line 27
+        echo "\t\t
+\t\t<div class=\"row\">
+\t\t\t<div class=\"col-md-12\">
+\t\t\t\t<div class=\"box box-primary\">
+\t\t\t\t\t
+\t\t\t\t\t<!-- box header -->
+\t\t\t\t\t<div class=\"box-header with-border\">
+                        <h3 class=\"box-title\">Subscriber</h3>
+                       
+                    </div>
+\t\t\t\t\t<!-- end: box header -->
+\t\t\t\t\t
+\t\t\t\t\t<div class=\"box-body\">
+\t\t\t\t\t\t<table id=\"datatable\" class=\"table display table-striped table-bordered scroll-horizontal\">
+\t\t\t\t\t\t\t<thead>
+\t\t\t\t\t\t\t\t<th>No</th>
+\t\t\t\t\t\t\t\t<th>Email:</th>
+\t\t\t\t\t\t\t\t<th>Status</th>
+\t\t\t\t\t\t\t\t<th>Operation</th>\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t</thead>
+\t\t\t\t\t\t\t<tbody>
+\t\t\t\t\t\t\t\t";
+        // line 48
+        if (((isset($context["subscribers"]) || array_key_exists("subscribers", $context)) &&  !twig_test_empty(($context["subscribers"] ?? $this->getContext($context, "subscribers"))))) {
+            // line 49
+            echo "\t\t\t\t\t\t\t\t\t";
+            $context['_parent'] = $context;
+            $context['_seq'] = twig_ensure_traversable(($context["subscribers"] ?? $this->getContext($context, "subscribers")));
+            $context['loop'] = [
+              'parent' => $context['_parent'],
+              'index0' => 0,
+              'index'  => 1,
+              'first'  => true,
+            ];
+            if (is_array($context['_seq']) || (is_object($context['_seq']) && $context['_seq'] instanceof \Countable)) {
+                $length = count($context['_seq']);
+                $context['loop']['revindex0'] = $length - 1;
+                $context['loop']['revindex'] = $length;
+                $context['loop']['length'] = $length;
+                $context['loop']['last'] = 1 === $length;
+            }
+            foreach ($context['_seq'] as $context["_key"] => $context["subscriber"]) {
+                // line 50
+                echo "\t\t\t\t\t\t\t\t\t\t<tr>
+\t\t\t\t\t\t\t\t\t\t\t<td>";
+                // line 51
+                echo twig_escape_filter($this->env, $this->getAttribute($context["loop"], "index", []), "html", null, true);
+                echo "</td>
+\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t<td>";
+                // line 53
+                echo twig_escape_filter($this->env, $this->getAttribute($context["subscriber"], "email", []), "html", null, true);
+                echo "</td>
+\t\t\t\t\t\t\t\t\t\t\t<td>
+\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t\t";
+                // line 56
+                $context["checked"] = "";
+                // line 57
+                echo "\t\t\t\t\t\t\t\t\t\t\t\t";
+                if (($this->getAttribute($context["subscriber"], "status", []) == "1")) {
+                    // line 58
+                    echo "\t\t\t\t\t\t\t\t\t\t\t\t\t";
+                    $context["checked"] = "checked";
+                    // line 59
+                    echo "\t\t\t\t\t\t\t\t\t\t\t\t";
+                }
+                // line 60
+                echo "\t\t\t\t\t\t\t\t\t\t\t\t<input data-on=\"active\" class=\"status status_1\" data-off=\"inactive\" onchange=\"change_status(";
+                echo twig_escape_filter($this->env, $this->getAttribute($context["subscriber"], "subscription_id", []), "html", null, true);
+                echo ",\$(this).is(':checked'))\" type=\"checkbox\" data-toggle=\"toggle\" data-size=\"mini\" data-onstyle=\"success\" ";
+                echo twig_escape_filter($this->env, ($context["checked"] ?? $this->getContext($context, "checked")), "html", null, true);
+                echo "/>
+\t\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t</td>
+\t\t\t\t\t\t\t\t\t\t\t<td>
+\t\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t\t<a class=\"btn btn-xs btn-danger\" onclick=\"return confirm('Are you sure want to delete ?');\" href=\"";
+                // line 65
+                echo twig_escape_filter($this->env, $this->env->getExtension('Symfony\Bridge\Twig\Extension\RoutingExtension')->getPath("admin_subscriber_delete", ["domain" => $this->getAttribute($this->getAttribute(($context["app"] ?? $this->getContext($context, "app")), "session", []), "get", [0 => "domain"], "method"), "subscription_id" => $this->getAttribute($context["subscriber"], "subscription_id", [])]), "html", null, true);
+                echo "\" data-toggle=\"tooltip\" data-title=\"Delete Subscriber\"><i class=\"fa fa-trash\"></i></a>\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t</td>
+\t\t\t\t\t\t\t\t\t\t</tr>
+\t\t\t\t\t\t\t\t\t";
+                ++$context['loop']['index0'];
+                ++$context['loop']['index'];
+                $context['loop']['first'] = false;
+                if (isset($context['loop']['length'])) {
+                    --$context['loop']['revindex0'];
+                    --$context['loop']['revindex'];
+                    $context['loop']['last'] = 0 === $context['loop']['revindex0'];
+                }
+            }
+            $_parent = $context['_parent'];
+            unset($context['_seq'], $context['_iterated'], $context['_key'], $context['subscriber'], $context['_parent'], $context['loop']);
+            $context = array_intersect_key($context, $_parent) + $_parent;
+            // line 70
+            echo "\t\t\t\t\t\t\t\t";
+        }
+        // line 71
+        echo "\t\t\t\t\t\t\t</tbody>
+\t\t\t\t\t\t\t<tfoot>
+\t\t\t\t\t\t\t\t<th>No</th>
+\t\t\t\t\t\t\t\t<th>Email:</th>
+\t\t\t\t\t\t\t\t<th>Status</th>
+\t\t\t\t\t\t\t\t<th>Operation</th>
+\t\t\t\t\t\t\t</tfoot>
+\t\t\t\t\t\t</table>
+\t\t\t\t\t</div>
+\t\t\t\t\t
+\t\t\t\t</div>
+\t\t\t</div>
+\t\t</div>
+\t\t
+\t</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+\t
+";
+        
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02->leave($__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02_prof);
+
+    }
+
+    // line 91
+    public function block_js($context, array $blocks = [])
+    {
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02 = $this->env->getExtension("Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension");
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02->enter($__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "js"));
+
+        // line 92
+        echo "  <script>
+  
+\tfunction change_status(subscription_id,status){
+\t\t\$.ajax({
+\t\t\turl : \"";
+        // line 96
+        echo twig_escape_filter($this->env, $this->env->getExtension('Symfony\Bridge\Twig\Extension\RoutingExtension')->getPath("admin_subscriber_changestatus", ["domain" => $this->getAttribute($this->getAttribute(($context["app"] ?? $this->getContext($context, "app")), "session", []), "get", [0 => "domain"], "method")]), "html", null, true);
+        echo "\",
+\t\t\tmethod : \"POST\",
+\t\t\tdata : {'subscription_id':subscription_id,'status':status},
+\t\t\tsuccess : function(data){
+\t\t\t\tconsole.log('done');
+\t\t\t}
+\t\t});
+\t}
+\t
+\t
+    \$(document).ready(function() {
+      var dtable = \$('#datatable').DataTable();
+\t  
+    });
+  </script>
+";
+        
+        $__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02->leave($__internal_319393461309892924ff6e74d6d6e64287df64b63545b994e100d4ab223aed02_prof);
+
+    }
+
+    public function getTemplateName()
+    {
+        return "AdminBundle:Subscriber:index.html.twig";
+    }
+
+    public function isTraitable()
+    {
+        return false;
+    }
+
+    public function getDebugInfo()
+    {
+        return array (  242 => 96,  236 => 92,  230 => 91,  205 => 71,  202 => 70,  183 => 65,  172 => 60,  169 => 59,  166 => 58,  163 => 57,  161 => 56,  155 => 53,  150 => 51,  147 => 50,  129 => 49,  127 => 48,  104 => 27,  95 => 24,  91 => 22,  86 => 21,  77 => 18,  73 => 16,  69 => 15,  62 => 11,  52 => 3,  46 => 2,  30 => 1,);
+    }
+
+    /** @deprecated since 1.27 (to be removed in 2.0). Use getSourceContext() instead */
+    public function getSource()
+    {
+        @trigger_error('The '.__METHOD__.' method is deprecated since version 1.27 and will be removed in 2.0. Use getSourceContext() instead.', E_USER_DEPRECATED);
+
+        return $this->getSourceContext()->getCode();
+    }
+
+    public function getSourceContext()
+    {
+        return new Source("{% extends \"@Admin/Layout/adminlayout.html.twig\" %}
+{% block content %}
+\t<section class=\"content-header\">
+\t<!-------- PAGE TITLE --------------->
+\t\t<h1>
+\t\t  Subscribers Listing
+\t\t  <small></small>
+\t\t</h1>
+\t<!------- BREADCUMB --------------------->
+\t\t<ol class=\"breadcrumb\">
+\t\t  <li><a href=\"{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}\"><i class=\"fa fa-dashboard\"></i> Dashboard</a></li>
+\t\t</ol>
+\t</section>
+\t<section class=\"content\">
+\t\t{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class=\"alert alert-success alert-dismissable\">
+                <button aria-hidden=\"true\" data-dismiss=\"alert\" class=\"close\" type=\"button\">×</button>
+                <h4><i class=\"icon fa fa-check\"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class=\"alert alert-danger alert-dismissable\">
+                <button aria-hidden=\"true\" data-dismiss=\"alert\" class=\"close\" type=\"button\">×</button>
+                <h4><i class=\"icon fa fa-check\"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+\t\t
+\t\t<div class=\"row\">
+\t\t\t<div class=\"col-md-12\">
+\t\t\t\t<div class=\"box box-primary\">
+\t\t\t\t\t
+\t\t\t\t\t<!-- box header -->
+\t\t\t\t\t<div class=\"box-header with-border\">
+                        <h3 class=\"box-title\">Subscriber</h3>
+                       
+                    </div>
+\t\t\t\t\t<!-- end: box header -->
+\t\t\t\t\t
+\t\t\t\t\t<div class=\"box-body\">
+\t\t\t\t\t\t<table id=\"datatable\" class=\"table display table-striped table-bordered scroll-horizontal\">
+\t\t\t\t\t\t\t<thead>
+\t\t\t\t\t\t\t\t<th>No</th>
+\t\t\t\t\t\t\t\t<th>Email:</th>
+\t\t\t\t\t\t\t\t<th>Status</th>
+\t\t\t\t\t\t\t\t<th>Operation</th>\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t</thead>
+\t\t\t\t\t\t\t<tbody>
+\t\t\t\t\t\t\t\t{% if subscribers is defined and subscribers is not empty %}
+\t\t\t\t\t\t\t\t\t{% for subscriber in subscribers %}
+\t\t\t\t\t\t\t\t\t\t<tr>
+\t\t\t\t\t\t\t\t\t\t\t<td>{{ loop.index }}</td>
+\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t<td>{{subscriber.email}}</td>
+\t\t\t\t\t\t\t\t\t\t\t<td>
+\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t\t{% set checked = ''%}
+\t\t\t\t\t\t\t\t\t\t\t\t{% if subscriber.status == '1'%}
+\t\t\t\t\t\t\t\t\t\t\t\t\t{% set checked = 'checked'%}
+\t\t\t\t\t\t\t\t\t\t\t\t{%endif%}
+\t\t\t\t\t\t\t\t\t\t\t\t<input data-on=\"active\" class=\"status status_1\" data-off=\"inactive\" onchange=\"change_status({{subscriber.subscription_id}},\$(this).is(':checked'))\" type=\"checkbox\" data-toggle=\"toggle\" data-size=\"mini\" data-onstyle=\"success\" {{checked}}/>
+\t\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t</td>
+\t\t\t\t\t\t\t\t\t\t\t<td>
+\t\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t\t<a class=\"btn btn-xs btn-danger\" onclick=\"return confirm('Are you sure want to delete ?');\" href=\"{{path('admin_subscriber_delete',{'domain':app.session.get('domain'),'subscription_id':subscriber.subscription_id})}}\" data-toggle=\"tooltip\" data-title=\"Delete Subscriber\"><i class=\"fa fa-trash\"></i></a>\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t
+\t\t\t\t\t\t\t\t\t\t\t</td>
+\t\t\t\t\t\t\t\t\t\t</tr>
+\t\t\t\t\t\t\t\t\t{% endfor %}
+\t\t\t\t\t\t\t\t{% endif %}
+\t\t\t\t\t\t\t</tbody>
+\t\t\t\t\t\t\t<tfoot>
+\t\t\t\t\t\t\t\t<th>No</th>
+\t\t\t\t\t\t\t\t<th>Email:</th>
+\t\t\t\t\t\t\t\t<th>Status</th>
+\t\t\t\t\t\t\t\t<th>Operation</th>
+\t\t\t\t\t\t\t</tfoot>
+\t\t\t\t\t\t</table>
+\t\t\t\t\t</div>
+\t\t\t\t\t
+\t\t\t\t</div>
+\t\t\t</div>
+\t\t</div>
+\t\t
+\t</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+\t
+{% endblock %}
+
+{% block js %}
+  <script>
+  
+\tfunction change_status(subscription_id,status){
+\t\t\$.ajax({
+\t\t\turl : \"{{path('admin_subscriber_changestatus',{domain:app.session.get('domain')})}}\",
+\t\t\tmethod : \"POST\",
+\t\t\tdata : {'subscription_id':subscription_id,'status':status},
+\t\t\tsuccess : function(data){
+\t\t\t\tconsole.log('done');
+\t\t\t}
+\t\t});
+\t}
+\t
+\t
+    \$(document).ready(function() {
+      var dtable = \$('#datatable').DataTable();
+\t  
+    });
+  </script>
+{% endblock %}
+
+", "AdminBundle:Subscriber:index.html.twig", "/var/www/admin/src/AdminBundle/Resources/views/Subscriber/index.html.twig");
+    }
+}

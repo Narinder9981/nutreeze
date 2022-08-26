@@ -1,0 +1,495 @@
+<?php
+
+namespace WSBundle\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use AdminBundle\Entity\Productmaster;
+use AdminBundle\Entity\Productcombinationmaster;
+
+class WSMealListController extends WSBaseController {
+
+    /**
+     * @Route("/ws/meallist/{param}",defaults = {"param"=""},requirements={"param"=".+"})
+     * @Template()
+     */
+    public function meallistAction($param) {
+
+        //try{
+        $this->title = "Meal List";
+        $param = $this->requestAction($this->getRequest(), 0);
+        $this->validateRule = array(
+            array(
+                'rule' => 'NOTNULL',
+                'field' => array('lang_id', 'package_id'),
+            ),
+        );
+
+        if ($this->validateData($param)) {
+
+            $lang_id = $param->lang_id;
+            $package_id = $param->package_id;
+            $week_id = !empty($param->week_id) ? $param->week_id : '';
+            $days_master_id = !empty($param->days_master_id) ? $param->days_master_id : '';
+            $mealtype_id = !empty($param->mealtype_id) ? $param->mealtype_id : '';
+
+            $order_id = !empty($param->order_id) ? $param->order_id : 0;
+            $user_id = !empty($param->user_id) ? $param->user_id : 0;
+
+            if( ($week_id != '' && $days_master_id  == '' )  || ($days_master_id !='' && $week_id == '') ){
+                $this->error = "PIW" ;
+                $this->error_msg = "week id or days id param missing" ;
+                $this->data = false ;
+                return $this->responseAction() ;
+            }
+
+            //	$day=!empty($param->given_date)?date('l',($param->given_date/1000)): date('l');
+            //$day=!empty($param->given_date)?$param->given_date: date('l');
+            $day = isset($param->given_date) ? date('w', strtotime($param->given_date)) : date('w');
+
+            if ($day == 0) {
+                // 0 = Sunday
+                $day = 7;
+            }
+
+            $em = $this->getDoctrine()->getManager();
+
+            #get Products of package from 
+            $sql1 = "select main_product_id from product_package_relation where is_deleted = '0' and main_package_id = '$package_id' ";
+            $products_all = $this->fireQuery($sql1);
+
+            $main_product_ids = array();
+
+            if (!empty($products_all)) {
+                foreach ($products_all as $pack) {
+                    $main_product_ids[] = $pack['main_product_id'];
+                }
+            }
+
+
+            #get Products of package from tabel relation
+            if (!empty($mealtype_id)) {
+                $get_tc = $this->getDoctrine()->getManager()
+                        ->getRepository("AdminBundle:Productmaster")
+                        ->findBy(array("language_id" => $lang_id, "main_product_category_id" => $mealtype_id, "product_status" => 'active', "is_deleted" => 0), ['main_product_master_id' => 'DESC']);
+            } else {
+                $get_tc = $this->getDoctrine()->getManager()
+                        ->getRepository("AdminBundle:Productmaster")
+                        ->findBy(array("language_id" => $lang_id, "product_status" => 'active', "is_deleted" => 0), ['main_product_master_id' => 'DESC']);
+            }
+
+            if (!empty($get_tc)) {
+
+                foreach ($get_tc as $key => $val) {
+
+                    if (in_array($val->getMain_product_master_id(), $main_product_ids)) {
+
+                        $main_product_id = $val->getMain_product_master_id();
+
+                        $sql_combo_display = "select combo_type from product_combo_display_relation  				
+							where is_deleted = '0' and product_id = '$main_product_id'  ";
+                        $combo_display = $this->fireQuery($sql_combo_display);
+
+                        $display_prot_carb = false;
+                        $display_eggs = false;
+
+                        if (empty($combo_display)) {
+                            $combo_display = null;
+                        } else {
+                            foreach ($combo_display as $_combo_display) {
+                                if ($_combo_display['combo_type'] == 'prot_carb') {
+                                    $display_prot_carb = true;
+                                }
+                                if ($_combo_display['combo_type'] == 'eggs') {
+                                    $display_eggs = true;
+                                }
+                            }
+                        }
+                        /*
+                          $get_tc_c	= $this->getDoctrine()->getManager()
+                          ->getRepository("AdminBundle:Productcombinationmaster")
+                          ->findBy(array("product_master_id"=>$val->getMain_product_master_id(),'language_id'=>$lang_id,"is_deleted"=>0));
+                          $combination=array();
+                          if(!empty($get_tc_c)){
+                          foreach($get_tc_c as $key1=>$val1){
+                          $combination[] = array(
+                          'combination_id'=>$val1->getMain_combination_id(),
+                          'type'=>$val1->getProt_type(),
+                          'name'=>$val1->getProt_crab());
+                          }
+                          }
+                         */
+                        $week_query =  $days_query = '' ;
+                        if($week_id != ''){
+                            $week_query = " AND week_id  like '%".$week_id."%'" ; 
+                        }
+                        if($days_master_id != '' ){
+                            $days_query = ' AND main_days_id  = ' . $days_master_id . ' ' ;
+                        }
+                        $query = "SELECT * FROM `product_availability` JOIN days_master ON product_availability.main_days_id=days_master.main_days_master_id WHERE product_availability.is_deleted=0 AND days_master.is_deleted=0 AND days_master.language_id=$lang_id AND product_availability.main_product_id='" . $val->getMain_product_master_id() . "'" . $week_query . $days_query;
+                        $meal_avail = $this->fireQuery($query);
+
+                        if (empty($meal_avail)) {
+                            $query = "SELECT * FROM `product_availability` JOIN days_master ON product_availability.main_days_id=days_master.main_days_master_id WHERE product_availability.is_deleted=0 AND days_master.is_deleted=0 AND product_availability.main_product_id='" . $val->getMain_product_master_id() . "'" . $week_query . $days_query;
+                            $meal_avail = $this->fireQuery($query);
+                        }
+
+//echo $query ;  exit ; 
+                        $meal_availabilty = array();
+                        $meal_availabiliy_days = [];
+
+                        if (!empty($meal_avail)) {
+                            foreach ($meal_avail as $ky => $vs) {
+                                $meal_availabilty[] = array(
+                                    'product_availability_id' => $vs['product_availability_id'],
+                                    'week' => $vs['week_id'],
+                                    'name' => $vs['days_name']
+                                );
+                                //$meal_availabiliy_days [] = $vs['days_name'];
+                                $meal_availabiliy_days [] = $vs['main_days_master_id'];
+                            }
+                        }
+
+                        if(($meal_availabilty != NULL && $week_id != '' && $days_master_id != '' ) || ($week_id == '' && $days_master_id == '') ){
+
+
+                        
+
+                            $meal_type_ = $this->getDoctrine()->getManager()
+                                    ->getRepository("AdminBundle:Productcategorymaster")
+                                    ->findOneBy(array("main_product_category_master_id" => $val->getMain_product_category_id(), 'language_id' => $lang_id, "is_deleted" => 0));
+
+                            $meal_type_ar = null;
+                            if ($meal_type_) {
+                                $meal_type_ar = array('main_meal_type_id' => $meal_type_->getMain_product_category_master_id(),
+                                    'meal_name' => $meal_type_->getProduct_category_name(),
+                                    'count_in' => $meal_type_->getCount_in()
+                                );
+                            }
+
+                            $mealArr = null;
+
+                            $raw_eggs = 0;
+                            $prot = 0;
+                            $carb = 0;
+                            $white_eggs = 0;
+                            $calory = 0 ; 
+                            $comb = NULL ; 
+                            if (isset($param->sub_package_id)) {
+                                $sub_package_id = $param->sub_package_id;
+                                $comb = $this->getDoctrine()->getRepository("AdminBundle:Productcombinationmaster")->findBy([
+                                    'is_deleted' => 0,
+                                    'sub_pakage_id' => $sub_package_id,
+                                    'product_master_id' => $val->getMain_product_master_id()
+                                ]);
+                            }
+                            else{
+                                $comb = $this->getDoctrine()->getRepository("AdminBundle:Productcombinationmaster")->findBy([
+                                    'is_deleted' => 0,
+                                    //'sub_pakage_id' => $sub_package_id,
+                                    'product_master_id' => $val->getMain_product_master_id()
+                                ]);
+                            }
+
+                            if (!empty($comb)) {
+                                foreach ($comb as $_comb) {
+                                    if ($_comb->getProt_type() == 'raw_eggs') {
+                                        $raw_eggs = (int) $_comb->getProt_crab();
+                                    }
+                                    if ($_comb->getProt_type() == 'white_eggs') {
+                                        $white_eggs = (int) $_comb->getProt_crab();
+                                    }
+
+                                    if ($_comb->getProt_type() == 'prot') {
+                                        $prot = (int) $_comb->getProt_crab();
+                                    }
+
+                                    if ($_comb->getProt_type() == 'carb') {
+                                        $carb = (int) $_comb->getProt_crab();
+                                    }
+
+                                    if ($_comb->getProt_type() == 'calory') {
+                                        $calory = (int) $_comb->getProt_crab();
+                                    }
+                                }
+                            }                                
+                            
+
+                            if (isset($param->given_date)) {
+                                #check day availability
+
+                                if (in_array($day, $meal_availabiliy_days)) {
+
+                                    $response[] = array(
+                                        //'meal_id'=>$val->getProduct_master_id(),
+                                        'main_meal_id' => $val->getMain_product_master_id(),
+                                        'language_id' => $val->getLanguage_id(),
+                                        'meal_type' => $val->getMain_product_category_id(),
+                                        'meal_name' => $val->getProduct_name(),
+                                        'meal_description' => $val->getProduct_description(),
+                                        'max_meal_value' => $val->getMax_meal_value(),
+                                        'product_nutrition' => $val->getProduct_nutrition(),
+                                        'calory' => $val->getCalory(),
+                                        'fiber' => $val->getFiber(),
+                                        'fat' => $val->getFat(),
+                                        'prot' => $val->getProt(),
+                                        'carb' => $val->getCarb(),
+                                        'meal_image' => $this->getMediaDetailAction($val->getProduct_image()),
+                                        //			'meal_combination'=>$combination,
+                                        'meal_availabilty' => $meal_availabilty,
+                                        'rating' => $this->getProductRatings($val->getMain_product_master_id()),
+                                        'meal_type_object' => $meal_type_ar,
+                                        'day' => $day,
+                                        // 'raw_eggs' => $raw_eggs,
+                                        // 'white_eggs' => $white_eggs,
+                                        // 'prot' => $prot,
+                                        // 'carb' => $carb,
+                                        // 'calory'=>$calory,
+                                        'combo_display' => $combo_display,
+                                        'display_eggs' => $display_eggs,
+                                        'display_prot_carbs' => $display_prot_carb
+                                    );
+                                }
+                            } else {
+
+                                $response[] = array(
+                                    //			'meal_id'=>$val->getProduct_master_id(),
+                                    'main_meal_id' => $val->getMain_product_master_id(),
+                                    'language_id' => $val->getLanguage_id(),
+                                    'meal_type' => $val->getMain_product_category_id(),
+                                    'meal_name' => $val->getProduct_name(),
+                                    'meal_description' => $val->getProduct_description(),
+                                    'product_nutrition' => $val->getProduct_nutrition(),
+                                    'meal_image' => $this->getMediaDetailAction($val->getProduct_image()),
+                                    //		'meal_combination'=>$combination,
+                                    'meal_availabilty' => $meal_availabilty,
+                                    'rating' => $this->getProductRatings($val->getMain_product_master_id()),
+                                    'meal_type_object' => $meal_type_ar,
+                                    'day' => $day,
+                                    // 'raw_eggs' => $raw_eggs,
+                                    // 'white_eggs' => $white_eggs,
+                                    // 'prot' => $prot,
+                                    // 'carb' => $carb,
+                                    // 'calory'=>$calory,
+                                    'calory' => $val->getCalory(),
+                                        'fiber' => $val->getFiber(),
+                                        'fat' => $val->getFat(),
+                                        'prot' => $val->getProt(),
+                                        'carb' => $val->getCarb(),
+                                    'combo_display' => $combo_display,
+                                    'display_eggs' => $display_eggs,
+                                    'display_prot_carbs' => $display_prot_carb
+                                );
+                            }
+
+                        }
+                    }
+                }
+                $this->error = "SFD";
+            } else {
+                $this->error = "NRF";
+            }
+        } else {
+            $this->error = "PIM";
+        }
+        if (empty($response)) {
+            $response = false;
+            $this->error = "NRF";
+        }
+        $this->data = $response;
+        return $this->responseAction();
+        /* }catch(\Exception $e){
+          $this->error = "SFND" ;
+          $this->data = false ;
+          return $this->responseAction() ;
+          } */
+    }
+
+    /**
+     * @Route("/ws/meallistv2/{param}",defaults = {"param"=""},requirements={"param"=".+"})
+     * @Template()
+     */
+    public function meallistv2Action($param) {
+
+        //try{
+        $this->title = "Meal List v2";
+        $param = $this->requestAction($this->getRequest(), 0);
+        $this->validateRule = array(
+            array(
+                'rule' => 'NOTNULL',
+                'field' => array('lang_id', 'package_id'),
+            ),
+        );
+
+        if ($this->validateData($param)) {
+
+            $lang_id = $param->lang_id;
+            $package_id = $param->package_id;
+            $mealtype_id = !empty($param->mealtype_id) ? $param->mealtype_id : '';
+
+            $order_id = !empty($param->order_id) ? $param->order_id : 0;
+            $user_id = !empty($param->user_id) ? $param->user_id : 0;
+
+            //	$day=!empty($param->given_date)?date('l',($param->given_date/1000)): date('l');
+            //$day=!empty($param->given_date)?$param->given_date: date('l');
+            $day = isset($param->given_date) ? date('w', strtotime($param->given_date)) : date('w');
+            $em = $this->getDoctrine()->getManager();
+            if ($day == 0) {
+                // 0 = Sunday
+                $day = 7;
+            }
+            $response = [] ;
+            $meal_typeList = $this->fireQuery("SELECT * FROM `product_category_master` WHERE `is_deleted` = 0 and language_id = " . $lang_id);
+            if ($meal_typeList) {
+                foreach ($meal_typeList as $mkey => $mval) {
+                    $mealtype_id = $mval['main_product_category_master_id'];
+                    #get Products of package from 
+                    $sql1 = "select main_product_id from product_package_relation where is_deleted = '0' and main_package_id = '$package_id' ";
+                    $products_all = $this->fireQuery($sql1);
+
+                    $main_product_ids = array();
+                    if (!empty($products_all)) {
+                        foreach ($products_all as $pack) {
+                            $main_product_ids[] = $pack['main_product_id'];
+                        }
+                    }
+                    $get_tc = NULL;
+                    #get Products of package from tabel relation
+                    if (!empty($mealtype_id)) {
+                        $get_tc = $this->getDoctrine()->getManager()
+                                ->getRepository("AdminBundle:Productmaster")
+                                ->findBy(array("language_id" => $lang_id, "main_product_category_id" => $mealtype_id, "product_status" => 'active', "is_deleted" => 0), ['main_product_master_id' => 'DESC']);
+                    }
+                    $responseArr = [] ;
+                    if (!empty($get_tc)) {
+                        foreach ($get_tc as $key => $val) {
+                            if (in_array($val->getMain_product_master_id(), $main_product_ids)) {
+
+                                $main_product_id = $val->getMain_product_master_id();
+
+                               
+                                /*
+                                  $get_tc_c	= $this->getDoctrine()->getManager()
+                                  ->getRepository("AdminBundle:Productcombinationmaster")
+                                  ->findBy(array("product_master_id"=>$val->getMain_product_master_id(),'language_id'=>$lang_id,"is_deleted"=>0));
+                                  $combination=array();
+                                  if(!empty($get_tc_c)){
+                                  foreach($get_tc_c as $key1=>$val1){
+                                  $combination[] = array(
+                                  'combination_id'=>$val1->getMain_combination_id(),
+                                  'type'=>$val1->getProt_type(),
+                                  'name'=>$val1->getProt_crab());
+                                  }
+                                  }
+                                 */
+                                $query = "SELECT * FROM `product_availability` JOIN days_master ON product_availability.main_days_id=days_master.main_days_master_id WHERE product_availability.is_deleted=0 AND days_master.is_deleted=0 AND days_master.language_id=$lang_id AND product_availability.main_product_id='" . $val->getMain_product_master_id() . "'";
+                                $meal_avail = $this->fireQuery($query);
+
+                                if (empty($meal_avail)) {
+                                    $query = "SELECT * FROM `product_availability` JOIN days_master ON product_availability.main_days_id=days_master.main_days_master_id WHERE product_availability.is_deleted=0 AND days_master.is_deleted=0 AND product_availability.main_product_id='" . $val->getMain_product_master_id() . "'";
+                                    $meal_avail = $this->fireQuery($query);
+                                }
+
+                                $meal_availabilty = array();
+                                $meal_availabiliy_days = [];
+
+                                if (!empty($meal_avail)) {
+                                    foreach ($meal_avail as $ky => $vs) {
+                                        $meal_availabilty[] = array(
+                                            'product_availability_id' => $vs['product_availability_id'],
+                                            'name' => $vs['days_name']
+                                        );
+                                        //$meal_availabiliy_days [] = $vs['days_name'];
+                                        $meal_availabiliy_days [] = $vs['main_days_master_id'];
+                                    }
+                                }
+
+                                $meal_type_ = $this->getDoctrine()->getManager()
+                                        ->getRepository("AdminBundle:Productcategorymaster")
+                                        ->findOneBy(array("main_product_category_master_id" => $val->getMain_product_category_id(), 'language_id' => $lang_id, "is_deleted" => 0));
+
+                               
+
+                                $mealArr = null;
+
+                                $raw_eggs = 0;
+                                $prot = 0;
+                                $carb = 0;
+                                $white_eggs = 0;
+                               
+
+                                if (isset($param->given_date)) {
+                                    #check day availability
+
+
+                                    if (in_array($day, $meal_availabiliy_days)) {
+
+                                        $responseArr[] = array(
+                                            //'meal_id'=>$val->getProduct_master_id(),
+                                            'main_meal_id' => $val->getMain_product_master_id(),
+                                            'language_id' => $val->getLanguage_id(),
+                                            'meal_type' => $val->getMain_product_category_id(),
+                                            'meal_name' => $val->getProduct_name(),
+                                            'meal_description' => $val->getProduct_description(),
+                                            'product_nutrition' => $val->getProduct_nutrition(),
+                                            'meal_image' => $this->getMediaDetailAction($val->getProduct_image()),
+                                            //			'meal_combination'=>$combination,
+                                            'meal_availabilty' => $meal_availabilty,
+                                           
+                                            
+                                            'day' => $day,
+                                           
+                                            
+                                        );
+                                    }
+                                } else {
+
+                                    $responseArr[] = array(
+                                        //			'meal_id'=>$val->getProduct_master_id(),
+                                        'main_meal_id' => $val->getMain_product_master_id(),
+                                        'language_id' => $val->getLanguage_id(),
+                                        'meal_type' => $val->getMain_product_category_id(),
+                                        'meal_name' => $val->getProduct_name(),
+                                        'meal_description' => $val->getProduct_description(),
+                                        'product_nutrition' => $val->getProduct_nutrition(),
+                                        'meal_image' => $this->getMediaDetailAction($val->getProduct_image()),
+                                        //		'meal_combination'=>$combination,
+                                        'meal_availabilty' => $meal_availabilty,
+                                        
+                                        
+                                        'day' => $day,
+                                        
+                                        
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    $response[] = array(
+                        "meal_type_id"=>$mealtype_id ,
+                        "meal_type_name"=>$mval['product_category_name'],
+                        "list"=>$responseArr
+                    );
+                    $this->error = "SFD";
+                }
+            }
+        } else {
+            $this->error = "PIM";
+        }
+        if (empty($response)) {
+            $response = false;
+            $this->error = "NRF";
+        }
+        $this->data = $response;
+        return $this->responseAction();
+        /* }catch(\Exception $e){
+          $this->error = "SFND" ;
+          $this->data = false ;
+          return $this->responseAction() ;
+          } */
+    }
+
+}
+
+?>

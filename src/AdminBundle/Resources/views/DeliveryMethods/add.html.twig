@@ -1,0 +1,157 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.css" />
+{% endblock %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+		  Add Delivery Method
+		  <small></small>
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Delivery Method</h3>
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+					{% if language_list is defined  and language_list is not empty%}
+						<div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                {% if language_list is defined %}
+                                   {% for language in language_list %}
+                                        <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                            <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+						
+						<!-- tab-content -->
+						<div class="tab-content">
+						{% set main_delivery_method_master_id = 0 %}
+
+							{% for language in language_list %}
+								<div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+									
+									{% set action = path('admin_deliverymethods_save') %}
+									{% set name = '' %}
+									{% set note = '' %}
+
+									
+									{% if delivery_method is defined and delivery_method is not empty %}
+										
+										{% for delivery_method in delivery_method %}
+											{% if delivery_method.language_id == language.language_master_id %}
+												
+												{% set main_delivery_method_master_id = delivery_method.main_delivery_method_master_id %}
+												{% set name = delivery_method.name %}
+												{% set note = delivery_method.note %}
+			
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									
+									<form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}" enctype="multipart/form-data">
+										
+										<input type="hidden" name="main_delivery_method_master_id" value="{{ main_delivery_method_master_id }}">
+										<input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+										
+										<div class="row">
+											<div class="col-md-12">
+												<div class="col-md-2">
+													<label>Delivery Method Name</label>
+												</div>
+												<div class="col-md-10">
+													<input class="form-control" name="name" value="{{name}}" />
+												</div>
+												
+											</div>
+											
+										</div>
+										<br>
+										<div class="row">
+											<div class="col-md-12">
+												
+												<div class="col-md-2">
+													<label>Delivery Method Note</label>
+												</div>
+												<div class="col-md-10">
+													<input class="form-control" name="note" value="{{note}}" />
+												</div>
+											</div>
+											
+										</div>
+										</br>	
+										
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" class="btn btn-success" value="{{ language.language_master_id }}">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if about_us is defined and about_us is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+									
+								</div>
+							{% endfor %}
+							
+						</div>
+						<!-- end: tab-content -->
+							
+					{% endif %}
+												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+
+<script>	
+	
+	$(document).ready(function(){
+		$('.timepicker').timepicker();
+	});	
+	
+</script>	
+{% endblock %}

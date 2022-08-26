@@ -1,0 +1,110 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+           Sales Report
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <form name="filterdatewise" method="Post" action = "{{path('admin_salesreports_index')}}">
+                <section class="col-lg-12 ">
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-2"><label>Select Year</label></div>
+                                <div class="col-md-2">
+                                    <select name="year_filter" class="form form-control" value="" >
+                                        {%if years is defined and years is not empty %}
+                                            {%for yearskey in years %}
+                                                <option name="{{yearskey}}" {%if selected_filter_year == yearskey %} selected {%endif%}>{{yearskey}}</option>
+                                            {%endfor%}
+                                        {%endif%}
+                                    </select>
+                                </div>
+                               
+                                <div class="col-md-2"><input type="submit" name="submit" value="Filter" class="btn btn-success"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </div>
+        
+        <div class="form-group">
+            <div class="table table-responsive">
+                <table class="table ">
+                    <thead>
+                        <th>No</th>
+                        <th>Month , {{selected_filter_year}} </th>
+                        <th>Total Purchase</th>
+                        <th>Total Purchase Value</th>
+                        <th>Total Sales Cost</th>
+                        <th>View</th>
+                        
+                    </thead>
+                    <tbody>
+                        {%if month_array is defined and month_array is not empty %}
+                            {%for month_array in month_array %}
+                                <tr>
+                                    <td>{{loop.index}}</td>
+                                    <td>{{month_array.month}} , {{selected_filter_year}}</td>
+                                    <td>{{month_array.total_orders}}</td>
+                                    <td>{{month_array.sales_value}}</td>
+                                    <td></td>
+                                    <td><a href="{{path('admin_salesreports_detailssalesreport',{'month':month_array.month,'selected_year':selected_filter_year})}}" target="_blank"><input type="button" class="btn btn-success btn-xs" value="View"/> </a></td>
+                                   
+                                </tr>
+                            {%endfor%}
+                        {%else%}
+                            <tr><td colspan="8" class="text-center">No Records Found </td></tr>
+                        {%endif%}
+                        
+                    </tbody>
+                    <tfooter>
+                        <th>No</th>
+                        <th>Month</th>
+                        <th>Total Purchase</th>
+                        <th>Total Purchase Value</th>
+                         <th>Total Sales Cost</th>
+                        <th>View</th>
+                    </tfooter>
+                </table>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $('.datepicker').datepicker({  format: 'yyyy-mm-dd', });
+    //	$('#example').DataTable();
+    });
+    </script>	
+{% endblock %}

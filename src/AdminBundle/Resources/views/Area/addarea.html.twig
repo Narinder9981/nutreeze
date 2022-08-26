@@ -1,0 +1,185 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-------- PAGE TITLE --------------->
+		<h1>
+			Add - Update Area
+		</h1>
+	<!------- BREADCUMB --------------------->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Add / Update Area</h3>
+                        <a href="{{ path('admin_area_index', {'domain': app.session.get('domain')}) }}" class="btn btn-primary btn-flat pull-right">Back</a>						
+                    </div>
+					<!-- end: box header -->
+					
+												
+					<div class="box-body">
+					{% if language_list is defined  and language_list is not empty%}
+						<div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                {% if language_list is defined %}
+                                   {% for language in language_list %}
+                                        <li class="{% if selected is defined %}{% if selected == language.language_master_id%}active{% endif %}{% else %}{% if loop.index == 1 %}active{% endif %}{% endif %}">
+                                            <a href="#lan_{{loop.index}}" data-toggle="tab">{{language.language_name}}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+						
+						<!-- tab-content -->
+						<div class="tab-content">
+						{% set main_area_id = 0 %}
+							{% for language in language_list %}
+								<div role="tabpanel" class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="lan_{{ language.language_master_id }}">
+									
+									{% set action = path('admin_area_savearea',{'domain':app.session.get('domain')}) %}
+									{% set area_name = '' %}
+									{% set city_selected = '' %}
+									{% set pincode = '' %}
+									{% set delivery_charge = '' %}
+									
+									{% if area is defined and area is not empty %}
+										
+										{% for area in area %}
+											
+											{% if area.language_id == language.language_master_id %}
+												{% set main_area_id = area.main_area_id %}
+												{% set area_name = area.area_name %}
+												{% set city_selected = area.city_id %}
+											{% endif %}
+											{% set pincode = area.pincode %}
+											{% set delivery_charge = area.delivery_charge %}
+										{% endfor %}
+									{% endif %}
+									
+									<form id="form-{{ language.language_master_id }}" class="form-horizontal" method="post" action="{{ action }}">
+										
+										<input type="hidden" name="main_area_id" value="{{ main_area_id }}">
+										<input type="hidden" name="language_id" value="{{ language.language_master_id }}">
+										
+										
+										<div class="row form-group">
+											<div class="col-md-12">
+												<div class="col-lg-2">
+													<label>Area Name</label>
+												</div>
+												<div class="col-lg-10">
+													<input type="text" class="form-control" id="area_name{{language.language_master_id}}" name="area_name" value="{{area_name}}" required>
+												</div>
+											</div>
+										</div>	
+										
+										<div class="row form-group">
+											<div class="col-md-12">
+												
+												<div class="col-lg-2">
+													<label>Governorate</label>
+												</div>
+												<div class="col-lg-10">
+													<select class="form-control" id="city_{{language.language_master_id}}" name="city" required>
+														<option value="">Select Governorate</option>
+														{% if city_list is defined and city_list is not empty %}
+															{% for city in city_list %}
+																{% if city.language_id == language.language_master_id %}
+																	<option value="{{ city.main_city_master_id }}" {%if city_selected == city.main_city_master_id%}selected{%endif%}>{{ city.city_name }}</option>
+																{% endif %}
+															{% endfor %}
+														{% endif %}													
+														
+													</select>
+												</div>
+												
+											</div>
+										</div>
+										
+										<div class="row form-group">
+											<div class="col-md-12">
+												<div class="col-lg-2">
+													<label>Pincode</label>
+												</div>
+												<div class="col-lg-10">
+													<input type="number" class="form-control" id="pincode{{language.language_master_id}}" name="pincode" value="{{pincode}}" required>
+												</div>
+											</div>
+										</div>			
+
+										<div class="row form-group">
+											<div class="col-md-12">
+												<div class="col-lg-2">
+													<label>Delivery Charge</label>
+												</div>
+												<div class="col-lg-10">
+													<input type="text" class="form-control" id="delivery_charge{{language.language_master_id}}" name="delivery_charge" value="{{delivery_charge}}" required>
+												</div>
+											</div>
+										</div>
+										
+										<div class="row paddTop">
+											<div class="col-md-12">
+												<div class="col-md-6">
+													<button type="submit" name="submit" value="submit" class="btn btn-primary" value="{{ language.language_master_id }}">
+														<span><i class="fa fa-check-square-o"></i>&nbsp;
+														{% if area is defined and area is not empty %}Update{%else%}Save{%endif%}	
+														</span>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+									</form>
+									
+								</div>
+							{% endfor %}
+							
+						</div>
+						<!-- end: tab-content -->
+							
+					{% endif %}
+												
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js%}
+<script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+<script>	
+	$(function () {
+		$('.editor1cls').each(function(e){
+			CKEDITOR.replace( this.id);
+		});
+	})
+</script>	
+{%endblock%}

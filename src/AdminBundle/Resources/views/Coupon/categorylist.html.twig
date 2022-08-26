@@ -1,0 +1,90 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+	<section class="content-header">
+	<!-- PAGE TITLE -->
+		<h1>
+		  Coupon Category List
+		</h1>
+	<!-- BREADCUMB -->
+		<ol class="breadcrumb">
+		  <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+		</ol>
+	</section>
+	<section class="content">
+		{% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+		
+		<div class="row">
+			<div class="col-md-12">
+				<div class="box box-primary">
+					
+					<!-- box header -->
+					<div class="box-header with-border">
+                        <h3 class="box-title">Coupon Category</h3>
+                        <a href="{{ path('admin_coupon_addcouponcategory') }}" class="btn btn-primary btn-flat pull-right"><i class="glyphicon glyphicon-plus"></i><b>&nbsp;&nbsp;Add Category</b></a>
+                    </div>
+					<!-- end: box header -->
+					
+					<div class="box-body">
+						<table id="datatable" class="table display table-striped table-bordered scroll-horizontal">
+							<thead>
+								<th>No</th>
+								<th>Coupon Category Name</th>
+								<th>Description</th>
+								<th>Status</th>
+								<th>Action</th>
+							</thead>
+							<tbody>
+								{% if coupon_category is defined and coupon_category is not empty %}
+									{% for coupon_category in coupon_category %}
+										<tr>
+											<td>{{ loop.index }}</td>
+											<td>{{ coupon_category.coupon_category_name }}</td>
+											<td>{{ coupon_category.description }}</td>
+											<td>{{ coupon_category.status | capitalize }}</td>
+											<td>
+												<a onclick="return confirm('Are you sure want to edit ?');" href="{{ path('admin_coupon_addcouponcategory', {'main_coupon_category_id':coupon_category.main_coupon_category_id}) }}" class="btn btn-xs btn-primary "><i class="fa fa-pencil" data-toggle="tooltip" data-title="Edit Category"></i></a>
+																								
+												{# <a class="btn btn-xs btn-danger" onclick="return confirm('Are you sure want to delete ?');" href="{{path('admin_country_deletecountry',{'country_id':country_details.main_country_id})}}" data-toggle="tooltip" data-title="Delete Country"><i class="fa fa-trash"></i></a> #}
+											</td>
+										</tr>
+									{% endfor %}
+								{% endif %}
+							</tbody>
+							<tfoot>
+								<th>No</th>
+								<th>Coupon Category Name</th>
+								<th>Description</th>
+								<th>Status</th>
+								<th>Action</th>
+							</tfoot>
+						</table>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</section>
+<!----------- PAGE HEADER : END ----------------------------------------------------------->
+<!----------- Main content : START ----------------------------------------------------------->
+	
+{% endblock %}
+
+{% block js %}
+  <script>
+    $(document).ready(function() {
+      $('#datatable').DataTable();
+    });
+  </script>
+{% endblock %}

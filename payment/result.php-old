@@ -1,0 +1,92 @@
+<?php
+
+error_reporting(E_ALL & ~E_NOTICE);
+
+include('settings.php');
+
+if(!empty($_GET)) extract($_GET);
+
+if(!empty($_POST)) extract($_POST); 
+
+
+echo $dispaly_message = "<table width='70%' align='center'  border='0' cellspacing='0' cellpadding='5' style='font-family: Verdana, Arial, Helvetica, sans-serif; font-size:12px; border:double;	border-color:#ccc; padding:20px 10px;'>
+
+				  <tr>
+
+					<td colspan='4' align='center'   style='font-family: Verdana, Arial, Helvetica, sans-serif; font-size:14px;'><strong class='text'>$webappname Transaction Details</strong></td>
+
+					</tr>
+
+				  <tr>
+
+					<td colspan='4' align='left'>&nbsp;</td>
+
+				  </tr>
+
+				  <tr>
+
+					<td colspan='4' align='left'  style='padding-left: 10px;'><p> <br>   
+
+					  Reference Number :". @$ReferenceNumber ."</p>
+
+					  <p> ResponseCode :". @$ResponseCode."</p>             
+
+					  <p> PayTxnID :". @$PayTxnID."  </p>
+
+					  <p> ResponseMessage :".  @$ResponseMessage  ." </p>
+
+					  <p> Paymode :". @$Paymode  ."   </p>
+
+					  <p> PayTxnID :".  @$PayTxnID  ." </p>
+
+					  <p> Result :".  @$Result ."   </p>
+
+					   <p> Package Name :". @$package_name."</p>             
+
+					  <p> Message:".  @$msg ."   </p>
+
+					  <p> Order Track ID:".  @$udf1 ."   </p>
+
+					   <p> Order Amount:".  @$udf2 ." KWD   </p>
+
+					</td>
+
+				  </tr>
+
+				  <tr>
+
+					<td width='20%'><a href='http://anonadiet.com/#/dashboard'>Retun Back</a></td>
+
+					<td width='28%'>&nbsp;</td>
+
+					<td width='26%'>&nbsp;</td>
+
+					<td width='26%'>&nbsp;</td>
+
+				  </tr>
+
+				  </table>";
+
+
+
+if (@$Result == "CAPTURED") {
+	$message = $dispaly_message;
+    $to = @$CustomerEmail;
+//    $to = "phpdev1@infoware.ws";
+    $from = "admin@musclefuelkw.com";
+
+            
+    $subject = "Lifestyle - Payment Successfull";
+    $headers = 'MIME-Version: 1.0' . "\r\n";
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+    $headers .= 'From: '.$from."\r\n".
+    'Reply-To: '.$to."\r\n".
+    'X-Mailer: PHP/'.phpversion();
+
+	$response = true;
+
+	@mail($to,$subject,$message,$headers);
+    
+}
+
+?>

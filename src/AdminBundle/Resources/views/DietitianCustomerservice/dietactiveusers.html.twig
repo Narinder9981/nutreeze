@@ -1,0 +1,295 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+        <!-- PAGE TITLE -->
+        <h1>
+            Dietitian Customer Service 
+            <small>Active Users</small>
+        </h1>
+        <!-- BREADCUMB -->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+
+                    <div class="box-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+
+                                {#
+                                <a href="{{ path('admin_customerservice_notpaid') }}">
+                                    <div class="col-md-3">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-blue">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Not Subscribed</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:notsubscribedusercount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                 <a href="{{ path('admin_customerservice_triedtopurchaseusers') }}">
+                                    <div class="col-md-3">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-red-gradient">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Tried to Purchase Users</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:triedtopurchasecount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>           
+                                 #}           
+                                <a href="{{ path('admin_dietitiancustomerservice_dietactiveusers') }}">
+                                    <div class="col-md-6">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-yellow">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Active Users</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:activeusercount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <a href="{{ path('admin_dietitiancustomerservice_dietexpiredusers') }}">
+                                    <div class="col-md-6">
+                                        <div class="info-box">
+                                            <span class="info-box-icon bg-green">
+                                                <i class="fa fa-users"></i>
+                                            </span>
+                                            <div class="info-box-content">
+                                                <span class="info-box-text">Expired Users</span>
+                                                <span class="info-box-number">{{ render(controller('AdminBundle:Customerservice:expiredusercount')) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                 
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <hr style="margin-top: 0px;margin-bottom: 0px;" />
+                        </div>
+
+                        <div class="row ">
+                            <div class="col-md-12">
+                               {#  <h4>Active Users</h4> #}
+                            </div>
+                            <div class="col-md-12 form-group hide">
+                                <form class="form-horizontal" method="post" action="{{path('admin_customerservice_sendnotificationcustomerserviceusers')}}" enctype="multipart/form-data">
+                                    <div class="row">
+                                        <div class="col-md-2"><label>Notification Title</label></div>
+                                        <div class="col-md-2"><input type="text" name="notification_title" class="form-control"><input type="hidden" name="notification_type_to_send" value="activeusers"></div>
+                                        <div class="col-md-2"><label>Notification Message</label></div>
+                                        <div class="col-md-3"><input type="text" name="notification_message" class="form-control"></div>
+                                        <div class="col-md-2"><input type="submit" class="btn btn-info btn-sm" value="Send Notification to Active Users"/></div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <hr style="margin-top: 0px;" />
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <form id="start_day_form" name="" action="" method="post">
+                                        <label class="col-md-3">Start Days</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" id="start_day_filter" name="start_day_filter" value="{% if start_day_filter != 0 %}{{ start_day_filter }}{% endif %}"  placeholder="Enter number of days">
+                                        </div>
+                                        <input type="submit" class="col-md-2 btn btn-primary" value="Filter">
+                                    </form>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <form id="end_day_form" name="" action="" method="post">
+                                        <label class="col-md-3">End Days</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" id="end_day_filter" name="end_day_filter" value="{% if end_day_filter != 0 %}{{ end_day_filter }}{% endif %}" placeholder="Enter number of days">
+                                        </div>
+                                        <input type="submit" class="col-md-2 btn btn-primary" value="Filter">
+                                    </form>
+                                </div>
+                                <div class="col-md-2">
+                                     <form id="end_day_form" name="" action="" method="post">
+                                        <input type="submit" class="btn btn-warning" value="Clear Filter" name="clear_filter">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 text-center">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                   
+                                </div>
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <hr style="margin-top: 0px;" />
+                        </div>
+
+
+
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <table id="datatable" class="example table display table-striped table-bordered scroll-horizontal">
+                                    <thead>
+                                    <th>No</th>
+                                    <th>Order No</th>
+                                    <th>Unique No</th>
+                                    <th>Customer Name</th>
+                                    <th>Email</th>
+                                    
+                                    <th>Contact No</th>
+                                    <th>Package Name</th>
+                                    <th>Sub Package</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Remaining Days</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                    </thead>
+                                    <tbody>
+                                        {% if orderList is defined and orderList is not empty %}
+                                            {% for order in orderList %}
+                                                <tr>
+                                                    <td>{{ loop.index }}</td>
+                                                    <td><a href="{{ path('admin_orders_vieworder', {'order_master_id': order.order_master_id}) }}" data-toggle="tooltip" title="View Order"  target="_blank" >{{ order.unique_no }}</a></td>
+                                                    <td>{{ order.unique_user_id }}</td>
+                                                    <td><a href="{{ path('admin_users_viewuser', {'user_role_id': 3, 'user_id': order.order_by}) }}" data-toggle="tooltip" title="View User Profile"  target="_blank" >{{ order.customer_name }}</a></td>
+                                                    <td>{{ order.email }}</td>
+                                                    
+                                                    <td>{{ order.mobile_no }}</td>
+                                                    <td>{{ order.package_name }}</td>
+                                                    <td>{{ order.package_grams ~ '-' ~ order.pk_for_name }}</td>
+                                                    <td>{{ order.start_date }}</td>
+                                                    <td>{{ order.end_date }}</td>
+                                                    <td>{{ order.remaining_days }}</td>
+                                                    <td>{{ order.comment_status }}</td>
+                                                    <td>
+                                                        <a onclick="get_details({{order.order_master_id}},{{order.order_by}},{{ order.unique_no }})" class="fa fa-commenting-o" data-toggle="modal" data-target="#exampleModal"></a>
+                                                        <a href="{{ path('admin_orders_vieworder', {'order_master_id': order.order_master_id}) }}" data-toggle="tooltip" title="View Order"  target="_blank" ><button class="btn btn-xs btn-info">View Order</button></a>
+                                                       <a href="{{ path('admin_users_viewuser', {'user_role_id': 3, 'user_id': order.order_by}) }}" data-toggle="tooltip" title="View User Profile"  target="_blank" ><button class="btn btn-xs btn-warning">View User</button></a>
+                                                        
+                                                    </td>  </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                    <tfoot>
+                                    <th>No</th>
+                                    <th>Order No</th>
+                                    <th>Unique No</th>
+                                    <th>Customer Name</th>
+                                    <th>Email</th>
+                                    
+                                    <th>Contact No</th>
+                                    <th>Package Name</th>
+                                    <th>Sub Package</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Remaining Days</th>
+                                     <th>Action</th>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>		
+    </section>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Status</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{{ path('admin_dietitiancustomerservice_savecomment') }}" method="post">
+      <div class="modal-body">
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+    <!-- PAGE HEADER : END -->
+    <!-- Main content : START -->
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('.example').DataTable( {
+                dom: 'Bfrtip',
+
+               buttons: [
+                   'copy', 'excel', 'pdf'
+               ]
+            } );
+
+            $('#end_day_form').submit(function () {
+                $('#start_day_filter').val()
+                return true;
+            });
+
+            $('#start_day_form').submit(function () {
+                $('#end_day_filter').val()
+                return true;
+            });
+        });
+        function get_details(order_master_id,user_id,unique_no){
+
+  var url = "{{ path('admin_dietitiancustomerservice_getcomment') }}/"+order_master_id+"/"+user_id+"/"+unique_no;
+            $.ajax({
+                url: url,
+                success: function(response){
+                    $('.modal-body').html(response);
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+    }
+    </script>
+{% endblock %}

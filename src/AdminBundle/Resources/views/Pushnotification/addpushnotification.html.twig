@@ -1,0 +1,230 @@
+{% extends "AdminBundle::Layout/adminlayout.html.twig" %}
+{% block title %} Send push notification  {% endblock %}
+{% block css %}
+
+{% endblock %}
+{% block content %}
+    <section class="content-header">
+        <h1>
+            Send push notification
+            <small></small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+            <li><a href="{{path('admin_pushnotification_index',{'domain':app.session.get('domain')})}}"></i>Push notification list</a></li>
+            <li class="active">Send push notification</li>
+        </ol>
+
+    </section>
+
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div role="alert" class="alert alert-success alert-dismissible fade in">
+                <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span></button>
+                <strong>Alert!</strong>&nbsp; {{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div role="alert" class="alert alert-danger alert-dismissible fade in">
+                <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span></button>
+                <strong>Alert!</strong>&nbsp; {{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-solid">
+                    <form class="form-horizontal" action="{{path('admin_pushnotification_sendnotification',{'domain':app.session.get('domain')})}}" method="post" enctype="multipart/form-data" onsubmit="return checkform()">
+
+                        <div class="box-body">
+                            <div class="form-group ">
+                                <label class="col-sm-2 hide control-label">Notification Type</label>
+                                <div class="col-sm-4 hide">
+                                    <select required class=" form-control" name="notification_type" id="notification_type" onchange="show_hide();">
+                                        <option value="general">General</option>                                       
+                                    </select>
+                                </div>
+
+                                <label class="col-sm-2 control-label">Notification title</label>
+                                <div class="col-sm-4">
+                                    <input type="text" name="note_title" class="form-control input-sm" placeholder="Title" value="" required >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Notification message</label>
+                                <div class="col-sm-6">
+                                    <textarea name="note_message" placeholder="Message" class="form-control" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group" id="image-div">
+                                <label class="col-sm-2 control-label">Image</label>
+                                <div class="col-sm-6">
+                                    <input type="file" name="image" class="">
+
+                                    <p class="help-block">Max image resolution is <b>512 X 512</b> and size will be <b>10 Kb</b> allowed</p>
+                                </div>
+                            </div>
+
+                            {# <div class="form-group hide">
+                              <label class="col-sm-2 control-label">&nbsp;</label>
+                              <div class="col-sm-3">
+                                    <input type="checkbox" name="sendall" id="sendall" class="" value="0" checked="checked"> Send to all
+                              </div>
+                            </div>#}
+
+
+
+                            <div class="form-group " id="userbox">
+                                <label class="col-sm-2 control-label">&nbsp;</label>
+                                <div class="col-md-10">
+                                    <div class="box box-primary box-solid">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">Users list</h3>
+                                            <input type="checkbox" id="checkAll" class="checkbox pull-right">
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="col-md-12" style="margin-bottom:10px;padding-bottom: 11px;    border-bottom: 1px solid #ccc;">
+                                                <div class="col-md-2"></div>
+                                                <div class="col-md-8 col-sm-12">
+                                                    <div class="col-sm-3 text-right">
+                                                        <label>Search User</label>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" id="search_user" class="userchk" style="width:100%;">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2"></div>
+                                            </div>
+                                            <div id="userlistbox">
+                                                {%if  user_list is defined and user_list is not empty %}
+                                                    {%for user_list in user_list %}
+                                                        <div class="col-xs-3">
+
+                                                            <input type="checkbox" name="user[]" class="checkBoxClass" value="{{user_list.user_master_id}}" >{%if user_list.user_firstname == "" and user_list.user_lastname == "" %} {{user_list.username}}{%else %} {{user_list.user_firstname}} {{user_list.user_lastname }} {%endif%}
+
+                                                        </div> 
+                                                    {%endfor%}                                                        
+                                                {%endif%}    
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+
+                        </div>
+
+                        <div class="box-footer">
+                            <p>*note : Sending notification will takes some time , please dont refresh the page.</p>
+                            <a href="{{path('admin_pushnotification_index',{'domain':app.session.get('domain')})}}" class="btn btn-default btn-flat">Cancel</a>
+                            <input type="hidden" name="send_notification" value="send_notification" />
+                            <button type="submit" class="btn btn-primary pull-right btn-flat">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('#example1').DataTable();
+
+            $("#search_user").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#userlistbox div").filter(function () {                    
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+
+        $('#checkAll').change(function () {            
+            var value = $('#search_user').val().toLowerCase();
+           
+            if(value != ''){
+                 $('input:checkbox').prop('checked', false);
+                $("#userlistbox div").filter(function () {   
+                    console.log("text => "+ $(this).text());
+                    console.log("value  => "+ $(this).text().toLowerCase().indexOf(value));
+                    if($(this).text().toLowerCase().indexOf(value) > -1){
+                        
+                        console.log(" match  => true");
+                        console.log( $(this));
+                        $(this).children("INPUT[type='checkbox']").prop('checked', true);
+                    }
+                    else{
+                        $(this).children("INPUT[type='checkbox']").prop('checked', false);
+                    }
+                });
+            }else{
+                $('input:checkbox').prop('checked', $(this).prop('checked'));
+            }
+            
+        });
+        function show_hide() {
+            var selected_id = $('#notification_type').val();
+            if (selected_id == 'app_alert') {
+                $('#image-div').addClass('hide').removeClass('show');
+            } else {
+                $('#image-div').addClass('show').removeClass('hide');
+            }
+        }
+        function getuser(user_type)
+        {
+            if (user_type != "") {
+                $.ajax({
+                    type: 'POST    ',
+                    url: "{{path('admin_pushnotification_getuserlist',{'domain':app.session.get('domain')})}}",
+                    data: {'user_type': user_type, 'flag': 'getuser'},
+                    success: function (response) {
+                        if (response) {
+                            $("#userbox").html(response);
+                            $("#userbox").removeClass("hide");
+                        }
+                    }
+                });
+            } else {
+                $("#userbox").addClass("hide");
+            }
+        }
+
+        function getusercity(city_id)
+        {
+            user_type = $('#send_to').val();
+            if (user_type == "") {
+                alert('please select send to');
+                return false;
+                //code
+            }
+
+            $.ajax({
+                type: 'POST    ',
+                url: "{{path('admin_pushnotification_getuserlist',{'domain':app.session.get('domain')})}}",
+                data: {'user_type': user_type, 'flag': 'getuser', 'city_id': city_id},
+                success: function (response) {
+                    if (response) {
+                        $("#userbox").html(response);
+                        $("#userbox").removeClass("hide");
+                    }
+                }
+            });
+        }
+        
+        function checkform(){
+            var length = $('.checkBoxClass').filter(':checked').length ;
+            if (length  > 0 ){
+                    return true ;
+            }
+            else{
+                alert("Please Select User");
+                return false ;
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+{% block content %}
+    <section class="content-header">
+
+        <h1>
+            Orders Listing
+        </h1>
+
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Orders</h3>
+
+                        <div class="panel panel-default hide">
+                            <div class="panel-body">
+                                <form method="post" action="" id="fiter_form">
+                                    <div class="row ">
+                                        <div class="col-md-12 form-group">
+                                            <div class="col-md-6">
+                                                <div class="col-md-2"><b>Status:</b></div>
+                                                <select id="package" name="status" class="col-md-5">
+                                                    <option value="0" {% if status == 0 %}selected{% endif %}>Select Status</option>
+                                                    <option value="Active" {% if status == 'Active' %}selected{% endif %}>Active</option>
+                                                    <option value="Expired" {% if status == 'Expired' %}selected{% endif %}>Expired</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <a href="{{path('admin_orders_getmealsdatewisefilter')}}" class="btn btn-info pull-right">Date Wise Meal Order</a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4 text-center">
+                                                <input type="submit" name="filter" id="filter" value="Search" class="btn btn-success">
+                                                <a class="btn btn-default cancel-btn" href="{{path('admin_product_index')}}" >Clear</a>
+                                            </div>
+                                            <div class="col-md-4"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive">
+                        <input type="hidden" name="status" value={{status}} />
+                        <table id="list" class="table display table-striped table-bordered scroll-horizontal">
+                            <thead>
+                            <th>Sr.</th>
+                            <th>Order U.No</th>
+                            <th>Cutomer Name</th>
+                            <th>Package Name</th>
+                            <th>Sub Package</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                           <!--  <th title="Remaining Days">Rem. Day</th> -->
+                            <th>Transaction Id</th>
+                            <th>Payment Status</th>
+                            <th>Order Status</th>
+                            <th>Operation</th>
+                            </thead>
+                            
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+  <script>
+
+
+   $(document).ready(function() {
+        
+        //var url = "{{ path('admin_orders_ajaxlist') }}";
+  var oldExportAction = function (self, e, dt, button, config) {
+    if (button[0].className.indexOf('buttons-excel') >= 0) {
+        if ($.fn.dataTable.ext.buttons.excelHtml5.available(dt, config)) {
+            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
+        }
+        else {
+            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+        }
+    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+    }
+};
+
+var newExportAction = function (e, dt, button, config) {
+    var self = this;
+    var oldStart = dt.settings()[0]._iDisplayStart;
+
+    dt.one('preXhr', function (e, s, data) {
+        // Just this once, load all data from the server...
+        data.start = 0;
+        data.length = 2147483647;
+
+        dt.one('preDraw', function (e, settings) {
+            // Call the original action function 
+            oldExportAction(self, e, dt, button, config);
+
+            dt.one('preXhr', function (e, s, data) {
+                // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                // Set the property to what it was before exporting.
+                settings._iDisplayStart = oldStart;
+                data.start = oldStart;
+            });
+
+            // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+            setTimeout(dt.ajax.reload, 0);
+
+            // Prevent rendering of the full data to the DOM
+            return false;
+        });
+    });
+
+    // Requery the server with the new one-time export settings
+    dt.ajax.reload();
+};
+        
+            var url = "{{ path('admin_orders_ajaxlist') }}/" + "{{status}}" ;
+            $('#list').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: url,  
+                 dom: 'Bfrtip',              
+                columnDefs: [
+                    { orderable: false, targets: -1 },
+                    { orderable: false, targets: -3 }
+                ],
+                  buttons: [
+                        {
+                            extend: 'csv',
+                            pageSize: 'LEGAL',
+                            title: function () {
+                                return 'Order  CSV';
+                            },
+                        },
+                        { extend: 'excel',
+                           
+                            exportOptions: {
+                                modifier: {
+                                    search: 'applied',
+                                    order: 'applied'
+                                }
+                            },
+                        },
+                        { extend: 'excel',
+                             text: '<span class="fa fa-file-excel-o"></span> Excel Export All Records',
+                          action: newExportAction
+                        }
+                      
+                    ],
+               
+            });
+        
+    });
+	
+	$(document).ready(function(){
+
+		$('[data-fancybox="gallery"]').fancybox({
+			// Options will go here
+		});
+	
+	});	
+	
+        function resetmealtype(ele,order_id){         
+            $('#'+ele).parent().next().find('select').val('');  
+            // get package Gram Value
+            var selected_date = $('#'+ele).val();
+            $.ajax({
+                url : "{{path('admin_orders_getupgradegramvaluebydate')}}",
+                method : "POST",
+                data : {'order_id':order_id , 'selected_date' : selected_date },
+                success : function(data){
+                   // console.log(data);                    
+                    $("#prot_"+order_id).html(data);
+                    $("#carb_"+order_id).html(data);
+                }
+            });
+			
+        }
+
+        function getMeals(elem,dateval,order_id,main_sub_package_id){
+            meal_type_id = elem.val();
+
+            if(meal_type_id != 0){
+                    $.ajax({
+                            url : "{{path('admin_orders_getmealsbytype')}}",
+                            method : "POST",
+                            data : {'meal_type_id':meal_type_id , 'main_sub_package_id' : main_sub_package_id ,'req_date' : dateval},
+                            success : function(data){
+                                    console.log(data);
+                                    $("#meal_select_"+order_id).html(data);
+                            },
+                            error : function(){
+                                    alert('Something went Wrong.')
+                            }
+                    });
+            }
+
+            if(meal_type_id == 1 || true ){ 
+                    //snakes
+                    $('.breakfast').show();
+            }else{
+                    $('.breakfast').hide();
+            }
+	}
+
+function getMealEggs(elem,order_id,main_sub_package_id){
+		product_id = elem.val();
+
+		if(meal_type_id != 0){
+			$.ajax({
+				url : "{{path('admin_orders_getmealsegssbyproduct')}}",
+				method : "POST",
+				data : {'main_product_id':product_id , 'main_sub_package_id' : main_sub_package_id },
+				success : function(data){
+					console.log(data);
+					data = JSON.parse(data);
+					if(data.white_eggs_html != ''){
+						$("#white_eggs_"+order_id).html(data.white_eggs_html);
+					}
+					if(data.raw_eggs_html != ''){
+                                            $("#raw_eggs_"+order_id).html(data.raw_eggs_html);
+					}
+					if(data.product_max_value_html != ''){
+                                            $("#meal_qty_"+order_id).html(data.product_max_value_html);
+					}
+                                        if(data.pro_carb_flag == 'false'){
+                                            $("#prot_"+order_id).addClass('hide').removeClass('show');
+                                            $("#carb_"+order_id).addClass('hide').removeClass('show')
+                                        }
+                                        if(data.pro_carb_flag == 'true'){
+                                            $("#prot_"+order_id).addClass('show').removeClass('hide');
+                                            $("#carb_"+order_id).addClass('show').removeClass('hide')
+                                        }
+					
+				},
+				error : function(){
+					alert('Something went Wrong.')
+				}
+			});
+		}
+	}
+
+  </script>
+{% endblock %}

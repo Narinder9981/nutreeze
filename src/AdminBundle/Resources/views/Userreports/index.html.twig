@@ -1,0 +1,156 @@
+{% extends "@Admin/Layout/adminlayout.html.twig" %}
+
+{% block title %}Nutrezee : User Package Report{% endblock %}
+    
+{% block content %}
+    <section class="content-header">
+        <!-------- PAGE TITLE --------------->
+        <h1>
+           User Package Report
+        </h1>
+        <!------- BREADCUMB --------------------->
+        <ol class="breadcrumb">
+            <li><a href="{{path('admin_dashboard_index',{'domain':app.session.get('domain')})}}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        </ol>
+    </section>
+    <section class="content">
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                <h4><i class="icon fa fa-check"></i> Alert!</h4>{{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            
+            <form name="filterdatewise" method="Post" action = "{{path('admin_userreports_index')}}">
+                <section class="col-lg-12 ">
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-2"><label>Select Status</label></div>
+                                <div class="col-md-2">
+                                    <select class="form-control" name='filter_status'>
+                                        <option value=''>Select</option>
+                                        <option value='active' {%if filter_status is defined and filter_status == 'active' %} selected {%endif%} >Active</option>
+                                        <option value='expired' {%if filter_status is defined and filter_status == 'expired' %} selected {%endif%}>Expired</option>
+                                        <option value='not_purchased' {%if filter_status is defined and filter_status == 'not_purchased' %} selected {%endif%}>Not Purchased</option>
+                                    </select>
+                                </div>
+                                 <div class="col-md-2"><label>Select DOB : </label></div>
+                                <div class="col-md-2">
+                                    <input type='text' id="month_datepicker" name='dob_filter_date' placeholder='Select Date' value='{%if dob_filter_date is defined and dob_filter_date is not empty %} {{dob_filter_date}} {%endif%}' class='form-control' />
+                                </div>
+                               
+                                <div class="col-md-2"><input type="submit" name="submit" value="Filter" class="btn btn-success"/></div>
+                               
+                            </div><hr>
+                            <div class="row">
+                                <div class="col-md-2"><label>Send Message to filtered List</label></div>
+                                <div class="col-md-2">
+                                    <input type='text' name='msg_title' id='msg_title' placeholder='Enter Title' value='' class='form-control ' />
+                                </div>
+                                <div class="col-md-4">
+                                    <textarea id="message_text" class="form-control" placeholder="Enter Message to send as Notification"></textarea>
+                                </div>
+                                
+                               
+                               <div class="col-md-2"><input type="button" onclick="send_notification_filter_wise();" name="submit" value="Send Notification" class="btn btn-warning"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </div>
+        
+        <div class="form-group">
+            <div class="table table-responsive">
+                <table id="list" class="table display table-striped table-bordered scroll-horizontal ">
+                    <thead>
+                        <th>No</th>
+                        <th>User name </th>
+                        <th>Date of Birth </th>
+                        <th>Last Package</th>
+                        <th>Status</th>
+                        
+                    </thead>
+                    <tbody>
+                        {%if userArray is defined and userArray is not empty %}
+                            {%for userArray in userArray %}
+                                <tr>
+                                    <td>{{loop.index}}</td>
+                                    <td>{{userArray.user_name}}</td>
+                                    <td>{{userArray.dob}}</td>
+                                    <td>{{userArray.last_package}}</td>
+                                    <td>{{userArray.package_status}}</td>
+                                    
+                                    
+                                </tr>
+                            {%endfor%}
+                        {%else%}
+                            <tr><td class="text-center">No Records Found </td></tr>
+                        {%endif%}
+                        
+                    </tbody>
+                    <tfooter>
+                       <th>No</th>
+                        <th>User name </th>
+                        <th>Date of Birth </th>
+                        <th>Last Package</th>
+                        <th>Status</th>
+                    </tfooter>
+                </table>
+            </div>
+        </div>
+
+
+    </section>
+    <!----------- PAGE HEADER : END ----------------------------------------------------------->
+    <!----------- Main content : START ----------------------------------------------------------->
+
+{% endblock %}
+
+{% block js %}
+    <script src="{{asset('bundles/design/plugins/')}}ckeditor/ckeditor.js"></script>
+
+    <script>
+       
+    $(document).ready(function() {
+       
+        var dtable =  $('#list').DataTable();
+        $("#month_datepicker").datepicker({
+            format: 'M-dd',
+        });
+    //	$('#example').DataTable();
+    });
+    function send_notification_filter_wise(){
+        var msg_title = $('#msg_title').val();
+        var msg_text = $('#message_text').val();
+        var filter_status = "{{filter_status}}";
+        var dob_filter_date = "{{dob_filter_date}}" ;
+        if(msg_title != '' && msg_text != '' ){
+            $.ajax({
+                url : "{{path('admin_userreports_sendotificationfilter')}}",
+                method:"POST",
+                data: {'msg_title':msg_title ,'msg_text':msg_text ,'filter_status':filter_status,'dob_filter_date':dob_filter_date},
+                success:function(){
+                     alert('Sent Successfully')
+                },
+                error:function(){
+                    alert('Something went Wrong.')
+                }
+            });
+        }
+        else{
+            alert("Please Fill notification details");
+        }
+        
+    }
+    </script>	
+{% endblock %}

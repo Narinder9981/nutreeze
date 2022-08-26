@@ -1,0 +1,42 @@
+<?php 
+
+ ////////////////  TEST MERCHANT DETAILS/////////  
+
+$merchantcode='999999';
+
+$merchantusername='demoApiuser@myfatoorah.com';//'apiaccount@myfatoorah.com';
+
+$merchantpassword='Mf@12345678';//'api12345*';
+
+$url = "https://test.myfatoorah.com/pg/PayGatewayService.asmx"; 
+
+//$url = "https://apidemo.myfatoorah.com/swagger/ui/index#/ApiInvoices"; 
+
+ ////////////////  TEST MERCHANT DETAILS ENDS/////////
+ 
+
+ ////////////////  LIVE MERCHANT DETAILS/////////
+
+/*$merchantcode='';
+
+$merchantusername='';
+
+$merchantpassword='';
+
+$url = "https://www.myfatoorah.com/pg/PayGatewayService.asmx";  */
+
+ ////////////////  LIVE MERCHANT DETAILS ENDS/////////
+
+$webappname ='Lifestyle'; 
+
+$webappfromemail= 'no-reply@lifestyle.com';  //need to change
+
+//$returnurl='http://i-managed.biz/lifestyleadmin/payment/returnFromPayment.php';
+$returnurl='http://anonadiet.com/admin/payment/returnFromPayment.php';
+
+//$merchanterrorurl='http://i-managed.biz/lifestyleadmin/payment/returnErrorFromPayment.php';    
+$merchanterrorurl='http://anonadiet.com/admin/payment/returnErrorFromPayment.php';       
+
+   
+
+?>
